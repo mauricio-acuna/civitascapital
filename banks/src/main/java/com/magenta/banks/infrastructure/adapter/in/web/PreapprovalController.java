@@ -4,11 +4,13 @@ import com.magenta.banks.application.usecase.RequestPreapprovalUseCase;
 import com.magenta.banks.application.usecase.UpdatePreapprovalStatusUseCase;
 import com.magenta.banks.domain.model.PreapprovalStatus;
 import com.magenta.banks.domain.model.preapproval.Preapproval;
+import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,11 +27,14 @@ public class PreapprovalController {
 
     private final RequestPreapprovalUseCase      requestUseCase;
     private final UpdatePreapprovalStatusUseCase updateUseCase;
+    private final IdempotencyService idempotencyService;
 
     public PreapprovalController(RequestPreapprovalUseCase requestUseCase,
-                                 UpdatePreapprovalStatusUseCase updateUseCase) {
+                                 UpdatePreapprovalStatusUseCase updateUseCase,
+                                 IdempotencyService idempotencyService) {
         this.requestUseCase = requestUseCase;
         this.updateUseCase  = updateUseCase;
+        this.idempotencyService = idempotencyService;
     }
 
     public record PreapprovalRequest(
@@ -47,15 +52,20 @@ public class PreapprovalController {
     ) {}
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Solicitar pre-aprobación (UC-B5)")
-    public Preapproval request(@Valid @RequestBody PreapprovalRequest req,
-                               @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> request(@Valid @RequestBody PreapprovalRequest req,
+                                     @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                     @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantId(jwt);
+        var replay = idempotencyService.replay(tenantId, idempotencyKey, req);
+        if (replay.isPresent()) return replay.get();
         UUID customerId = customerId(jwt);
-        return requestUseCase.execute(new RequestPreapprovalUseCase.Command(
-                tenantId(jwt), customerId, req.productId(), req.propertyId(),
+        Preapproval response = requestUseCase.execute(new RequestPreapprovalUseCase.Command(
+                tenantId, customerId, req.productId(), req.propertyId(),
                 req.amount(), req.propertyPrice(), req.termMonths()));
+        idempotencyService.store(tenantId, idempotencyKey, req, HttpStatus.CREATED.value(), response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}")

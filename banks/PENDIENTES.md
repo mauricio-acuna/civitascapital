@@ -287,7 +287,7 @@
 | ⬜ | **Cabecera `MODULE-SPEC.md` y `ARCHITECTURE.md` local desalineadas**: el código ya está en Java 25 / Boot 4.0.6 / PG 18 / Redis 8 / Kafka KRaft / Keycloak 26, pero las cabeceras dicen "Java 21 · Spring Boot 3.3 · PG 16 · Kafka 3.7 · Keycloak 24". Actualizar para evitar drift. | Drift documental |
 | ⬜ | **Sustituir "RFC 7807" por "RFC 9457"** en F8 (`GlobalExceptionHandler — Problem Details RFC 7807`) y en docstrings: Spring 6.1+ `ProblemDetail` ya cumple 9457 (que reemplaza al 7807). | Baseline §6 |
 | ✅ | **`SimulateNinetyFiveFiveUseCase` (UC-B4)** implementado con desglose explícito 90+5+5, delegación en `SimulateLoanUseCase` y endpoint `POST /api/v1/simulations/90-5-5`. | Producto |
-| ⬜ | **`Idempotency-Key` obligatoria** en `POST /simulations`, `POST /preapprovals`, `POST /appraisals` con persistencia de respuesta (idempotencia exacta de servidor). Evita duplicados ante reintentos del cliente. | Baseline §6 |
+| ✅ | **`Idempotency-Key` soportada** en `POST /simulations`, `POST /simulations/90-5-5`, `POST /simulations/compare`, `POST /preapprovals`, `POST /appraisals` con persistencia de respuesta. | Baseline §6 |
 | ✅ | **Tabla `processed_event(consumer_name, event_id)`** para los consumers Kafka pendientes + `ProcessedEventService`. | Baseline §5 |
 | ⬜ | Paginación **cursor-based** en `GET /products?...` y `GET /banks/{id}/products` (hoy offset por defecto Spring Data). | Baseline §6 |
 | ⬜ | **Test de autorización BOLA**: ningún `bankOfficer` debe poder leer preaprobaciones de otra entidad bancaria; ningún `customer` debe poder ver simulaciones/preaprobaciones de otro `customerId` aunque comparta tenant. | OWASP API1 2023 |

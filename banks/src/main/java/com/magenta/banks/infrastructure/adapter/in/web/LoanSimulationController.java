@@ -6,11 +6,13 @@ import com.magenta.banks.application.usecase.SimulateLoanUseCase;
 import com.magenta.banks.domain.model.ContractType;
 import com.magenta.banks.domain.model.loansimulation.BorrowerProfile;
 import com.magenta.banks.domain.model.loansimulation.LoanSimulation;
+import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
 import com.magenta.banks.infrastructure.adapter.in.web.dto.SimulationRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -27,31 +29,44 @@ public class LoanSimulationController {
     private final SimulateLoanUseCase  simulateUseCase;
     private final SimulateNinetyFiveFiveUseCase simulateNinetyFiveFiveUseCase;
     private final CompareProductsUseCase compareUseCase;
+    private final IdempotencyService idempotencyService;
 
     public LoanSimulationController(SimulateLoanUseCase simulateUseCase,
                                     SimulateNinetyFiveFiveUseCase simulateNinetyFiveFiveUseCase,
-                                    CompareProductsUseCase compareUseCase) {
+                                    CompareProductsUseCase compareUseCase,
+                                    IdempotencyService idempotencyService) {
         this.simulateUseCase = simulateUseCase;
         this.simulateNinetyFiveFiveUseCase = simulateNinetyFiveFiveUseCase;
         this.compareUseCase  = compareUseCase;
+        this.idempotencyService = idempotencyService;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Simular préstamo (UC-B3)")
-    public LoanSimulation simulate(@Valid @RequestBody SimulationRequest req,
-                                   @AuthenticationPrincipal Jwt jwt) {
-        return simulateUseCase.execute(toCommand(req, jwt));
+    public ResponseEntity<?> simulate(@Valid @RequestBody SimulationRequest req,
+                                      @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                      @RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
+                                      @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantId(jwt, tenantHeader);
+        var replay = idempotencyService.replay(tenantId, idempotencyKey, req);
+        if (replay.isPresent()) return replay.get();
+        LoanSimulation response = simulateUseCase.execute(toCommand(req, tenantId, jwt));
+        idempotencyService.store(tenantId, idempotencyKey, req, HttpStatus.CREATED.value(), response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/90-5-5")
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Simular esquema 90+5+5 (UC-B4)")
-    public SimulateNinetyFiveFiveUseCase.Result simulateNinetyFiveFive(
+    public ResponseEntity<?> simulateNinetyFiveFive(
             @Valid @RequestBody NinetyFiveFiveRequest req,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
             @AuthenticationPrincipal Jwt jwt) {
-        return simulateNinetyFiveFiveUseCase.execute(new SimulateNinetyFiveFiveUseCase.Command(
-                tenantId(jwt),
+        UUID tenantId = tenantId(jwt, tenantHeader);
+        var replay = idempotencyService.replay(tenantId, idempotencyKey, req);
+        if (replay.isPresent()) return replay.get();
+        SimulateNinetyFiveFiveUseCase.Result response = simulateNinetyFiveFiveUseCase.execute(new SimulateNinetyFiveFiveUseCase.Command(
+                tenantId,
                 customerId(jwt),
                 req.productId(),
                 req.propertyId(),
@@ -62,19 +77,27 @@ public class LoanSimulationController {
                 req.termMonths(),
                 toBorrower(req.borrower()),
                 req.newBuild()));
+        idempotencyService.store(tenantId, idempotencyKey, req, HttpStatus.CREATED.value(), response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/compare")
     @Operation(summary = "Comparar 2-N productos (UC-B7)")
-    public List<LoanSimulation> compare(@Valid @RequestBody CompareRequest req,
-                                        @AuthenticationPrincipal Jwt jwt) {
-        UUID tenantId   = tenantId(jwt);
+    public ResponseEntity<?> compare(@Valid @RequestBody CompareRequest req,
+                                     @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                     @RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
+                                     @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId   = tenantId(jwt, tenantHeader);
+        var replay = idempotencyService.replay(tenantId, idempotencyKey, req);
+        if (replay.isPresent()) return replay.get();
         UUID customerId = customerId(jwt);
         BorrowerProfile borrower = toBorrower(req.borrower());
-        return compareUseCase.execute(new CompareProductsUseCase.Command(
+        List<LoanSimulation> response = compareUseCase.execute(new CompareProductsUseCase.Command(
                 tenantId, customerId, req.productIds(), req.propertyId(), req.zoneId(),
                 req.requestedAmount(), req.propertyPrice(), req.surfaceSqm(),
                 req.propertyType(), req.operationType(), req.termMonths(), borrower));
+        idempotencyService.store(tenantId, idempotencyKey, req, HttpStatus.OK.value(), response);
+        return ResponseEntity.ok(response);
     }
 
     public record CompareRequest(
@@ -102,9 +125,9 @@ public class LoanSimulationController {
         @jakarta.validation.constraints.NotNull SimulationRequest.BorrowerRequest borrower
     ) {}
 
-    private SimulateLoanUseCase.Command toCommand(SimulationRequest req, Jwt jwt) {
+    private SimulateLoanUseCase.Command toCommand(SimulationRequest req, UUID tenantId, Jwt jwt) {
         return new SimulateLoanUseCase.Command(
-                tenantId(jwt), customerId(jwt), req.productId(), req.propertyId(),
+                tenantId, customerId(jwt), req.productId(), req.propertyId(),
                 req.zoneId(), req.requestedAmount(), req.propertyPrice(), req.surfaceSqm(),
                 req.propertyType(), req.operationType(), req.termMonths(), toBorrower(req.borrower()));
     }
@@ -121,9 +144,13 @@ public class LoanSimulationController {
     }
 
     private UUID tenantId(Jwt jwt) {
-        if (jwt == null) return null;
+        return tenantId(jwt, null);
+    }
+
+    private UUID tenantId(Jwt jwt, UUID tenantHeader) {
+        if (jwt == null) return tenantHeader;
         String raw = jwt.getClaimAsString("tenant_id");
-        return raw != null ? UUID.fromString(raw) : null;
+        return raw != null ? UUID.fromString(raw) : tenantHeader;
     }
 
     private UUID customerId(Jwt jwt) {

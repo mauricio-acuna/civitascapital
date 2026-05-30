@@ -3,12 +3,14 @@ package com.magenta.banks.infrastructure.adapter.in.web;
 import com.magenta.banks.application.usecase.GetAppraisalUseCase;
 import com.magenta.banks.application.usecase.RegisterAppraisalUseCase;
 import com.magenta.banks.domain.model.appraisal.Appraisal;
+import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -26,11 +28,14 @@ public class AppraisalController {
 
     private final RegisterAppraisalUseCase registerUseCase;
     private final GetAppraisalUseCase getAppraisalUseCase;
+    private final IdempotencyService idempotencyService;
 
     public AppraisalController(RegisterAppraisalUseCase registerUseCase,
-                               GetAppraisalUseCase getAppraisalUseCase) {
+                               GetAppraisalUseCase getAppraisalUseCase,
+                               IdempotencyService idempotencyService) {
         this.registerUseCase = registerUseCase;
         this.getAppraisalUseCase = getAppraisalUseCase;
+        this.idempotencyService = idempotencyService;
     }
 
     public record AppraisalRequest(
@@ -45,16 +50,20 @@ public class AppraisalController {
     ) {}
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('BANK_OFFICER')")
     @Operation(summary = "Registrar tasación (UC-B10)")
-    public Appraisal register(@Valid @RequestBody AppraisalRequest req,
-                              @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> register(@Valid @RequestBody AppraisalRequest req,
+                                      @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                      @AuthenticationPrincipal Jwt jwt) {
         UUID tenantId = jwt != null ? UUID.fromString(jwt.getClaimAsString("tenant_id")) : null;
-        return registerUseCase.execute(new RegisterAppraisalUseCase.Command(
+        var replay = idempotencyService.replay(tenantId, idempotencyKey, req);
+        if (replay.isPresent()) return replay.get();
+        Appraisal response = registerUseCase.execute(new RegisterAppraisalUseCase.Command(
                 tenantId, req.propertyId(), req.customerId(), req.providerId(),
                 req.marketValue(), req.mortgageValue(), req.surfaceSqm(),
                 req.issuedAt(), req.pdfUrl()));
+        idempotencyService.store(tenantId, idempotencyKey, req, HttpStatus.CREATED.value(), response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")

@@ -36,6 +36,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `banks` añade persistencia JPA para preaprobaciones e historial append-only (`preapprovals` + `preapproval_events`).
 - `banks` añade persistencia y lectura REST de tasaciones: detalle, búsqueda por inmueble/cliente y última tasación vigente.
 - `banks` corrige idempotencia Kafka: `processed_event` pasa a PK `(consumer_name, event_id)` y se añade `ProcessedEventService`.
+- `banks` añade idempotencia HTTP con `Idempotency-Key` para simulaciones, comparativas, preaprobaciones y tasaciones.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
