@@ -6,8 +6,10 @@ import com.magenta.products.domain.port.out.PropertyRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,6 +56,23 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
     @Override
     public List<Property> findByTenantIdAndZoneId(UUID tenantId, UUID zoneId) {
         return jpaRepository.findByTenantIdAndZoneId(tenantId, zoneId).stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Property> search(UUID tenantId, PropertyStatus status, PropertyType type, UUID zoneId,
+                                 OperationType operationType, BigDecimal minPrice, BigDecimal maxPrice, int limit) {
+        return jpaRepository.search(
+                        tenantId,
+                        status != null ? status.name() : null,
+                        type != null ? type.name() : null,
+                        zoneId,
+                        operationType != null ? operationType.name() : null,
+                        minPrice,
+                        maxPrice,
+                        PageRequest.of(0, limit))
+                .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }

@@ -55,7 +55,7 @@
 | B3-01 | `CreatePropertyUseCase` (UC-P1) | `[OK]` | `application/` |
 | B3-02 | `PublishPropertyUseCase` (UC-P2) — valida invariantes | `[OK]` | `application/` |
 | B3-03 | `UploadMediaUseCase` (UC-P3) | `[OK]` | `application/` |
-| B3-04 | `SearchPropertiesUseCase` (UC-P4, UC-P5) | `[~]` | `MatchAffordablePropertiesUseCase` añadido para MVP financiero; falta búsqueda facetada completa |
+| B3-04 | `SearchPropertiesUseCase` (UC-P4, UC-P5) | `[~]` | Búsqueda básica por tenant/estado/tipo/zona/precio añadida; `MatchAffordablePropertiesUseCase` añadido para MVP financiero; falta búsqueda facetada completa |
 | B3-05 | `FavoriteUseCase` + `RegisterViewUseCase` + `CreateLeadUseCase` (UC-P6) | `[~]` | `FavoriteUseCase` y `CreateLeadUseCase` ✓; `RegisterViewUseCase` **falta** |
 | B3-06 | `ScheduleVisitUseCase` (UC-P7) | `[OK]` | `application/` |
 | B3-07 | `UpdateFinancingUseCase` (UC-P8) | `[OK]` | `application/` |
@@ -103,7 +103,7 @@
 
 | ID  | Tarea | Estado | Notas |
 |-----|-------|--------|-------|
-| B6-01 | `PropertyController` (CRUD + publish + archive) | `[OK]` | `adapter/in/web/` |
+| B6-01 | `PropertyController` (CRUD + publish + archive) | `[OK]` | `GET /properties` y `GET /properties/{id}` ya responden datos reales |
 | B6-02 | `OperationController` | `[ ]` | **no existe** |
 | B6-03 | `MediaController` (multipart upload) | `[ ]` | **no existe** |
 | B6-04 | `SearchController` (`/search`, `/search/map`) | `[~]` | `PropertyMatchController` añadido para matching financiero MVP; falta búsqueda facetada/mapa |

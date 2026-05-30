@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,24 +25,54 @@ public class PropertyController {
     private final CreatePropertyUseCase createPropertyUseCase;
     private final PublishPropertyUseCase publishPropertyUseCase;
     private final ArchivePropertyUseCase archivePropertyUseCase;
+    private final SearchPropertiesUseCase searchPropertiesUseCase;
+    private final GetPropertyUseCase getPropertyUseCase;
 
     public PropertyController(CreatePropertyUseCase createPropertyUseCase,
                                PublishPropertyUseCase publishPropertyUseCase,
-                               ArchivePropertyUseCase archivePropertyUseCase) {
+                               ArchivePropertyUseCase archivePropertyUseCase,
+                               SearchPropertiesUseCase searchPropertiesUseCase,
+                               GetPropertyUseCase getPropertyUseCase) {
         this.createPropertyUseCase = createPropertyUseCase;
         this.publishPropertyUseCase = publishPropertyUseCase;
         this.archivePropertyUseCase = archivePropertyUseCase;
+        this.searchPropertiesUseCase = searchPropertiesUseCase;
+        this.getPropertyUseCase = getPropertyUseCase;
     }
 
     @GetMapping
     @Operation(summary = "List properties (basic filter)")
-    public ResponseEntity<?> listProperties(
+    public ResponseEntity<List<PropertyDetailResponse>> listProperties(
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) UUID zoneId,
+            @RequestParam(required = false) String operationType,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        // Delegated to SearchController for full faceted search
-        // This endpoint is a lightweight listing for authenticated backoffice use
-        return ResponseEntity.ok().build();
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal Jwt jwt) {
+        int safePage = Math.max(0, page);
+        int safeSize = Math.max(1, Math.min(100, size));
+        int fetchLimit = Math.min(100, safeSize * (safePage + 1));
+
+        List<PropertyDetailResponse> results = searchPropertiesUseCase.execute(
+                        new SearchPropertiesUseCase.Query(
+                                tenantId(jwt),
+                                parseEnum(PropertyStatus.class, status),
+                                parseEnum(PropertyType.class, type),
+                                zoneId,
+                                parseEnum(OperationType.class, operationType),
+                                minPrice,
+                                maxPrice,
+                                fetchLimit))
+                .stream()
+                .skip((long) safePage * safeSize)
+                .limit(safeSize)
+                .map(PropertyDetailResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/{id}")
@@ -48,8 +80,8 @@ public class PropertyController {
     public ResponseEntity<PropertyDetailResponse> getProperty(
             @PathVariable UUID id,
             @AuthenticationPrincipal Jwt jwt) {
-        // TODO: look up property + check address visibility rules
-        return ResponseEntity.ok().build();
+        Property property = getPropertyUseCase.execute(tenantId(jwt), id);
+        return ResponseEntity.ok(PropertyDetailResponse.from(property));
     }
 
     @PostMapping
@@ -126,5 +158,19 @@ public class PropertyController {
         String username = jwt.getClaimAsString("preferred_username");
         Property archived = archivePropertyUseCase.execute(id, username);
         return ResponseEntity.ok(PropertyDetailResponse.from(archived));
+    }
+
+    private UUID tenantId(Jwt jwt) {
+        if (jwt == null || jwt.getClaimAsString("tenant_id") == null) {
+            return null;
+        }
+        return UUID.fromString(jwt.getClaimAsString("tenant_id"));
+    }
+
+    private <T extends Enum<T>> T parseEnum(Class<T> type, String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        return Enum.valueOf(type, raw.trim().toUpperCase());
     }
 }

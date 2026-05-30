@@ -24,6 +24,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - Caso de uso `MarkPropertyFinanciableUseCase` añadido en `banks` para alimentar badges de financiación en inmuebles.
 - Datos semilla de `banks` añadidos: 13 entidades y 13 productos hipotecarios sintéticos 90+5+5 para demo y sandbox.
 - Motor `PropertyAffordabilityMatchService`, caso de uso `MatchAffordablePropertiesUseCase` y endpoint `POST /api/v1/property-matches/affordability` añadidos en `products`.
+- `GET /api/v1/properties` y `GET /api/v1/properties/{id}` ahora devuelven catálogo real desde persistencia, con filtros básicos.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
