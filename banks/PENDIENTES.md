@@ -210,7 +210,7 @@
 |--------|-------|-----------|
 | ✅ | `Dockerfile` multi-stage (Maven + Distroless Java 25) | `Dockerfile` |
 | ✅ | `docker-compose.yml` — stack local completo (PG18, Redis8, Kafka KRaft) | `docker-compose.yml` |
-| ⬜ | `keycloak/magenta-realm.json` — realm magenta, roles CUSTOMER/AGENT/BANK_OFFICER/ADMIN/SYSTEM | `keycloak/magenta-realm.json` |
+| ✅ | `keycloak/magenta-realm.json` — realm magenta, roles CUSTOMER/AGENT/BANK_OFFICER/ADMIN/SYSTEM | `keycloak/magenta-realm.json` |
 | ⬜ | Helm chart `charts/banks/` | `charts/banks/` |
 | ⬜ | Dashboard Grafana `banks-preapprovals.json` | `charts/banks/dashboards/` |
 
@@ -270,7 +270,7 @@
 
 **Bloque C — Datos y entorno:**
 7. `V2__seed_banks.sql` + `V3__seed_products.sql` (13 bancos) implementados como datos sintéticos de sandbox; falta validarlos contra Flyway con Java 25.
-8. `keycloak/magenta-realm.json` (referenciado por docker-compose pero no existe)
+8. `keycloak/magenta-realm.json` añadido con roles, clientes y usuarios demo; falta validar import real al levantar Docker Compose.
 
 **Bloque D — Calidad y operación:**
 9. Tests de integración con Testcontainers (BankControllerIT, LoanSimulationIT, PreapprovalIT)

@@ -1,0 +1,127 @@
+{
+  "realm": "magenta",
+  "enabled": true,
+  "displayName": "Civitas Capital Demo",
+  "roles": {
+    "realm": [
+      { "name": "CUSTOMER", "description": "Comprador o inquilino" },
+      { "name": "AGENT", "description": "Agente inmobiliario" },
+      { "name": "BANK_OFFICER", "description": "Gestor bancario" },
+      { "name": "ADMIN", "description": "Administrador de plataforma" },
+      { "name": "SYSTEM", "description": "Comunicacion servicio a servicio" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "civitas-web",
+      "name": "Civitas Web Demo",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:*/*"],
+      "webOrigins": ["http://localhost:*"],
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "civitas-service",
+      "name": "Civitas Service Client",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "secret": "civitas-service-secret",
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "agent.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Agente",
+      "lastName": "Demo",
+      "email": "agent.demo@civitascapital.local",
+      "attributes": {
+        "tenant_id": ["11111111-1111-4111-8111-111111111111"]
+      },
+      "credentials": [
+        { "type": "password", "value": "Demo1234!", "temporary": false }
+      ],
+      "realmRoles": ["AGENT"]
+    },
+    {
+      "username": "customer.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Cliente",
+      "lastName": "Demo",
+      "email": "customer.demo@civitascapital.local",
+      "attributes": {
+        "tenant_id": ["11111111-1111-4111-8111-111111111111"]
+      },
+      "credentials": [
+        { "type": "password", "value": "Demo1234!", "temporary": false }
+      ],
+      "realmRoles": ["CUSTOMER"]
+    },
+    {
+      "username": "bank.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Banco",
+      "lastName": "Demo",
+      "email": "bank.demo@civitascapital.local",
+      "attributes": {
+        "tenant_id": ["11111111-1111-4111-8111-111111111111"]
+      },
+      "credentials": [
+        { "type": "password", "value": "Demo1234!", "temporary": false }
+      ],
+      "realmRoles": ["BANK_OFFICER"]
+    },
+    {
+      "username": "admin.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Demo",
+      "email": "admin.demo@civitascapital.local",
+      "attributes": {
+        "tenant_id": ["11111111-1111-4111-8111-111111111111"]
+      },
+      "credentials": [
+        { "type": "password", "value": "Demo1234!", "temporary": false }
+      ],
+      "realmRoles": ["ADMIN", "SYSTEM"]
+    }
+  ]
+}

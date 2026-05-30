@@ -29,6 +29,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `products` aplica tenant scope en búsquedas/detalle de inmuebles: activa `tenantFilter` y `app.tenant_id` para RLS; los endpoints públicos aceptan `X-Tenant-Id` para demo/sandbox.
 - `products/Dockerfile` añadido con build Maven Java 21 y runtime Distroless nonroot.
 - `banks/Dockerfile` corregido: ya no depende de `mvnw` inexistente y usa build Maven + runtime Distroless Java 25.
+- Realm Keycloak demo añadido para `banks` y `products`: roles, clientes, usuarios demo y claim `tenant_id`.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
