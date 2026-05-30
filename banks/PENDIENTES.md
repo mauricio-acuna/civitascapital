@@ -116,7 +116,7 @@
 | ✅ | `LoanSimulationJpaEntity` + repo | `infrastructure/adapter/out/persistence/loansimulation/` |
 | ⬜ | `PreapprovalJpaEntity` + `PreapprovalEventJpaEntity` + repos | `infrastructure/adapter/out/persistence/preapproval/` |
 | ⬜ | `AppraisalJpaEntity` + repo | `infrastructure/adapter/out/persistence/appraisal/` |
-| ⬜ | `EuriborRateJpaEntity` + repo | `infrastructure/adapter/out/persistence/euribor/` |
+| ✅ | `EuriborRateJpaEntity` + repo | `infrastructure/adapter/out/persistence/euribor/` |
 | ✅ | `OutboxEventJpaEntity` + repo | `infrastructure/adapter/out/persistence/outbox/` |
 | ⬜ | MapStruct mappers dominio ↔ JPA | `infrastructure/adapter/out/persistence/*/` |
 
@@ -131,7 +131,7 @@
 | ✅ | `LoanSimulationController` — POST /simulations, GET, POST /compare | `infrastructure/adapter/in/web/LoanSimulationController.java` |
 | ✅ | `PreapprovalController` — CRUD preapprovals | `infrastructure/adapter/in/web/PreapprovalController.java` |
 | ✅ | `AppraisalController` — POST/GET appraisals | `infrastructure/adapter/in/web/AppraisalController.java` |
-| ⬜ | `EuriborController` — GET /indices/euribor | `infrastructure/adapter/in/web/EuriborController.java` |
+| ✅ | `EuriborController` — GET /indices/euribor | `infrastructure/adapter/in/web/EuriborController.java` |
 | ✅ | `FeasibilityController` — GET /financing-feasibility | `infrastructure/adapter/in/web/FeasibilityController.java` |
 | ✅ | DTOs request/response — BankResponse, LoanProductResponse, SimulationRequest | `infrastructure/adapter/in/web/dto/` |
 | ⬜ | MapStruct mappers dominio ↔ DTO | `infrastructure/adapter/in/web/mapper/` |
@@ -226,15 +226,15 @@
 | 4. Puertos | 10 | 10 | 0 | 0 |
 | 5. Aplicación | 11 | 9 | 0 | 2 |
 | 6. Cálculo | 4 | 4 | 0 | 0 |
-| 7. Persistencia JPA | 8 | 4 | 0 | 4 |
-| 8. Controllers | 10 | 8 | 0 | 2 |
+| 7. Persistencia JPA | 8 | 5 | 0 | 3 |
+| 8. Controllers | 10 | 9 | 0 | 1 |
 | 9. Kafka | 8 | 2 | 0 | 6 |
 | 10. REST Clients | 4 | 3 | 0 | 1 |
 | 11. Config | 6 | 3 | 0 | 3 |
 | 12. Semilla | 2 | 2 | 0 | 0 |
 | 13. Tests | 10 | 7 | 0 | 3 |
 | 14. DevOps | 5 | 2 | 0 | 3 |
-| **TOTAL** | **100** | **76** | **0** | **24** |
+| **TOTAL** | **100** | **78** | **0** | **22** |
 
 ---
 
@@ -259,9 +259,9 @@
 ## Próximos pasos prioritarios (para continuar)
 
 **Bloque A — Compilación (bloquean el build):**
-1. JPA adapters pendientes: `PreapprovalJpaEntity/Adapter`, `AppraisalJpaEntity/Adapter`, `EuriborRateJpaEntity/Adapter`
+1. JPA adapters pendientes: `PreapprovalJpaEntity/Adapter`, `AppraisalJpaEntity/Adapter`
 2. Config classes: `ObservabilityConfig`, `RateLimitConfig`, `ResilienceConfig`
-3. Controller faltante: `EuriborController`; `LoanProductController` ya expone busqueda y detalle de productos.
+3. Controller de Euribor añadido; queda endurecer/expandir controllers administrativos de producto cuando haya decisión de permisos.
 4. Use case `SimulateNinetyFiveFiveUseCase` implementado y expuesto en `POST /api/v1/simulations/90-5-5`.
 
 **Bloque B — Funcionalidad:**
