@@ -67,6 +67,7 @@ class PropertyAggregateTest {
         Property p = buildMinimalProperty();
         addPhotos(p, 3);
         p.addOperation(draftOperation(p.id()));
+        p.pullDomainEvents();
 
         p.publish("agent1");
         List<Object> events = p.pullDomainEvents();
