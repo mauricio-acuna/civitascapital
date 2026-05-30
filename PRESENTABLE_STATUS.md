@@ -33,6 +33,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `products` corrige extracción de roles Keycloak desde `realm_access.roles`, alineado con `banks`.
 - Endpoints públicos de catálogo en `banks` aceptan `X-Tenant-Id`, alineados con la demo multi-tenant.
 - `banks` expone Euribor 12M (`GET /api/v1/indices/euribor`) con persistencia JPA y seed demo para sandbox.
+- `banks` añade persistencia JPA para preaprobaciones e historial append-only (`preapprovals` + `preapproval_events`).
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
