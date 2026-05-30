@@ -1,20 +1,18 @@
-# ── Build stage ────────────────────────────────────────────────────────────────
-FROM eclipse-temurin:25-jdk-alpine AS build
-WORKDIR /app
+# Build stage
+FROM maven:3.9.11-eclipse-temurin-25 AS build
+WORKDIR /workspace
 
 COPY pom.xml .
+RUN mvn -q -DskipTests dependency:go-offline
+
 COPY src ./src
-COPY .mvn .mvn
-COPY mvnw .
+RUN mvn -q -DskipTests package
 
-RUN chmod +x mvnw && ./mvnw -q -DskipTests package
-
-# ── Runtime stage (Distroless) ──────────────────────────────────────────────────
+# Runtime stage
 FROM gcr.io/distroless/java25-debian12:nonroot AS runtime
-
 WORKDIR /app
 
-COPY --from=build /app/target/magenta-banks-*.jar app.jar
+COPY --from=build /workspace/target/magenta-banks-*.jar app.jar
 
 EXPOSE 8082
 

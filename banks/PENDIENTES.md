@@ -208,7 +208,7 @@
 
 | Estado | Tarea | Archivo(s) |
 |--------|-------|-----------|
-| ✅ | `Dockerfile` multi-stage (Distroless Java 25) | `Dockerfile` |
+| ✅ | `Dockerfile` multi-stage (Maven + Distroless Java 25) | `Dockerfile` |
 | ✅ | `docker-compose.yml` — stack local completo (PG18, Redis8, Kafka KRaft) | `docker-compose.yml` |
 | ⬜ | `keycloak/magenta-realm.json` — realm magenta, roles CUSTOMER/AGENT/BANK_OFFICER/ADMIN/SYSTEM | `keycloak/magenta-realm.json` |
 | ⬜ | Helm chart `charts/banks/` | `charts/banks/` |
