@@ -4,6 +4,7 @@ build/
 /out/
 
 # Java / Maven
+.jdks/
 .mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar

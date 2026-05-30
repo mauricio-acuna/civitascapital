@@ -7,6 +7,8 @@ import com.magenta.banks.domain.model.Verdict;
 import com.magenta.banks.domain.model.loansimulation.*;
 import com.magenta.banks.domain.port.out.LoanSimulationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,10 +36,9 @@ public class LoanSimulationRepositoryAdapter implements LoanSimulationRepository
     }
 
     @Override
-    public List<LoanSimulation> findByCustomerId(UUID customerId) {
-        return jpaRepository.findAllByCustomerId(customerId).stream()
-                .map(this::toDomain)
-                .toList();
+    public Page<LoanSimulation> findByCustomerId(UUID customerId, Pageable pageable) {
+        return jpaRepository.findAllByCustomerId(customerId, pageable)
+                .map(this::toDomain);
     }
 
     // ── Mappers ────────────────────────────────────────────────────────────────

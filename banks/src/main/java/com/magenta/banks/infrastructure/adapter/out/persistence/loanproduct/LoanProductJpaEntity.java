@@ -1,10 +1,8 @@
 package com.magenta.banks.infrastructure.adapter.out.persistence.loanproduct;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.time.Instant;

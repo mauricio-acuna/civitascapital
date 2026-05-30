@@ -22,7 +22,7 @@
     <properties>
         <java.version>25</java.version>
         <mapstruct.version>1.6.2</mapstruct.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <testcontainers.version>1.20.1</testcontainers.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <bucket4j.version>8.10.1</bucket4j.version>
@@ -220,7 +220,7 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
-            <version>4.0.0</version>
+            <version>3.13.2</version>
             <scope>test</scope>
         </dependency>
         <!-- Architecture tests -->
