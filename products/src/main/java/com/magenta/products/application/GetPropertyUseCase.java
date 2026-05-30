@@ -18,11 +18,7 @@ public class GetPropertyUseCase {
 
     @Transactional(readOnly = true)
     public Property execute(UUID tenantId, UUID propertyId) {
-        Property property = propertyRepository.findById(propertyId)
+        return propertyRepository.findByTenantIdAndId(tenantId, propertyId)
                 .orElseThrow(() -> new PropertyNotFoundException(propertyId));
-        if (!property.tenantId().equals(tenantId)) {
-            throw new PropertyNotFoundException(propertyId);
-        }
-        return property;
     }
 }

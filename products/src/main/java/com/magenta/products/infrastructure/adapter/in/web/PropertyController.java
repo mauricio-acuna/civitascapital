@@ -51,6 +51,7 @@ public class PropertyController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
+            @RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
             @AuthenticationPrincipal Jwt jwt) {
         int safePage = Math.max(0, page);
         int safeSize = Math.max(1, Math.min(100, size));
@@ -58,7 +59,7 @@ public class PropertyController {
 
         List<PropertyDetailResponse> results = searchPropertiesUseCase.execute(
                         new SearchPropertiesUseCase.Query(
-                                tenantId(jwt),
+                                tenantId(jwt, tenantHeader),
                                 parseEnum(PropertyStatus.class, status),
                                 parseEnum(PropertyType.class, type),
                                 zoneId,
@@ -79,8 +80,9 @@ public class PropertyController {
     @Operation(summary = "Get property detail")
     public ResponseEntity<PropertyDetailResponse> getProperty(
             @PathVariable UUID id,
+            @RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
             @AuthenticationPrincipal Jwt jwt) {
-        Property property = getPropertyUseCase.execute(tenantId(jwt), id);
+        Property property = getPropertyUseCase.execute(tenantId(jwt, tenantHeader), id);
         return ResponseEntity.ok(PropertyDetailResponse.from(property));
     }
 
@@ -161,8 +163,12 @@ public class PropertyController {
     }
 
     private UUID tenantId(Jwt jwt) {
+        return tenantId(jwt, null);
+    }
+
+    private UUID tenantId(Jwt jwt, UUID tenantHeader) {
         if (jwt == null || jwt.getClaimAsString("tenant_id") == null) {
-            return null;
+            return tenantHeader;
         }
         return UUID.fromString(jwt.getClaimAsString("tenant_id"));
     }

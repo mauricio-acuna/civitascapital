@@ -26,6 +26,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `LoanProductController` añadido en `banks`: permite buscar productos hipotecarios activos y ver detalle por ID.
 - Motor `PropertyAffordabilityMatchService`, caso de uso `MatchAffordablePropertiesUseCase` y endpoint `POST /api/v1/property-matches/affordability` añadidos en `products`.
 - `GET /api/v1/properties` y `GET /api/v1/properties/{id}` ahora devuelven catálogo real desde persistencia, con filtros básicos.
+- `products` aplica tenant scope en búsquedas/detalle de inmuebles: activa `tenantFilter` y `app.tenant_id` para RLS; los endpoints públicos aceptan `X-Tenant-Id` para demo/sandbox.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 

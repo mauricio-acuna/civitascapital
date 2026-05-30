@@ -83,7 +83,7 @@
 | B4-09 | `PropertyJpaRepository` (Spring Data, consultas JPQL) | `[OK]` | |
 | B4-10 | `PropertyRepositoryAdapter` (implementa puerto outbound) | `[OK]` | Incluye búsqueda tenant+zone para matching financiero |
 | B4-11 | Multi-tenant filter `@Filter("tenant")` en entidades | `[OK]` | |
-| B4-12 | `TenantInterceptor` (inyecta `app.tenant_id` en conexión PG) | `[ ]` | fichero **no existe** |
+| B4-12 | `TenantInterceptor` (inyecta `app.tenant_id` en conexión PG) | `[~]` | `PropertyRepositoryAdapter` activa `tenantFilter` y `set_config('app.tenant_id', ...)` en operaciones tenant-aware; falta extender a todos los adapters |
 
 ---
 
@@ -279,7 +279,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 
 **ALTA PRIORIDAD — infraestructura de datos faltante:**
 - B4-04/05/06/07: `LeadJpaEntity`, `VisitJpaEntity`, `FavoriteJpaEntity`, `TransactionJpaEntity` + adapters
-- B4-12: `TenantInterceptor` (SET LOCAL `app.tenant_id`)
+- B4-12: extender tenant scope (`tenantFilter` + `SET LOCAL app.tenant_id`) a todos los adapters JPA, no solo properties.
 - B5-03: Migración de índices adicionales GIN/GIST
 - `Flyway V...0005`: corregir schema `processed_event` a PK `(consumer_name, event_id)`
 

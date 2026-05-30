@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface PropertyRepository {
     Property save(Property property);
     Optional<Property> findById(UUID id);
+    Optional<Property> findByTenantIdAndId(UUID tenantId, UUID id);
     Optional<Property> findByTenantIdAndReference(UUID tenantId, String reference);
     List<Property> findByZoneId(UUID zoneId);
     List<Property> findByTenantIdAndZoneId(UUID tenantId, UUID zoneId);

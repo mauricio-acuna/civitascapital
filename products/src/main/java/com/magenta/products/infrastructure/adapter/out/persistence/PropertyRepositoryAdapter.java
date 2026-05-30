@@ -3,9 +3,11 @@ package com.magenta.products.infrastructure.adapter.out.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magenta.products.domain.model.*;
 import com.magenta.products.domain.port.out.PropertyRepository;
+import jakarta.persistence.EntityManager;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.hibernate.Session;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -22,15 +24,19 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
 
     private final PropertyJpaRepository jpaRepository;
     private final ObjectMapper objectMapper;
+    private final EntityManager entityManager;
 
     public PropertyRepositoryAdapter(PropertyJpaRepository jpaRepository,
-                                      ObjectMapper objectMapper) {
+                                      ObjectMapper objectMapper,
+                                      EntityManager entityManager) {
         this.jpaRepository = jpaRepository;
         this.objectMapper = objectMapper;
+        this.entityManager = entityManager;
     }
 
     @Override
     public Property save(Property property) {
+        applyTenantScope(property.tenantId());
         PropertyJpaEntity entity = toEntity(property);
         PropertyJpaEntity saved = jpaRepository.save(entity);
         return toDomain(saved);
@@ -42,7 +48,14 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
     }
 
     @Override
+    public Optional<Property> findByTenantIdAndId(UUID tenantId, UUID id) {
+        applyTenantScope(tenantId);
+        return jpaRepository.findByTenantIdAndId(tenantId, id).map(this::toDomain);
+    }
+
+    @Override
     public Optional<Property> findByTenantIdAndReference(UUID tenantId, String reference) {
+        applyTenantScope(tenantId);
         return jpaRepository.findByTenantIdAndReference(tenantId, reference).map(this::toDomain);
     }
 
@@ -55,6 +68,7 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
 
     @Override
     public List<Property> findByTenantIdAndZoneId(UUID tenantId, UUID zoneId) {
+        applyTenantScope(tenantId);
         return jpaRepository.findByTenantIdAndZoneId(tenantId, zoneId).stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
@@ -63,6 +77,7 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
     @Override
     public List<Property> search(UUID tenantId, PropertyStatus status, PropertyType type, UUID zoneId,
                                  OperationType operationType, BigDecimal minPrice, BigDecimal maxPrice, int limit) {
+        applyTenantScope(tenantId);
         return jpaRepository.search(
                         tenantId,
                         status != null ? status.name() : null,
@@ -84,10 +99,23 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
 
     @Override
     public boolean existsByTenantIdAndReference(UUID tenantId, String reference) {
+        applyTenantScope(tenantId);
         return jpaRepository.existsByTenantIdAndReference(tenantId, reference);
     }
 
     // ── Mapping ────────────────────────────────────────────────────────────────
+
+    private void applyTenantScope(UUID tenantId) {
+        if (tenantId == null) {
+            return;
+        }
+        entityManager.unwrap(Session.class)
+                .enableFilter("tenantFilter")
+                .setParameter("tenantId", tenantId);
+        entityManager.createNativeQuery("SELECT set_config('app.tenant_id', :tenantId, true)")
+                .setParameter("tenantId", tenantId.toString())
+                .getSingleResult();
+    }
 
     private PropertyJpaEntity toEntity(Property p) {
         PropertyJpaEntity e = new PropertyJpaEntity();

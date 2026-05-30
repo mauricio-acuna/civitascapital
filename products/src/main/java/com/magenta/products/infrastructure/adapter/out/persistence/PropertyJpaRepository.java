@@ -16,6 +16,8 @@ public interface PropertyJpaRepository extends JpaRepository<PropertyJpaEntity, 
 
     Optional<PropertyJpaEntity> findByTenantIdAndReference(UUID tenantId, String reference);
 
+    Optional<PropertyJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
+
     boolean existsByTenantIdAndReference(UUID tenantId, String reference);
 
     List<PropertyJpaEntity> findByZoneId(UUID zoneId);
