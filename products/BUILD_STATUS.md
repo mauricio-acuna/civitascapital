@@ -257,7 +257,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 
 | ID  | Tarea | Estado | Notas |
 |-----|-------|--------|-------|
-| B14-01 | `Dockerfile` multi-stage Distroless | `[ ]` | fichero **no existe** |
+| B14-01 | `Dockerfile` multi-stage Distroless | `[OK]` | `products/Dockerfile` Java 21 + runtime distroless nonroot |
 | B14-02 | `charts/products/Chart.yaml` | `[OK]` | |
 | B14-03 | `charts/products/values.yaml` | `[OK]` | |
 | B14-04 | `charts/products/templates/deployment.yaml` | `[OK]` | |
@@ -331,7 +331,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 - B12-03: Pact stubs
 - B13-03: `PropertyControllerTest`
 - B13-04/05/07: Tests Testcontainers
-- B14-01: `Dockerfile` multi-stage Distroless
+- B14-01: `Dockerfile` multi-stage Distroless añadido; falta build real con JDK/daemon Docker disponibles.
 
 ---
 
@@ -370,7 +370,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 | B16-12 | `[ ]` | **Fix `processed_event` PK** = `(consumer_name, event_id)` (anotado en BUILD_STATUS pero no aplicado). Sin esta corrección la idempotencia se rompe si dos consumers procesan el mismo `event_id`. | Baseline §5 |
 | B16-13 | `[ ]` | **`Idempotency-Key`** obligatoria en `POST /properties`, `POST /leads`, `POST /visits`, `POST /transactions`, `POST /reports`. | Baseline §6 |
 | B16-14 | `[ ]` | **Cursor-based pagination** en `GET /search`, `GET /search/map`, `GET /properties` (hoy offset/Page Spring Data). | Baseline §6 |
-| B16-15 | `[ ]` | **`Dockerfile`** (B14-01) inexistente: el módulo no es deployable. Multi-stage Distroless Java 21 (o 25 si B16-01 se aprueba). | Operación |
+| B16-15 | `[OK]` | **`Dockerfile`** (B14-01) añadido: multi-stage Maven + Distroless Java 21 nonroot. Falta validarlo en entorno con Docker/JDK correcto. | Operación |
 | B16-16 | `[ ]` | **`livenessProbe` Helm sin PG/Kafka/Redis/OS** (sólo readiness). Verificar `charts/products/templates/deployment.yaml`. | Baseline §11.2 |
 | B16-17 | `[ ]` | **Visit `EXCLUDE GIST` constraint** anti-solapes por agente: confirmar que está en `V202605300001__init_schema.sql`; si no, añadir migración. | Producto |
 | B16-18 | `[ ]` | **Auto-particionado `property_views`** (B5-05): pg_partman mensual. Sin ello la tabla crece linealmente y mata queries analíticas. | Performance |
@@ -389,7 +389,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 
 | ID | Estado | Ítem | Detalle |
 |----|--------|------|---------|
-| B17-01 | `[ ]` | **Dockerfile** (B14-01 / B16-15) | Multi-stage Distroless Java 21 (o 25 según B16-01). `USER nonroot:nonroot`, `HEALTHCHECK` ausente (lo provee K8s). |
+| B17-01 | `[OK]` | **Dockerfile** (B14-01 / B16-15) | Multi-stage Distroless Java 21. Runtime nonroot; `HEALTHCHECK` ausente porque lo provee K8s. |
 | B17-02 | `[ ]` | **Orden Flyway** verificado | `V202605300001__init_schema` → migración fix `processed_event PK` (B16-12) → migración `EXCLUDE GIST` visit (B16-17) → `pg_partman` `property_views` (B16-18). |
 | B17-03 | `[ ]` | **Secrets en Vault** | `products/db`, `products/s3`, `products/kek-address` (KEK envelope direcciones), `products/cdn-signing-key`, `products/keycloak`. |
 | B17-04 | `[ ]` | **Helm values prod** | `charts/products/values-prod.yaml`: réplicas ≥ 3 (alto tráfico de búsqueda), HPA CPU 65 %, PDB, `livenessProbe` sin PG/OS/Kafka/Redis (B16-16), `startupProbe` 90 s, resources requests CPU 500 m / mem 1 Gi. |
@@ -445,7 +445,7 @@ El `ARCHITECTURE.md` del proyecto define versiones distintas a las del `stack-te
 | Riesgo | Impacto | Mitigación |
 |--------|---------|------------|
 | Decisión B16-01 sin cerrar | Incoherencia plataforma, charts compartidos rotos | Forzar decisión antes de cualquier PR funcional. |
-| Sin Dockerfile (B17-01) | Módulo no deployable | Bloqueante v1.0. |
+| Dockerfile sin build real en esta máquina | Riesgo de ajuste fino pendiente | Validar con Docker/JDK correcto en CI o entorno local actualizado. |
 | Sin TenantInterceptor (B16-07) | Filtración cross-tenant | Bloqueante seguridad. |
 | Sin AddressEncryption (B16-08) | Fuga dirección exacta de inmuebles privados | Bloqueante v1.0. |
 | OpenSearch como dep día 1 | Coste operacional alto antes de tener tráfico | Empezar con tsvector (ADR). |
