@@ -127,7 +127,7 @@
 | Estado | Tarea | Archivo(s) |
 |--------|-------|-----------|
 | ✅ | `BankController` — GET /banks, GET /banks/{id}, GET /banks/{id}/products | `infrastructure/adapter/in/web/BankController.java` |
-| ⬜ | `LoanProductController` — GET/POST/PUT /products | `infrastructure/adapter/in/web/LoanProductController.java` |
+| ✅ | `LoanProductController` — GET /products, GET /products/{id} | `infrastructure/adapter/in/web/LoanProductController.java` |
 | ✅ | `LoanSimulationController` — POST /simulations, GET, POST /compare | `infrastructure/adapter/in/web/LoanSimulationController.java` |
 | ✅ | `PreapprovalController` — CRUD preapprovals | `infrastructure/adapter/in/web/PreapprovalController.java` |
 | ✅ | `AppraisalController` — POST/GET appraisals | `infrastructure/adapter/in/web/AppraisalController.java` |
@@ -227,14 +227,14 @@
 | 5. Aplicación | 11 | 9 | 0 | 2 |
 | 6. Cálculo | 4 | 4 | 0 | 0 |
 | 7. Persistencia JPA | 8 | 4 | 0 | 4 |
-| 8. Controllers | 10 | 7 | 0 | 3 |
+| 8. Controllers | 10 | 8 | 0 | 2 |
 | 9. Kafka | 8 | 2 | 0 | 6 |
 | 10. REST Clients | 4 | 3 | 0 | 1 |
 | 11. Config | 6 | 3 | 0 | 3 |
 | 12. Semilla | 2 | 2 | 0 | 0 |
 | 13. Tests | 10 | 7 | 0 | 3 |
 | 14. DevOps | 5 | 2 | 0 | 3 |
-| **TOTAL** | **100** | **75** | **0** | **25** |
+| **TOTAL** | **100** | **76** | **0** | **24** |
 
 ---
 
@@ -261,7 +261,7 @@
 **Bloque A — Compilación (bloquean el build):**
 1. JPA adapters pendientes: `PreapprovalJpaEntity/Adapter`, `AppraisalJpaEntity/Adapter`, `EuriborRateJpaEntity/Adapter`
 2. Config classes: `ObservabilityConfig`, `RateLimitConfig`, `ResilienceConfig`
-3. Controllers faltantes: `LoanProductController`, `EuriborController`
+3. Controller faltante: `EuriborController`; `LoanProductController` ya expone busqueda y detalle de productos.
 4. Use case `SimulateNinetyFiveFiveUseCase` implementado y expuesto en `POST /api/v1/simulations/90-5-5`.
 
 **Bloque B — Funcionalidad:**
