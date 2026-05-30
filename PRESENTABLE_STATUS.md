@@ -30,6 +30,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `products/Dockerfile` añadido con build Maven Java 21 y runtime Distroless nonroot.
 - `banks/Dockerfile` corregido: ya no depende de `mvnw` inexistente y usa build Maven + runtime Distroless Java 25.
 - Realm Keycloak demo añadido para `banks` y `products`: roles, clientes, usuarios demo y claim `tenant_id`.
+- `products` corrige extracción de roles Keycloak desde `realm_access.roles`, alineado con `banks`.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
