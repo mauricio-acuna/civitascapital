@@ -22,6 +22,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - Servicio de desglose `NinetyFiveFiveBreakdownService` añadido con tests unitarios.
 - Endpoint `POST /api/v1/simulations/90-5-5` añadido en `banks`.
 - Caso de uso `MarkPropertyFinanciableUseCase` añadido en `banks` para alimentar badges de financiación en inmuebles.
+- Datos semilla de `banks` añadidos: 13 entidades y 13 productos hipotecarios sintéticos 90+5+5 para demo y sandbox.
 - Motor `PropertyAffordabilityMatchService`, caso de uso `MatchAffordablePropertiesUseCase` y endpoint `POST /api/v1/property-matches/affordability` añadidos en `products`.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.

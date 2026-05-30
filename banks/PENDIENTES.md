@@ -25,8 +25,8 @@
 | Estado | Tarea | Archivo(s) |
 |--------|-------|-----------|
 | ✅ | `V1__init.sql` — esquema completo `banks` | `src/main/resources/db/migration/V1__init.sql` |
-| ⬜ | `V2__seed_banks.sql` — 13 bancos seed | `src/main/resources/db/migration/V2__seed_banks.sql` |
-| ⬜ | `V3__seed_products.sql` — productos preferentes | `src/main/resources/db/migration/V3__seed_products.sql` |
+| ✅ | `V2__seed_banks.sql` — 13 bancos seed | `src/main/resources/db/migration/V2__seed_banks.sql` |
+| ✅ | `V3__seed_products.sql` — productos preferentes | `src/main/resources/db/migration/V3__seed_products.sql` |
 
 ---
 
@@ -182,8 +182,8 @@
 
 | Estado | Tarea | Archivo(s) |
 |--------|-------|-----------|
-| ⬜ | `V2__seed_banks.sql` — 13 bancos: Santander, BBVA, CaixaBank, ING, Bankinter, EVO, Abanca, Cajamar, Kutxabank, MyInvestor, Open Bank, ImaginBank, GoHipoteca | `db/migration/V2__seed_banks.sql` |
-| ⬜ | `V3__seed_products.sql` — productos preferentes 90+5+5 por banco | `db/migration/V3__seed_products.sql` |
+| ✅ | `V2__seed_banks.sql` — 13 bancos: Santander, BBVA, CaixaBank, ING, Bankinter, EVO, Abanca, Cajamar, Kutxabank, MyInvestor, Open Bank, ImaginBank, GoHipoteca | `db/migration/V2__seed_banks.sql` |
+| ✅ | `V3__seed_products.sql` — productos preferentes 90+5+5 por banco | `db/migration/V3__seed_products.sql` |
 
 ---
 
@@ -221,7 +221,7 @@
 | Fase | Total | ✅ Hecho | 🧪 Probado | ⬜ Pendiente |
 |------|-------|---------|-----------|------------|
 | 1. Bootstrap + alineación | 5 | 5 | 0 | 0 |
-| 2. Flyway | 3 | 1 | 0 | 2 |
+| 2. Flyway | 3 | 3 | 0 | 0 |
 | 3. Dominio | 14 | 14 | 0 | 0 |
 | 4. Puertos | 10 | 10 | 0 | 0 |
 | 5. Aplicación | 11 | 9 | 0 | 2 |
@@ -231,10 +231,10 @@
 | 9. Kafka | 8 | 2 | 0 | 6 |
 | 10. REST Clients | 4 | 3 | 0 | 1 |
 | 11. Config | 6 | 3 | 0 | 3 |
-| 12. Semilla | 2 | 0 | 0 | 2 |
+| 12. Semilla | 2 | 2 | 0 | 0 |
 | 13. Tests | 10 | 7 | 0 | 3 |
 | 14. DevOps | 5 | 2 | 0 | 3 |
-| **TOTAL** | **100** | **71** | **0** | **29** |
+| **TOTAL** | **100** | **75** | **0** | **25** |
 
 ---
 
@@ -269,7 +269,7 @@
 6. Consumers Kafka (6): CustomerProfile, Kyc, Property, Transaction, Zone, PriceIndex
 
 **Bloque C — Datos y entorno:**
-7. `V2__seed_banks.sql` + `V3__seed_products.sql` (13 bancos)
+7. `V2__seed_banks.sql` + `V3__seed_products.sql` (13 bancos) implementados como datos sintéticos de sandbox; falta validarlos contra Flyway con Java 25.
 8. `keycloak/magenta-realm.json` (referenciado por docker-compose pero no existe)
 
 **Bloque D — Calidad y operación:**
