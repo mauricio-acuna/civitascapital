@@ -1,5 +1,6 @@
 package com.magenta.banks.infrastructure.adapter.in.web;
 
+import com.magenta.banks.application.usecase.GetAppraisalUseCase;
 import com.magenta.banks.application.usecase.RegisterAppraisalUseCase;
 import com.magenta.banks.domain.model.appraisal.Appraisal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,9 +25,12 @@ import java.util.UUID;
 public class AppraisalController {
 
     private final RegisterAppraisalUseCase registerUseCase;
+    private final GetAppraisalUseCase getAppraisalUseCase;
 
-    public AppraisalController(RegisterAppraisalUseCase registerUseCase) {
+    public AppraisalController(RegisterAppraisalUseCase registerUseCase,
+                               GetAppraisalUseCase getAppraisalUseCase) {
         this.registerUseCase = registerUseCase;
+        this.getAppraisalUseCase = getAppraisalUseCase;
     }
 
     public record AppraisalRequest(
@@ -50,5 +55,33 @@ public class AppraisalController {
                 tenantId, req.propertyId(), req.customerId(), req.providerId(),
                 req.marketValue(), req.mortgageValue(), req.surfaceSqm(),
                 req.issuedAt(), req.pdfUrl()));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('BANK_OFFICER','ADMIN','SYSTEM')")
+    @Operation(summary = "Obtener tasación por ID")
+    public Appraisal getById(@PathVariable UUID id) {
+        return getAppraisalUseCase.byId(id);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('BANK_OFFICER','ADMIN','SYSTEM')")
+    @Operation(summary = "Buscar tasaciones por inmueble o cliente")
+    public List<Appraisal> list(@RequestParam(required = false) UUID propertyId,
+                                @RequestParam(required = false) UUID customerId) {
+        if (propertyId != null) {
+            return getAppraisalUseCase.byProperty(propertyId);
+        }
+        if (customerId != null) {
+            return getAppraisalUseCase.byCustomer(customerId);
+        }
+        throw new IllegalArgumentException("propertyId or customerId is required");
+    }
+
+    @GetMapping("/latest-valid")
+    @PreAuthorize("hasAnyRole('BANK_OFFICER','ADMIN','SYSTEM')")
+    @Operation(summary = "Obtener última tasación vigente de un inmueble")
+    public Appraisal latestValid(@RequestParam UUID propertyId) {
+        return getAppraisalUseCase.latestValidByProperty(propertyId);
     }
 }

@@ -115,7 +115,7 @@
 | ✅ | `LoanProductJpaEntity` + `LoanProductJpaRepository` | `infrastructure/adapter/out/persistence/loanproduct/` |
 | ✅ | `LoanSimulationJpaEntity` + repo | `infrastructure/adapter/out/persistence/loansimulation/` |
 | ✅ | `PreapprovalJpaEntity` + `PreapprovalEventJpaEntity` + repos | `infrastructure/adapter/out/persistence/preapproval/` |
-| ⬜ | `AppraisalJpaEntity` + repo | `infrastructure/adapter/out/persistence/appraisal/` |
+| ✅ | `AppraisalJpaEntity` + repo | `infrastructure/adapter/out/persistence/appraisal/` |
 | ✅ | `EuriborRateJpaEntity` + repo | `infrastructure/adapter/out/persistence/euribor/` |
 | ✅ | `OutboxEventJpaEntity` + repo | `infrastructure/adapter/out/persistence/outbox/` |
 | ⬜ | MapStruct mappers dominio ↔ JPA | `infrastructure/adapter/out/persistence/*/` |
@@ -226,7 +226,7 @@
 | 4. Puertos | 10 | 10 | 0 | 0 |
 | 5. Aplicación | 11 | 9 | 0 | 2 |
 | 6. Cálculo | 4 | 4 | 0 | 0 |
-| 7. Persistencia JPA | 8 | 6 | 0 | 2 |
+| 7. Persistencia JPA | 8 | 7 | 0 | 1 |
 | 8. Controllers | 10 | 9 | 0 | 1 |
 | 9. Kafka | 8 | 2 | 0 | 6 |
 | 10. REST Clients | 4 | 3 | 0 | 1 |
@@ -234,7 +234,7 @@
 | 12. Semilla | 2 | 2 | 0 | 0 |
 | 13. Tests | 10 | 7 | 0 | 3 |
 | 14. DevOps | 5 | 2 | 0 | 3 |
-| **TOTAL** | **100** | **79** | **0** | **21** |
+| **TOTAL** | **100** | **80** | **0** | **20** |
 
 ---
 
@@ -259,7 +259,7 @@
 ## Próximos pasos prioritarios (para continuar)
 
 **Bloque A — Compilación (bloquean el build):**
-1. JPA adapter pendiente: `AppraisalJpaEntity/Adapter`
+1. Persistencia JPA principal cerrada; queda revisar mappers MapStruct si se decide mantenerlos como requisito formal.
 2. Config classes: `ObservabilityConfig`, `RateLimitConfig`, `ResilienceConfig`
 3. Controller de Euribor añadido; queda endurecer/expandir controllers administrativos de producto cuando haya decisión de permisos.
 4. Use case `SimulateNinetyFiveFiveUseCase` implementado y expuesto en `POST /api/v1/simulations/90-5-5`.

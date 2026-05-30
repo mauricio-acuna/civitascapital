@@ -34,6 +34,7 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - Endpoints públicos de catálogo en `banks` aceptan `X-Tenant-Id`, alineados con la demo multi-tenant.
 - `banks` expone Euribor 12M (`GET /api/v1/indices/euribor`) con persistencia JPA y seed demo para sandbox.
 - `banks` añade persistencia JPA para preaprobaciones e historial append-only (`preapprovals` + `preapproval_events`).
+- `banks` añade persistencia y lectura REST de tasaciones: detalle, búsqueda por inmueble/cliente y última tasación vigente.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
