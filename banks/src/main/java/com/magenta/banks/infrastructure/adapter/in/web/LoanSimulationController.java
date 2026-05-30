@@ -1,6 +1,7 @@
 package com.magenta.banks.infrastructure.adapter.in.web;
 
 import com.magenta.banks.application.usecase.CompareProductsUseCase;
+import com.magenta.banks.application.usecase.SimulateNinetyFiveFiveUseCase;
 import com.magenta.banks.application.usecase.SimulateLoanUseCase;
 import com.magenta.banks.domain.model.ContractType;
 import com.magenta.banks.domain.model.loansimulation.BorrowerProfile;
@@ -24,11 +25,14 @@ import java.util.UUID;
 public class LoanSimulationController {
 
     private final SimulateLoanUseCase  simulateUseCase;
+    private final SimulateNinetyFiveFiveUseCase simulateNinetyFiveFiveUseCase;
     private final CompareProductsUseCase compareUseCase;
 
     public LoanSimulationController(SimulateLoanUseCase simulateUseCase,
+                                    SimulateNinetyFiveFiveUseCase simulateNinetyFiveFiveUseCase,
                                     CompareProductsUseCase compareUseCase) {
         this.simulateUseCase = simulateUseCase;
+        this.simulateNinetyFiveFiveUseCase = simulateNinetyFiveFiveUseCase;
         this.compareUseCase  = compareUseCase;
     }
 
@@ -38,6 +42,26 @@ public class LoanSimulationController {
     public LoanSimulation simulate(@Valid @RequestBody SimulationRequest req,
                                    @AuthenticationPrincipal Jwt jwt) {
         return simulateUseCase.execute(toCommand(req, jwt));
+    }
+
+    @PostMapping("/90-5-5")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Simular esquema 90+5+5 (UC-B4)")
+    public SimulateNinetyFiveFiveUseCase.Result simulateNinetyFiveFive(
+            @Valid @RequestBody NinetyFiveFiveRequest req,
+            @AuthenticationPrincipal Jwt jwt) {
+        return simulateNinetyFiveFiveUseCase.execute(new SimulateNinetyFiveFiveUseCase.Command(
+                tenantId(jwt),
+                customerId(jwt),
+                req.productId(),
+                req.propertyId(),
+                req.zoneId(),
+                req.propertyPrice(),
+                req.surfaceSqm(),
+                req.propertyType(),
+                req.termMonths(),
+                toBorrower(req.borrower()),
+                req.newBuild()));
     }
 
     @PostMapping("/compare")
@@ -64,6 +88,18 @@ public class LoanSimulationController {
         String operationType,
         int termMonths,
         SimulationRequest.BorrowerRequest borrower
+    ) {}
+
+    public record NinetyFiveFiveRequest(
+        @jakarta.validation.constraints.NotNull UUID productId,
+        UUID propertyId,
+        UUID zoneId,
+        @jakarta.validation.constraints.NotNull @jakarta.validation.constraints.Positive BigDecimal propertyPrice,
+        BigDecimal surfaceSqm,
+        String propertyType,
+        @jakarta.validation.constraints.NotNull @jakarta.validation.constraints.Min(12) int termMonths,
+        boolean newBuild,
+        @jakarta.validation.constraints.NotNull SimulationRequest.BorrowerRequest borrower
     ) {}
 
     private SimulateLoanUseCase.Command toCommand(SimulationRequest req, Jwt jwt) {

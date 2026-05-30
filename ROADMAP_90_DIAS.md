@@ -45,6 +45,7 @@ Entregables:
 
 - Endpoint o script de demo para cualificar comprador.
 - Dataset demo de compradores, inmuebles, zonas y productos financieros.
+- Desglose 90+5+5 en `banks` para explicar financiacion, tramo aplazado, entrada, impuestos y costes.
 - Resultado de simulación con `VIABLE`, `AJUSTADO` o `NO VIABLE`.
 - Resumen de lead cualificado.
 
@@ -140,4 +141,3 @@ Criterio de éxito:
 - Crear un portal inmobiliario completo.
 - Renombrar todos los paquetes internos si no bloquea la demo.
 - Construir funcionalidades que no aparezcan en la demo o en ventas.
-

@@ -85,7 +85,7 @@
 | ✅ | `GetBankUseCase` | UC-B1 | `application/usecase/GetBankUseCase.java` |
 | ✅ | `SearchProductsUseCase` | UC-B2 | `application/usecase/SearchProductsUseCase.java` |
 | ✅ | `SimulateLoanUseCase` | UC-B3 | `application/usecase/SimulateLoanUseCase.java` |
-| ⬜ | `SimulateNinetyFiveFiveUseCase` | UC-B4 | `application/usecase/SimulateNinetyFiveFiveUseCase.java` |
+| ✅ | `SimulateNinetyFiveFiveUseCase` | UC-B4 | `application/usecase/SimulateNinetyFiveFiveUseCase.java` |
 | ✅ | `RequestPreapprovalUseCase` | UC-B5 | `application/usecase/RequestPreapprovalUseCase.java` |
 | ✅ | `UpdatePreapprovalStatusUseCase` | UC-B5 | `application/usecase/UpdatePreapprovalStatusUseCase.java` |
 | ⬜ | `MarkPropertyFinanciableUseCase` | UC-B6 | `application/usecase/MarkPropertyFinanciableUseCase.java` |
@@ -102,6 +102,7 @@
 | ✅ | `FrenchAmortizationService` — cuota sistema francés | `domain/service/FrenchAmortizationService.java` |
 | ✅ | `TaeCalculatorService` — Newton-Raphson, Circular BdE 5/2012 | `domain/service/TaeCalculatorService.java` |
 | ✅ | `OwnFundsCalculatorService` — esquema 90+5+5 | `domain/service/OwnFundsCalculatorService.java` |
+| ✅ | `NinetyFiveFiveBreakdownService` — desglose banco/promotor/comprador/impuestos/costes | `domain/service/NinetyFiveFiveBreakdownService.java` |
 | ✅ | `ApprovabilityScorerService` — score 0..100 + verdict | `domain/service/ApprovabilityScorerService.java` |
 
 ---
@@ -261,7 +262,7 @@
 1. JPA adapters pendientes: `PreapprovalJpaEntity/Adapter`, `AppraisalJpaEntity/Adapter`, `EuriborRateJpaEntity/Adapter`
 2. Config classes: `ObservabilityConfig`, `RateLimitConfig`, `ResilienceConfig`
 3. Controllers faltantes: `LoanProductController`, `EuriborController`
-4. Use case faltante: `SimulateNinetyFiveFiveUseCase`
+4. Use case `SimulateNinetyFiveFiveUseCase` implementado y expuesto en `POST /api/v1/simulations/90-5-5`.
 
 **Bloque B — Funcionalidad:**
 5. `EuriborFetcherJob` — cron EMMI + fallback BdE XML
@@ -285,7 +286,7 @@
 |--------|------|-------|
 | ⬜ | **Cabecera `MODULE-SPEC.md` y `ARCHITECTURE.md` local desalineadas**: el código ya está en Java 25 / Boot 4.0.6 / PG 18 / Redis 8 / Kafka KRaft / Keycloak 26, pero las cabeceras dicen "Java 21 · Spring Boot 3.3 · PG 16 · Kafka 3.7 · Keycloak 24". Actualizar para evitar drift. | Drift documental |
 | ⬜ | **Sustituir "RFC 7807" por "RFC 9457"** en F8 (`GlobalExceptionHandler — Problem Details RFC 7807`) y en docstrings: Spring 6.1+ `ProblemDetail` ya cumple 9457 (que reemplaza al 7807). | Baseline §6 |
-| ⬜ | **`SimulateNinetyFiveFiveUseCase` (UC-B4)** sigue ⬜ y es el caso de uso central de Magenta (esquema 90+5+5 + IVA + AJD). Priorizar antes que el resto del bloque B. | Producto |
+| ✅ | **`SimulateNinetyFiveFiveUseCase` (UC-B4)** implementado con desglose explícito 90+5+5, delegación en `SimulateLoanUseCase` y endpoint `POST /api/v1/simulations/90-5-5`. | Producto |
 | ⬜ | **`Idempotency-Key` obligatoria** en `POST /simulations`, `POST /preapprovals`, `POST /appraisals` con persistencia de respuesta (idempotencia exacta de servidor). Evita duplicados ante reintentos del cliente. | Baseline §6 |
 | ⬜ | **Tabla `processed_message(consumer_name, event_id)`** para los 6 consumers Kafka pendientes (Customer/Property/Transaction/Zone/PriceIndex/Kyc). Sin ella no hay garantía at-least-once + idempotencia. | Baseline §5 |
 | ⬜ | Paginación **cursor-based** en `GET /products?...` y `GET /banks/{id}/products` (hoy offset por defecto Spring Data). | Baseline §6 |

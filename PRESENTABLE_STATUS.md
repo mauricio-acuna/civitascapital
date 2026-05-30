@@ -18,6 +18,9 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - Guion de demo creado.
 - Dataset sintético creado.
 - Demo HTML local creada.
+- Caso de uso `SimulateNinetyFiveFiveUseCase` añadido en `banks`.
+- Servicio de desglose `NinetyFiveFiveBreakdownService` añadido con tests unitarios.
+- Endpoint `POST /api/v1/simulations/90-5-5` añadido en `banks`.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
 
@@ -88,4 +91,3 @@ El código conserva nombres internos históricos (`com.magenta.*`, topics `magen
 **No está listo para publicación pública.**
 
 **Sí puede pasar a fase de repositorio privado cuando se valide el estado de build o se acepte explícitamente subirlo como work-in-progress.**
-
