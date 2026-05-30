@@ -46,6 +46,7 @@ Entregables:
 - Endpoint o script de demo para cualificar comprador.
 - Dataset demo de compradores, inmuebles, zonas y productos financieros.
 - Desglose 90+5+5 en `banks` para explicar financiacion, tramo aplazado, entrada, impuestos y costes.
+- Matching financiero de inmuebles en `products` para devolver oportunidades `VIABLE`, `TIGHT` o `NOT_VIABLE`.
 - Resultado de simulación con `VIABLE`, `AJUSTADO` o `NO VIABLE`.
 - Resumen de lead cualificado.
 

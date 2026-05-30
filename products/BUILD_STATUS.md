@@ -55,7 +55,7 @@
 | B3-01 | `CreatePropertyUseCase` (UC-P1) | `[OK]` | `application/` |
 | B3-02 | `PublishPropertyUseCase` (UC-P2) — valida invariantes | `[OK]` | `application/` |
 | B3-03 | `UploadMediaUseCase` (UC-P3) | `[OK]` | `application/` |
-| B3-04 | `SearchPropertiesUseCase` (UC-P4, UC-P5) | `[ ]` | fichero **no existe** |
+| B3-04 | `SearchPropertiesUseCase` (UC-P4, UC-P5) | `[~]` | `MatchAffordablePropertiesUseCase` añadido para MVP financiero; falta búsqueda facetada completa |
 | B3-05 | `FavoriteUseCase` + `RegisterViewUseCase` + `CreateLeadUseCase` (UC-P6) | `[~]` | `FavoriteUseCase` y `CreateLeadUseCase` ✓; `RegisterViewUseCase` **falta** |
 | B3-06 | `ScheduleVisitUseCase` (UC-P7) | `[OK]` | `application/` |
 | B3-07 | `UpdateFinancingUseCase` (UC-P8) | `[OK]` | `application/` |
@@ -64,7 +64,7 @@
 | B3-10 | `SyncSearchIndexUseCase` (UC-P11) | `[ ]` | fichero **no existe** |
 | B3-11 | `ReportPropertyUseCase` (UC-P12) | `[ ]` | fichero **no existe** |
 | B3-12 | `ArchivePropertyUseCase` | `[OK]` | `application/` |
-| B3-13 | `MatchingUseCase` (consume preferences event) | `[ ]` | fichero **no existe** |
+| B3-13 | `MatchingUseCase` (consume preferences event) | `[~]` | motor puro `PropertyAffordabilityMatchService` añadido; falta consumer/event flow |
 
 ---
 
@@ -106,7 +106,7 @@
 | B6-01 | `PropertyController` (CRUD + publish + archive) | `[OK]` | `adapter/in/web/` |
 | B6-02 | `OperationController` | `[ ]` | **no existe** |
 | B6-03 | `MediaController` (multipart upload) | `[ ]` | **no existe** |
-| B6-04 | `SearchController` (`/search`, `/search/map`) | `[ ]` | **no existe** |
+| B6-04 | `SearchController` (`/search`, `/search/map`) | `[~]` | `PropertyMatchController` añadido para matching financiero MVP; falta búsqueda facetada/mapa |
 | B6-05 | `LeadController` | `[ ]` | **no existe** |
 | B6-06 | `VisitController` | `[ ]` | **no existe** |
 | B6-07 | `FavoriteController` | `[ ]` | **no existe** |
