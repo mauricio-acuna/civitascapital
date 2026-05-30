@@ -73,8 +73,8 @@
 | ID  | Tarea | Estado | Notas |
 |-----|-------|--------|-------|
 | B4-01 | `PropertyJpaEntity` + mapper | `[OK]` | `infrastructure/adapter/out/persistence/` |
-| B4-02 | `OperationJpaEntity` + mapper | `[OK]` | |
-| B4-03 | `MediaAssetJpaEntity` + mapper | `[OK]` | |
+| B4-02 | `OperationJpaEntity` + mapper | `[OK]` | Rehidratación añadida en `PropertyRepositoryAdapter` |
+| B4-03 | `MediaAssetJpaEntity` + mapper | `[OK]` | Rehidratación añadida en `PropertyRepositoryAdapter` |
 | B4-04 | `LeadJpaEntity` + mapper | `[ ]` | fichero **no existe** |
 | B4-05 | `VisitJpaEntity` + mapper | `[ ]` | fichero **no existe** |
 | B4-06 | `FavoriteJpaEntity` + mapper | `[ ]` | fichero **no existe** |

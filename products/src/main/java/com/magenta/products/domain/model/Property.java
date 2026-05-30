@@ -236,15 +236,15 @@ public class Property {
     public void setLayout(Layout layout) { this.layout = layout; }
     public void setOwnership(OwnerInfo ownership) { this.ownership = ownership; }
 
-    // Package-private for repository reconstitution
-    void setStatus(PropertyStatus status) { this.status = status; }
-    void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }
-    void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-    void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
-    void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
-    void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
-    void setVersion(long version) { this.version = version; }
-    void setMediaInternal(List<MediaAsset> media) { this.media = new ArrayList<>(media); }
-    void setOperationsInternal(List<Operation> ops) { this.operations = new ArrayList<>(ops); }
-    void setFinancingInternal(FinancingHint hint) { this.financing = hint; }
+    // Repository reconstitution hooks. Keep business mutations in explicit domain methods.
+    public void setStatus(PropertyStatus status) { this.status = status; }
+    public void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+    public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
+    public void setVersion(long version) { this.version = version; }
+    public void setMediaInternal(List<MediaAsset> media) { this.media = new ArrayList<>(media); }
+    public void setOperationsInternal(List<Operation> ops) { this.operations = new ArrayList<>(ops); }
+    public void setFinancingInternal(FinancingHint hint) { this.financing = hint; }
 }

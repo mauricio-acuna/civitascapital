@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,6 +104,10 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
         e.setCreatedBy(p.createdBy());
         e.setUpdatedBy(p.updatedBy());
         e.setVersion(p.version());
+        e.getMediaAssets().clear();
+        p.media().forEach(media -> e.getMediaAssets().add(toMediaEntity(e, media)));
+        e.getOperations().clear();
+        p.operations().forEach(operation -> e.getOperations().add(toOperationEntity(e, operation)));
         return e;
     }
 
@@ -152,7 +157,83 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
         p.setUpdatedBy(e.getUpdatedBy());
         p.setVersion(e.getVersion());
         p.setFinancingInternal(fromJson(e.getFinancing(), FinancingHint.class));
+        p.setMediaInternal(e.getMediaAssets().stream().map(this::toMediaDomain).toList());
+        p.setOperationsInternal(e.getOperations().stream().map(this::toOperationDomain).toList());
         return p;
+    }
+
+    private MediaAssetJpaEntity toMediaEntity(PropertyJpaEntity property, MediaAsset media) {
+        MediaAssetJpaEntity entity = new MediaAssetJpaEntity();
+        entity.setId(media.id());
+        entity.setProperty(property);
+        entity.setKind(media.kind().name());
+        entity.setStorageUri(media.storageUri());
+        entity.setMimeType(media.mimeType());
+        entity.setSizeBytes(media.sizeBytes());
+        entity.setWidth(media.width());
+        entity.setHeight(media.height());
+        entity.setAiTags(media.aiTags() != null ? media.aiTags().toArray(new String[0]) : new String[0]);
+        entity.setOrder(media.order());
+        entity.setCover(media.isCover());
+        entity.setUploadedAt(media.uploadedAt());
+        return entity;
+    }
+
+    private MediaAsset toMediaDomain(MediaAssetJpaEntity entity) {
+        return new MediaAsset(
+                entity.getId(),
+                entity.getProperty().getId(),
+                MediaKind.valueOf(entity.getKind()),
+                entity.getStorageUri(),
+                entity.getMimeType(),
+                entity.getSizeBytes(),
+                entity.getWidth(),
+                entity.getHeight(),
+                entity.getAiTags() != null ? Arrays.asList(entity.getAiTags()) : List.of(),
+                entity.getOrder(),
+                entity.isCover(),
+                entity.getUploadedAt());
+    }
+
+    private OperationJpaEntity toOperationEntity(PropertyJpaEntity property, Operation operation) {
+        OperationJpaEntity entity = new OperationJpaEntity();
+        entity.setId(operation.id());
+        entity.setProperty(property);
+        entity.setType(operation.type().name());
+        entity.setPrice(operation.price().amount());
+        entity.setCurrency(operation.price().currency());
+        entity.setDepositMonths(operation.depositMonths());
+        entity.setMinContractMonths(operation.minContractMonths());
+        entity.setRentToOwn(toJson(operation.rentToOwn()));
+        entity.setExchangeWishes(toJson(operation.exchangeWishes()));
+        entity.setNegotiable(operation.negotiable());
+        entity.setAvailableFrom(operation.availableFrom());
+        entity.setCommissionPct(operation.commissionPct());
+        entity.setStatus(operation.status().name());
+        entity.setExclusivity(operation.exclusivity());
+        entity.setPublishedAt(operation.publishedAt());
+        Instant now = Instant.now();
+        entity.setCreatedAt(operation.publishedAt() != null ? operation.publishedAt() : now);
+        entity.setUpdatedAt(now);
+        return entity;
+    }
+
+    private Operation toOperationDomain(OperationJpaEntity entity) {
+        return new Operation(
+                entity.getId(),
+                entity.getProperty().getId(),
+                OperationType.valueOf(entity.getType()),
+                new Money(entity.getPrice(), entity.getCurrency()),
+                entity.getDepositMonths(),
+                entity.getMinContractMonths(),
+                fromJson(entity.getRentToOwn(), Operation.RentToOwnTerms.class),
+                fromJson(entity.getExchangeWishes(), Operation.ExchangeWishes.class),
+                entity.isNegotiable(),
+                entity.getAvailableFrom(),
+                entity.getCommissionPct(),
+                OperationStatus.valueOf(entity.getStatus()),
+                entity.isExclusivity(),
+                entity.getPublishedAt());
     }
 
     private org.locationtech.jts.geom.Point toPoint(GeoPoint gp) {
