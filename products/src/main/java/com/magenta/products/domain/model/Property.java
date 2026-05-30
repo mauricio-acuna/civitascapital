@@ -14,8 +14,8 @@ import java.util.*;
  */
 public class Property {
 
-    private final UUID id;
-    private final UUID tenantId;
+    private UUID id;
+    private UUID tenantId;
     private String reference;
     private PropertyType type;
     private String subtype;
