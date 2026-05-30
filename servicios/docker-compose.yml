@@ -1,0 +1,106 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: services_db
+      POSTGRES_USER: magenta
+      POSTGRES_PASSWORD: magenta
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U magenta -d services_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8.0-alpine
+    ports:
+      - "6379:6379"
+
+  kafka:
+    image: confluentinc/cp-kafka:8.0.0
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  zeebe:
+    image: camunda/zeebe:8.5.5
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+    environment:
+      ZEEBE_BROKER_EXPORTERS_HAZELCAST_CLASSNAME: io.camunda.zeebe.hazelcast.exporter.HazelcastExporter
+    healthcheck:
+      test: ["CMD", "zbctl", "status", "--insecure"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+  servicios:
+    build: .
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      zeebe:
+        condition: service_started
+    environment:
+      DB_USERNAME: magenta
+      DB_PASSWORD: magenta
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZEEBE_GATEWAY: zeebe:26500
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/magenta/protocol/openid-connect/certs
+      STRIPE_API_KEY: ${STRIPE_API_KEY:-sk_test_placeholder}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      AREAS_URL: http://areas:8081
+      BANKS_URL: http://banks:8082
+      CUSTOMERS_URL: http://customers:8083
+      PRODUCTS_URL: http://products:8084
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres_data:

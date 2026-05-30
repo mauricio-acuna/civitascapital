@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "magenta-customers.fullname" . }}
+  labels:
+    {{- include "magenta-customers.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "magenta-customers.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Permite tráfico desde el API Gateway / Ingress controller
+    - ports:
+        - port: {{ .Values.service.port }}
+          protocol: TCP
+  egress:
+    # PostgreSQL
+    - ports:
+        - port: 5432
+          protocol: TCP
+    # Kafka
+    - ports:
+        - port: 9092
+          protocol: TCP
+    # Redis
+    - ports:
+        - port: 6379
+          protocol: TCP
+    # Vault
+    - ports:
+        - port: 8200
+          protocol: TCP
+    # Keycloak OIDC
+    - ports:
+        - port: 8080
+          protocol: TCP
+        - port: 443
+          protocol: TCP
+    # DNS
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

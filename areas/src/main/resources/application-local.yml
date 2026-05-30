@@ -1,0 +1,29 @@
+# Configuración para desarrollo local con Docker Compose
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/areas_db?currentSchema=areas
+    username: areas
+    password: areas_local
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+    properties:
+      schema.registry.url: http://localhost:8085
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8180/realms/magenta/protocol/openid-connect/certs
+
+management:
+  otlp:
+    tracing:
+      endpoint: http://localhost:4317
+
+logging:
+  level:
+    com.magenta.areas: DEBUG
+    org.springframework.security: DEBUG

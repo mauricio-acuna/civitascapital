@@ -1,0 +1,281 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" }
+  ],
+  "annotations": { "list": [] },
+  "description": "Magenta · módulo areas · RED + JVM + Kafka + Negocio",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "🌐 API — RED Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "reqps",
+          "thresholds": { "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{service=\"magenta-areas\"}[2m])) by (uri, method)",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ],
+      "title": "Request Rate (rps)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "min": 0, "max": 1,
+          "thresholds": { "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 0.005 },
+            { "color": "red",    "value": 0.01 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{service=\"magenta-areas\",status=~\"5..\"}[2m])) / sum(rate(http_server_requests_seconds_count{service=\"magenta-areas\"}[2m]))",
+          "legendFormat": "Error rate"
+        }
+      ],
+      "title": "Error Rate (5xx)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "s",
+          "thresholds": { "steps": [
+            { "color": "green",  "value": null },
+            { "color": "yellow", "value": 0.12 },
+            { "color": "red",    "value": 0.35 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{service=\"magenta-areas\"}[2m])) by (le, uri))",
+          "legendFormat": "p95 {{uri}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{service=\"magenta-areas\"}[2m])) by (le))",
+          "legendFormat": "p99 global"
+        }
+      ],
+      "title": "Latencia p95 / p99 — SLO: lectura < 120 ms, escritura < 350 ms",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "☕ JVM",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{service=\"magenta-areas\",area=\"heap\"}",
+          "legendFormat": "Heap used"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{service=\"magenta-areas\",area=\"heap\"}",
+          "legendFormat": "Heap max"
+        }
+      ],
+      "title": "JVM Heap",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "rate(jvm_gc_pause_seconds_sum{service=\"magenta-areas\"}[1m])",
+          "legendFormat": "GC pause rate {{action}}"
+        }
+      ],
+      "title": "GC Pauses",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
+      "id": 6,
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{service=\"magenta-areas\"}",
+          "legendFormat": "Active"
+        },
+        {
+          "expr": "hikaricp_connections_pending{service=\"magenta-areas\"}",
+          "legendFormat": "Pending"
+        },
+        {
+          "expr": "hikaricp_connections_max{service=\"magenta-areas\"}",
+          "legendFormat": "Max"
+        }
+      ],
+      "title": "HikariCP — Connection Pool",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 102,
+      "title": "📨 Kafka",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short",
+          "thresholds": { "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 100 },
+            { "color": "red",    "value": 1000 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "id": 7,
+      "targets": [
+        {
+          "expr": "kafka_consumer_fetch_manager_records_lag{service=\"magenta-areas\"}",
+          "legendFormat": "{{topic}} [{{partition}}]"
+        }
+      ],
+      "title": "Kafka Consumer Lag",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "id": 8,
+      "targets": [
+        {
+          "expr": "rate(spring_kafka_listener_seconds_count{service=\"magenta-areas\"}[2m])",
+          "legendFormat": "{{listener}} consumed/s"
+        }
+      ],
+      "title": "Kafka — Mensajes consumidos/s",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "id": 103,
+      "title": "🏪 Caché",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+      "id": 9,
+      "targets": [
+        {
+          "expr": "rate(cache_gets_total{service=\"magenta-areas\",result=\"hit\"}[2m]) / rate(cache_gets_total{service=\"magenta-areas\"}[2m])",
+          "legendFormat": "Hit ratio {{name}}"
+        }
+      ],
+      "title": "Cache Hit Ratio (Caffeine + Redis)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short",
+        "thresholds": { "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 50 },
+          { "color": "red",    "value": 200 }
+        ]}
+      }},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+      "id": 10,
+      "targets": [
+        {
+          "expr": "count(areas_outbox_event{published_at=\"null\",service=\"magenta-areas\"}) OR vector(0)",
+          "legendFormat": "Outbox pendientes"
+        }
+      ],
+      "title": "Outbox — Eventos sin publicar",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "id": 104,
+      "title": "📊 Negocio",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "id": 11,
+      "targets": [
+        {
+          "expr": "sum(increase(magenta_areas_domain_event_total{service=\"magenta-areas\"}[1h])) by (event_type)",
+          "legendFormat": "{{event_type}}"
+        }
+      ],
+      "title": "Eventos de dominio (última hora)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "id": 12,
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_state{service=\"magenta-areas\"}",
+          "legendFormat": "CB {{name}} state={{state}}"
+        }
+      ],
+      "title": "Circuit Breakers",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["magenta", "areas", "slo"],
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Magenta Areas — Overview",
+  "uid": "magenta-areas-overview",
+  "version": 1
+}

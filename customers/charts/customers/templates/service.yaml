@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "magenta-customers.fullname" . }}
+  labels:
+    {{- include "magenta-customers.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "magenta-customers.selectorLabels" . | nindent 4 }}

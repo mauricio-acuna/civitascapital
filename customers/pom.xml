@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.0.6</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.magenta</groupId>
+  <artifactId>magenta-customers</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>magenta-customers</name>
+  <description>Magenta – Bounded Context: Identidad, perfil y solvencia del cliente</description>
+
+  <properties>
+    <java.version>25</java.version>
+    <mapstruct.version>1.6.0</mapstruct.version>
+    <springdoc.version>3.0.0</springdoc.version>
+    <resilience4j.version>3.0.0</resilience4j.version>
+    <testcontainers.version>1.20.6</testcontainers.version>
+    <archunit.version>1.4.0</archunit.version>
+    <pact.version>4.6.16</pact.version>
+    <uuid-creator.version>6.0.0</uuid-creator.version>
+    <aws-sdk.version>2.30.0</aws-sdk.version>
+  </properties>
+
+  <dependencies>
+    <!-- ── Web ─────────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- ── Security / OAuth2 ────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
+
+    <!-- ── Persistence ──────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
+    <!-- ── Cache ────────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+
+    <!-- ── Kafka ────────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+
+    <!-- ── Vault (PII crypto) ───────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-vault-config</artifactId>
+    </dependency>
+
+    <!-- ── AWS SDK v2 (S3 / KMS) ────────────────────────────────────── -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <version>${aws-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>kms</artifactId>
+      <version>${aws-sdk.version}</version>
+    </dependency>
+
+    <!-- ── Resilience4j ─────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-spring-boot3</artifactId>
+      <version>${resilience4j.version}</version>
+      <!-- Resilience4j 3.x targets Spring Boot 4 -->
+    </dependency>
+
+    <!-- ── MapStruct ────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+
+    <!-- ── UUID v7 ──────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>com.github.f4b6a3</groupId>
+      <artifactId>uuid-creator</artifactId>
+      <version>${uuid-creator.version}</version>
+    </dependency>
+
+    <!-- ── OpenAPI / SpringDoc ──────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc.version}</version>
+    </dependency>
+
+    <!-- ── Observability ────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp</artifactId>
+    </dependency>
+
+    <!-- ── Lombok ───────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- ── Test ─────────────────────────────────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>localstack</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>3.0.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <version>${archunit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>au.com.dius.pact.consumer</groupId>
+      <artifactId>junit5</artifactId>
+      <version>${pact.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2025.0.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <configuration>
+          <url>jdbc:postgresql://localhost:5432/customers_db?currentSchema=customers</url>
+          <user>magenta</user>
+          <password>${env.DB_PASSWORD}</password>
+          <schemas>customers</schemas>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

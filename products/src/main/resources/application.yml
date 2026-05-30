@@ -1,0 +1,224 @@
+spring:
+  application:
+    name: magenta-products
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/products_db?currentSchema=products
+    username: ${DB_USER:products}
+    password: ${DB_PASSWORD:products}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      data-source-properties:
+        ApplicationName: magenta-products
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+        format_sql: false
+        default_schema: products
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    schemas: products
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          min-idle: 2
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: magenta-products
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "com.magenta.*"
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:8080/realms/magenta/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/magenta}
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=60s
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 200MB
+
+server:
+  port: 8084
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  default-produces-media-type: application/json
+
+magenta:
+  search:
+    opensearch-uri: ${OPENSEARCH_URI:http://localhost:9200}
+    index: properties_v1
+  media:
+    s3-bucket: ${S3_BUCKET:magenta-properties-media}
+    s3-region: ${AWS_REGION:eu-west-1}
+    cdn-base: ${CDN_BASE:https://cdn.magenta.es}
+  clients:
+    areas:
+      base-url: ${AREAS_URL:http://localhost:8081}
+    banks:
+      base-url: ${BANKS_URL:http://localhost:8082}
+    customers:
+      base-url: ${CUSTOMERS_URL:http://localhost:8083}
+  outbox:
+    poll-interval-ms: 1000
+    batch-size: 50
+  rate-limit:
+    report:
+      capacity: 5
+      refill-hours: 1
+
+resilience4j:
+  # spec §10.2 — Timeout primero; CB sin timeout tarda en detectar dependencia bloqueada
+  timelimiter:
+    instances:
+      areas:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+      banks:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+      customers:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+  circuitbreaker:
+    instances:
+      areas:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+      banks:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+      customers:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+  retry:
+    # spec §10.1 — solo para operaciones idempotentes o protegidas por idempotency key
+    instances:
+      areas:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+      banks:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+      customers:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+  bulkhead:
+    # spec §10.1 — aislar pools/concurrencia por dependencia
+    instances:
+      areas:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0
+      banks:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0
+      customers:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0
+
+# logback-spring.xml gestiona el formato; no redefinir pattern aquí

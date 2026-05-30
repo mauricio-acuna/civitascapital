@@ -1,0 +1,53 @@
+replicaCount: 2
+
+image:
+  repository: magenta/servicios
+  pullPolicy: IfNotPresent
+  tag: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8085
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 60
+
+env:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8085"
+
+envFrom:
+  - secretRef:
+      name: servicios-secrets
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8085
+  initialDelaySeconds: 60
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8085
+  initialDelaySeconds: 30
+  periodSeconds: 10

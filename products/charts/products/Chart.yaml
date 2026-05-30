@@ -1,0 +1,6 @@
+apiVersion: v2
+name: magenta-products
+description: Magenta Platform — Products microservice
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

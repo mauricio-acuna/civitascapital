@@ -1,0 +1,88 @@
+replicaCount: 2
+
+image:
+  repository: magenta/products
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8084
+  targetPort: 8084
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 60
+
+env:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: products
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  KAFKA_BROKERS: kafka:9092
+  OPENSEARCH_URI: http://opensearch:9200
+  AREAS_URL: http://areas:8081
+  BANKS_URL: http://banks:8082
+  CUSTOMERS_URL: http://customers:8083
+  KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/magenta
+  KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/magenta/protocol/openid-connect/certs
+  CDN_BASE: https://cdn.magenta.es
+  AWS_REGION: eu-west-1
+
+secretRef:
+  name: magenta-products-secrets
+  keys:
+    DB_PASSWORD: db-password
+    S3_BUCKET: s3-bucket
+
+probes:
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 20
+    periodSeconds: 5
+    failureThreshold: 3
+  startup:
+    path: /actuator/health/liveness
+    failureThreshold: 30
+    periodSeconds: 10
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/actuator/prometheus"
+  prometheus.io/port: "8084"
+
+# spec §9.5 — securityContext mínimo
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+
+# spec §11.2 — PodDisruptionBudget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# spec §9.5 / §11.2 — NetworkPolicy (default-deny + allow required flows)
+networkPolicy:
+  enabled: true

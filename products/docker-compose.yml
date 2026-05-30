@@ -1,0 +1,94 @@
+version: "3.9"
+
+# Local development environment for the products module
+# Usage: docker compose up -d
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: products_db
+      POSTGRES_USER: products
+      POSTGRES_PASSWORD: products
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U products -d products_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  opensearch:
+    image: opensearchproject/opensearch:2.13.0
+    environment:
+      discovery.type: single-node
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: Admin@12345
+      plugins.security.disabled: "true"
+    ports:
+      - "9200:9200"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  localstack:
+    image: localstack/localstack:3.4
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: eu-west-1
+      EDGE_PORT: 4566
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./ops/localstack/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ops/keycloak/magenta-realm.json:/opt/keycloak/data/import/magenta-realm.json
+
+volumes:
+  postgres_data:
+  opensearch_data:
+  localstack_data:

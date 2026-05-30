@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logging estructurado JSON — alineado con stack-tech_spec §12.4
+  Campos: timestamp, level, service, environment, traceId, spanId,
+          correlationId, tenantId, userId, message.
+
+  Prohibido logar: passwords, tokens, PII, datos de tarjeta.
+-->
+<configuration>
+
+  <springProperty scope="context" name="SERVICE_NAME"
+                  source="spring.application.name" defaultValue="products"/>
+  <springProperty scope="context" name="ENVIRONMENT"
+                  source="spring.profiles.active" defaultValue="local"/>
+
+  <!-- JSON encoder para todos los entornos excepto 'local' -->
+  <springProfile name="!local">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <fieldNames>
+          <timestamp>timestamp</timestamp>
+          <version>[ignore]</version>
+          <levelValue>[ignore]</levelValue>
+        </fieldNames>
+        <customFields>{"service":"${SERVICE_NAME}","environment":"${ENVIRONMENT}"}</customFields>
+        <includeMdcKeyName>traceId</includeMdcKeyName>
+        <includeMdcKeyName>spanId</includeMdcKeyName>
+        <includeMdcKeyName>correlationId</includeMdcKeyName>
+        <includeMdcKeyName>tenantId</includeMdcKeyName>
+        <includeMdcKeyName>userId</includeMdcKeyName>
+        <!-- Mask sensitive patterns — never log secrets/tokens/PII -->
+        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+          <maxDepthPerCause>20</maxDepthPerCause>
+          <maxLength>4096</maxLength>
+          <rootCauseFirst>true</rootCauseFirst>
+        </throwableConverter>
+      </encoder>
+    </appender>
+  </springProfile>
+
+  <!-- Human-readable for local development -->
+  <springProfile name="local">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%d{HH:mm:ss.SSS} %-5level [%X{traceId},%X{spanId}] [%X{tenantId}] %logger{36} - %msg%n</pattern>
+      </encoder>
+    </appender>
+  </springProfile>
+
+  <!-- Suppress noisy libraries -->
+  <logger name="org.hibernate.SQL" level="WARN"/>
+  <logger name="org.springframework.security" level="WARN"/>
+  <logger name="io.lettuce" level="WARN"/>
+  <logger name="org.apache.kafka" level="WARN"/>
+  <logger name="org.opensearch" level="WARN"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>

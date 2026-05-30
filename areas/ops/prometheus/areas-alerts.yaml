@@ -1,0 +1,145 @@
+groups:
+  - name: magenta-areas-slo
+    interval: 1m
+    rules:
+
+      # ── Latencia ──────────────────────────────────────────────────────────────
+
+      - alert: AreasReadLatencyP95Breach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket{
+              service="magenta-areas",
+              method=~"GET",
+              uri!~"/actuator.*|/v3/api-docs.*|/swagger-ui.*"
+            }[5m])) by (le)
+          ) > 0.12
+        for: 5m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Areas p95 lectura supera SLO (> 120 ms)"
+          description: "p95 GET = {{ $value | humanizeDuration }} — SLO: 120 ms. Revisar queries lentas o pool saturado."
+          runbook: "https://wiki.magenta.es/runbooks/areas/latency"
+
+      - alert: AreasWriteLatencyP95Breach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket{
+              service="magenta-areas",
+              method=~"POST|PUT|PATCH|DELETE",
+              uri!~"/actuator.*"
+            }[5m])) by (le)
+          ) > 0.35
+        for: 5m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Areas p95 escritura supera SLO (> 350 ms)"
+          description: "p95 escritura = {{ $value | humanizeDuration }} — SLO: 350 ms."
+          runbook: "https://wiki.magenta.es/runbooks/areas/latency"
+
+      # ── Error rate ────────────────────────────────────────────────────────────
+
+      - alert: AreasHighErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{
+            service="magenta-areas", status=~"5.."
+          }[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{service="magenta-areas"}[5m]))
+          > 0.005
+        for: 5m
+        labels:
+          severity: critical
+          team: areas
+        annotations:
+          summary: "Areas error rate > 0.5 %"
+          description: "Error rate = {{ $value | humanizePercentage }}. Revisar logs y trazas."
+          runbook: "https://wiki.magenta.es/runbooks/areas/error-rate"
+
+      # ── Outbox ────────────────────────────────────────────────────────────────
+
+      - alert: AreasOutboxStalledEvents
+        expr: |
+          time() - min(areas_outbox_oldest_unpublished_seconds{service="magenta-areas"}) > 300
+        for: 3m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Outbox areas tiene eventos sin publicar > 5 min"
+          description: "El OutboxEventPublisher puede estar caído o Kafka no disponible."
+          runbook: "https://wiki.magenta.es/runbooks/areas/outbox"
+
+      - alert: AreasOutboxHighPendingCount
+        expr: areas_outbox_pending_total{service="magenta-areas"} > 500
+        for: 5m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Outbox con más de 500 eventos pendientes"
+          description: "Acumulación inusual en outbox. Posible problema de conectividad Kafka."
+
+      # ── Kafka consumer lag ────────────────────────────────────────────────────
+
+      - alert: AreasKafkaConsumerLagHigh
+        expr: |
+          kafka_consumer_fetch_manager_records_lag{service="magenta-areas"} > 5000
+        for: 10m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Kafka consumer lag alto en areas ({{ $labels.topic }})"
+          description: "Lag = {{ $value }} mensajes. Consumidor rezagado o partición atascada."
+          runbook: "https://wiki.magenta.es/runbooks/areas/kafka-lag"
+
+      # ── Circuit Breaker ───────────────────────────────────────────────────────
+
+      - alert: AreasCircuitBreakerOpen
+        expr: |
+          resilience4j_circuitbreaker_state{
+            service="magenta-areas", state="open"
+          } == 1
+        for: 2m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "Circuit breaker abierto en areas ({{ $labels.name }})"
+          description: "Dependencia {{ $labels.name }} con circuit breaker en OPEN > 2 min."
+          runbook: "https://wiki.magenta.es/runbooks/areas/circuit-breaker"
+
+      # ── Pool de conexiones ────────────────────────────────────────────────────
+
+      - alert: AreasConnectionPoolExhausted
+        expr: |
+          hikaricp_connections_pending{service="magenta-areas"} > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: areas
+        annotations:
+          summary: "HikariCP con conexiones en espera sostenido"
+          description: "{{ $value }} conexiones en cola. Revisar máximo pool o queries lentas."
+
+      # ── Disponibilidad de pods ────────────────────────────────────────────────
+
+      - alert: AreasPodsUnavailable
+        expr: |
+          kube_deployment_status_replicas_available{
+            namespace="magenta",
+            deployment=~".*areas.*"
+          } < 1
+        for: 1m
+        labels:
+          severity: critical
+          team: areas
+        annotations:
+          summary: "Ningún pod de areas disponible"
+          description: "El deployment areas no tiene réplicas disponibles."
+          runbook: "https://wiki.magenta.es/runbooks/areas/pod-down"

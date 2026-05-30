@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "areas.fullname" . }}
+  labels:
+    {{- include "areas.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "areas.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "areas.selectorLabels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8081"
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        fsGroup: 65532
+      containers:
+        - name: areas
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8081
+          env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              {{- if $val.secretKeyRef }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.secretKeyRef.name }}
+                  key: {{ $val.secretKeyRef.key }}
+              {{- else }}
+              value: {{ $val | quote }}
+              {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+      volumes:
+        - name: tmp
+          emptyDir: {}

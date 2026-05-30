@@ -1,0 +1,147 @@
+spring:
+  application:
+    name: magenta-customers
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customers_db?currentSchema=customers
+    username: magenta
+    password: ${DB_PASSWORD:magenta}
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: customers
+        format_sql: false
+        jdbc:
+          batch_size: 50
+
+  flyway:
+    enabled: true
+    schemas: customers
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/magenta}
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:8080/realms/magenta/protocol/openid-connect/certs}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: magenta-customers
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.magenta.*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2s
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=60s
+
+  cloud:
+    vault:
+      host: ${VAULT_HOST:localhost}
+      port: ${VAULT_PORT:8200}
+      token: ${VAULT_TOKEN:dev-root-token}
+      scheme: ${VAULT_SCHEME:http}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: magenta-customers
+      transit:
+        enabled: true
+        backend: transit
+
+server:
+  port: 8083
+  error:
+    include-message: never
+    include-binding-errors: never
+  compression:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      service: magenta-customers
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    console: '{"timestamp":"%d{ISO8601}","level":"%level","logger":"%logger{36}","traceId":"%X{traceId}","spanId":"%X{spanId}","tenantId":"%X{tenantId}","userId":"%X{userId}","service":"${spring.application.name}","message":"%message"}%n'
+
+magenta:
+  pii:
+    vault-key-name: ${VAULT_KEK_NAME:customers-dek}
+  kyc:
+    provider: ${KYC_PROVIDER:IDNOW}
+    callback-secret: ${KYC_HMAC_SECRET:change-me-in-prod}
+    callback-replay-window-seconds: 300
+  storage:
+    s3-bucket: ${S3_BUCKET:magenta-customers-docs}
+    kms-key-arn: ${S3_KMS_ARN:}
+    s3-endpoint: ${S3_ENDPOINT:}   # vacío en AWS, apunta a MinIO en dev
+    s3-region: ${AWS_REGION:eu-west-1}
+    presigned-url-ttl-minutes: 60
+  clients:
+    areas:
+      url: ${AREAS_URL:http://localhost:8081}
+      timeout-ms: 2000
+    banks:
+      url: ${BANKS_URL:http://localhost:8082}
+      timeout-ms: 2000
+    products:
+      url: ${PRODUCTS_URL:http://localhost:8084}
+      timeout-ms: 2000
+  outbox:
+    polling-delay-ms: 5000
+    batch-size: 100
+  affordability:
+    bde-ratio: 0.40
+    internal-ratio: 0.30
+    default-term-months: 300
+    default-tin: 0.035
+    default-ltv: 0.80
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  info:
+    title: Magenta Customers API
+    version: v1
+    description: Identidad, perfil y solvencia del cliente

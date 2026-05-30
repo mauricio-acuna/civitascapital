@@ -1,0 +1,212 @@
+{
+  "buyers": [
+    {
+      "id": "buyer-001",
+      "name": "Familia Martin Lopez",
+      "profile": "first_home_household",
+      "netIncomeMonthly": 4200,
+      "ownFunds": 55000,
+      "otherDebtMonthly": 250,
+      "mainBorrowerAge": 36,
+      "contractType": "INDEFINITE",
+      "dependents": 1,
+      "preferredZones": ["zone-mad-sur", "zone-getafe", "zone-leganes"],
+      "roomsMin": 3,
+      "targetOperation": "SALE"
+    },
+    {
+      "id": "buyer-002",
+      "name": "Ana Ruiz",
+      "profile": "single_professional",
+      "netIncomeMonthly": 2850,
+      "ownFunds": 38000,
+      "otherDebtMonthly": 0,
+      "mainBorrowerAge": 31,
+      "contractType": "INDEFINITE",
+      "dependents": 0,
+      "preferredZones": ["zone-valencia-centro", "zone-valencia-norte"],
+      "roomsMin": 2,
+      "targetOperation": "SALE"
+    },
+    {
+      "id": "buyer-003",
+      "name": "Inversor Patrimonial SL",
+      "profile": "legal_entity_investor",
+      "netIncomeMonthly": 9200,
+      "ownFunds": 180000,
+      "otherDebtMonthly": 1100,
+      "mainBorrowerAge": 44,
+      "contractType": "LEGAL_ENTITY",
+      "dependents": 0,
+      "preferredZones": ["zone-malaga-centro", "zone-malaga-este"],
+      "roomsMin": 2,
+      "targetOperation": "SALE"
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone-mad-sur",
+      "name": "Madrid Sur",
+      "pricePerSqmSale": 3150,
+      "priceTrendYoY": 5.8,
+      "riskScore": 32,
+      "fiberCoveragePct": 96,
+      "demandScore": 81
+    },
+    {
+      "id": "zone-getafe",
+      "name": "Getafe",
+      "pricePerSqmSale": 2850,
+      "priceTrendYoY": 4.4,
+      "riskScore": 26,
+      "fiberCoveragePct": 94,
+      "demandScore": 76
+    },
+    {
+      "id": "zone-leganes",
+      "name": "Leganes",
+      "pricePerSqmSale": 2750,
+      "priceTrendYoY": 4.9,
+      "riskScore": 29,
+      "fiberCoveragePct": 93,
+      "demandScore": 73
+    },
+    {
+      "id": "zone-valencia-centro",
+      "name": "Valencia Centro",
+      "pricePerSqmSale": 3550,
+      "priceTrendYoY": 6.2,
+      "riskScore": 24,
+      "fiberCoveragePct": 98,
+      "demandScore": 86
+    },
+    {
+      "id": "zone-malaga-centro",
+      "name": "Malaga Centro",
+      "pricePerSqmSale": 3950,
+      "priceTrendYoY": 7.1,
+      "riskScore": 22,
+      "fiberCoveragePct": 97,
+      "demandScore": 89
+    }
+  ],
+  "properties": [
+    {
+      "id": "property-001",
+      "reference": "MAD-SUR-3D-001",
+      "zoneId": "zone-mad-sur",
+      "type": "FLAT",
+      "rooms": 3,
+      "surfaceSqm": 92,
+      "price": 298000,
+      "operation": "SALE",
+      "features": ["fiber", "elevator", "parking"],
+      "financingBadge": "POTENTIALLY_FINANCEABLE"
+    },
+    {
+      "id": "property-002",
+      "reference": "GETAFE-FAM-014",
+      "zoneId": "zone-getafe",
+      "type": "FLAT",
+      "rooms": 3,
+      "surfaceSqm": 101,
+      "price": 275000,
+      "operation": "SALE",
+      "features": ["fiber", "terrace", "storage_room"],
+      "financingBadge": "POTENTIALLY_FINANCEABLE"
+    },
+    {
+      "id": "property-003",
+      "reference": "LEGANES-ATICO-009",
+      "zoneId": "zone-leganes",
+      "type": "PENTHOUSE",
+      "rooms": 3,
+      "surfaceSqm": 88,
+      "price": 332000,
+      "operation": "SALE",
+      "features": ["terrace", "elevator"],
+      "financingBadge": "TIGHT"
+    },
+    {
+      "id": "property-004",
+      "reference": "VAL-CENTRO-2D-031",
+      "zoneId": "zone-valencia-centro",
+      "type": "APARTMENT",
+      "rooms": 2,
+      "surfaceSqm": 74,
+      "price": 268000,
+      "operation": "SALE",
+      "features": ["fiber", "renovated"],
+      "financingBadge": "POTENTIALLY_FINANCEABLE"
+    },
+    {
+      "id": "property-005",
+      "reference": "MALAGA-CENTRO-INV-006",
+      "zoneId": "zone-malaga-centro",
+      "type": "APARTMENT",
+      "rooms": 2,
+      "surfaceSqm": 81,
+      "price": 410000,
+      "operation": "SALE",
+      "features": ["touristic_demand", "renovated", "elevator"],
+      "financingBadge": "INVESTOR_PROFILE"
+    }
+  ],
+  "loanProducts": [
+    {
+      "id": "loan-std-001",
+      "name": "Hipoteca fija estandar",
+      "rateType": "FIXED",
+      "tinPct": 3.05,
+      "maxLtvPct": 80,
+      "maxEffortRatio": 0.35,
+      "termMonths": 300
+    },
+    {
+      "id": "loan-high-ltv-001",
+      "name": "Financiacion joven alta cobertura",
+      "rateType": "MIXED",
+      "tinPct": 3.25,
+      "maxLtvPct": 90,
+      "maxEffortRatio": 0.35,
+      "termMonths": 360
+    },
+    {
+      "id": "loan-90-5-5-001",
+      "name": "Esquema 90+5+5 orientativo",
+      "rateType": "MIXED",
+      "tinPct": 3.45,
+      "maxLtvPct": 95,
+      "maxEffortRatio": 0.35,
+      "termMonths": 360
+    }
+  ],
+  "services": [
+    {
+      "code": "MORTGAGE_BROKER",
+      "name": "Mediacion hipotecaria",
+      "revenueModel": "success_fee_or_partner_commission"
+    },
+    {
+      "code": "APPRAISAL",
+      "name": "Tasacion",
+      "revenueModel": "service_margin"
+    },
+    {
+      "code": "NOTARY_GESTORIA",
+      "name": "Notaria y gestoria",
+      "revenueModel": "partner_commission"
+    },
+    {
+      "code": "HOME_INSURANCE",
+      "name": "Seguro de hogar",
+      "revenueModel": "insurance_commission"
+    },
+    {
+      "code": "TAX_ADVISORY",
+      "name": "Asesoria fiscal de compraventa",
+      "revenueModel": "fixed_service_fee"
+    }
+  ]
+}
+

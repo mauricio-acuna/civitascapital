@@ -1,0 +1,2182 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Momento perfecto de compra</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f3;
+      --surface: #ffffff;
+      --surface-2: #eef2ef;
+      --surface-3: #f8faf8;
+      --ink: #18211d;
+      --muted: #64716b;
+      --line: #d8e0da;
+      --teal: #137865;
+      --teal-soft: #dcefeb;
+      --blue: #3f65a1;
+      --blue-soft: #dfe8f5;
+      --amber: #b6780e;
+      --amber-soft: #f3e5c8;
+      --rose: #c84e58;
+      --rose-soft: #f7dfe2;
+      --violet: #7259a6;
+      --green: #2f8a54;
+      --shadow: 0 18px 46px rgba(24, 33, 29, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.22) 270px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1540px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 0 18px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 3.05rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      max-width: 980px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #ffffff;
+      font-weight: 850;
+      white-space: nowrap;
+      box-shadow: 0 10px 24px rgba(24, 33, 29, 0.16);
+    }
+
+    .btn.secondary {
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--rose-soft);
+      color: #872b35;
+      box-shadow: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 390px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      padding: 16px;
+    }
+
+    .control-section {
+      padding: 0 0 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .control-section:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label,
+    .toggle label,
+    .metric-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 850;
+    }
+
+    .field label span,
+    .toggle label span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 8px 9px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(19, 120, 101, 0.14);
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-3);
+    }
+
+    .toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--teal);
+    }
+
+    .scenario-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .scenario-btn {
+      min-height: 44px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-align: left;
+    }
+
+    .scenario-btn span {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .scenario-btn[aria-current="true"] {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: #0d594f;
+      box-shadow: inset 0 0 0 2px rgba(19, 120, 101, 0.14);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .verdict {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) repeat(4, minmax(138px, 0.38fr));
+      gap: 12px;
+      padding: 16px;
+      align-items: stretch;
+    }
+
+    .verdict-main {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .verdict-main h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.35vw, 2.1rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .verdict-main p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .kpi {
+      display: grid;
+      align-content: space-between;
+      gap: 8px;
+      min-height: 116px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .kpi span {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+      line-height: 1.05;
+      word-break: break-word;
+    }
+
+    .kpi small {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fact {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .fact strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1rem;
+      word-break: break-word;
+    }
+
+    .fact small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.8fr);
+      gap: 18px;
+    }
+
+    .chart-panel,
+    .score-panel,
+    .table-panel,
+    .notes-panel {
+      min-width: 0;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 360px;
+      min-height: 290px;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(24, 33, 29, 0.045) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(24, 33, 29, 0.045) 1px, transparent 1px),
+        #ffffff;
+      background-size: 42px 42px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .chart-wrap.small {
+      height: 290px;
+      min-height: 250px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tooltip {
+      position: absolute;
+      z-index: 4;
+      pointer-events: none;
+      transform: translate(12px, -12px);
+      max-width: 280px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(24, 33, 29, 0.95);
+      color: #ffffff;
+      font-size: 0.82rem;
+      box-shadow: 0 12px 26px rgba(24, 33, 29, 0.22);
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    .score-card {
+      display: grid;
+      gap: 10px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .score-card + .score-card {
+      margin-top: 12px;
+    }
+
+    .score-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .score-head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .score-value {
+      display: inline-grid;
+      place-items: center;
+      min-width: 48px;
+      height: 34px;
+      padding: 0 9px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-weight: 900;
+    }
+
+    .metric {
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric-bar {
+      height: 11px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+      border: 1px solid rgba(216, 224, 218, 0.95);
+    }
+
+    .metric-bar span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+      transition: width 160ms ease;
+    }
+
+    .metric:nth-child(2) .metric-bar span { background: var(--blue); }
+    .metric:nth-child(3) .metric-bar span { background: var(--amber); }
+    .metric:nth-child(4) .metric-bar span { background: var(--green); }
+    .metric:nth-child(5) .metric-bar span { background: var(--violet); }
+
+    .warning-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .warning {
+      display: grid;
+      grid-template-columns: 10px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .warning::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    .warning.warn::before {
+      background: var(--amber);
+    }
+
+    .warning.bad::before {
+      background: var(--rose);
+    }
+
+    .warning strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.91rem;
+    }
+
+    .warning span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .table-shell {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .plan-table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+    }
+
+    .plan-table th,
+    .plan-table td {
+      padding: 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.85rem;
+    }
+
+    .plan-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8faf8;
+      color: var(--muted);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .plan-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .plan-table tr[data-best="true"] td {
+      background: rgba(19, 120, 101, 0.08);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tag.ok {
+      background: var(--teal-soft);
+      color: #0d594f;
+    }
+
+    .tag.warn {
+      background: var(--amber-soft);
+      color: #835704;
+    }
+
+    .tag.bad {
+      background: var(--rose-soft);
+      color: #872b35;
+    }
+
+    .dest-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dest-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .dest-card strong,
+    .dest-card span,
+    .dest-card small {
+      display: block;
+    }
+
+    .dest-card span {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .dest-card small {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .source-line {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .source-line a {
+      color: var(--teal);
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .source-line a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1200px) {
+      .layout,
+      .grid-two,
+      .verdict {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+        max-height: none;
+      }
+
+      .facts-grid,
+      .dest-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 20px, 1540px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+
+      .actions,
+      .btn {
+        width: 100%;
+      }
+
+      .field-grid,
+      .scenario-buttons,
+      .facts-grid,
+      .dest-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Momento perfecto de compra</h1>
+        <p>Busca si existe una ventana real para comprar con 70.000 euros de ahorro, o si conviene alquilar, moverse a sitios mas baratos y jubilarse cobrando en euros.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="saveBtn" type="button">Guardar</button>
+        <button class="btn danger" id="resetBtn" type="button">Restablecer</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel controls">
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Vivienda objetivo</h2>
+            <span id="propertyHint">editable</span>
+          </div>
+          <div class="scenario-buttons" id="propertyButtons"></div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Perfil</h2>
+            <span>base corregida</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="currentAge">Edad actual <span>anos</span></label>
+              <input id="currentAge" data-setting="currentAge" type="number" min="18" max="80" step="1">
+            </div>
+            <div class="field">
+              <label for="retireAge">Jubilacion <span>anos</span></label>
+              <input id="retireAge" data-setting="retireAge" type="number" min="45" max="80" step="1">
+            </div>
+            <div class="field">
+              <label for="monthlyIncome">Neto mensual <span>EUR</span></label>
+              <input id="monthlyIncome" data-setting="monthlyIncome" type="number" min="0" step="25">
+            </div>
+            <div class="field">
+              <label for="pensionMonthly">Pension neta <span>EUR/mes</span></label>
+              <input id="pensionMonthly" data-setting="pensionMonthly" type="number" min="0" step="25">
+            </div>
+            <div class="field">
+              <label for="currentSavings">Ahorro actual <span>EUR</span></label>
+              <input id="currentSavings" data-setting="currentSavings" type="number" min="0" step="500">
+            </div>
+            <div class="field">
+              <label for="currentRent">Alquiler actual <span>EUR/mes</span></label>
+              <input id="currentRent" data-setting="currentRent" type="number" min="0" step="25">
+            </div>
+            <div class="field">
+              <label for="monthlySaving">Ahorro mensual <span>EUR</span></label>
+              <input id="monthlySaving" data-setting="monthlySaving" type="number" step="25">
+            </div>
+            <div class="field">
+              <label for="safetyMonths">Colchon minimo <span>meses</span></label>
+              <input id="safetyMonths" data-setting="safetyMonths" type="number" min="0" max="36" step="1">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Longevidad</h2>
+            <span>rango prudente</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="baseLifeAge">Edad actuarial <span>anos</span></label>
+              <input id="baseLifeAge" data-setting="baseLifeAge" type="number" min="65" max="100" step="0.1">
+            </div>
+            <div class="field">
+              <label for="sedentaryAdjustment">Ajuste salud <span>anos</span></label>
+              <input id="sedentaryAdjustment" data-setting="sedentaryAdjustment" type="number" min="-15" max="10" step="0.5">
+            </div>
+            <div class="field">
+              <label for="longLifeAge">Vida larga <span>anos</span></label>
+              <input id="longLifeAge" data-setting="longLifeAge" type="number" min="70" max="105" step="1">
+            </div>
+            <div class="field">
+              <label for="lifeMode">Planificar hasta <span>modo</span></label>
+              <select id="lifeMode" data-setting="lifeMode">
+                <option value="central">Central ajustado</option>
+                <option value="long">Vida larga</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Movilidad</h2>
+            <span>alquilar barato</span>
+          </div>
+          <div class="field-grid single">
+            <div class="toggle">
+              <label for="moveBeforeRetire">Moverme antes de jubilarme <span>si teletrabajo</span></label>
+              <input id="moveBeforeRetire" data-setting="moveBeforeRetire" type="checkbox">
+            </div>
+            <div class="toggle">
+              <label for="moveAtRetire">Moverme al jubilarme <span>pension en euros</span></label>
+              <input id="moveAtRetire" data-setting="moveAtRetire" type="checkbox">
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="preMoveAge">Edad mudanza previa <span>anos</span></label>
+              <input id="preMoveAge" data-setting="preMoveAge" type="number" min="18" max="80" step="1">
+            </div>
+            <div class="field">
+              <label for="preMoveDestination">Destino previo <span>coste</span></label>
+              <select id="preMoveDestination" data-setting="preMoveDestination"></select>
+            </div>
+            <div class="field">
+              <label for="retireDestination">Destino jubilacion <span>coste</span></label>
+              <select id="retireDestination" data-setting="retireDestination"></select>
+            </div>
+            <div class="field">
+              <label for="retireStrategy">Si compro y me voy <span>modo</span></label>
+              <select id="retireStrategy" data-setting="retireStrategy">
+                <option value="sell">Vender vivienda</option>
+                <option value="keep">Conservar vivienda</option>
+                <option value="stay">Quedarme en vivienda</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Compra todo incluido</h2>
+            <span>sin trampa</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="purchasePrice">Precio hoy <span>EUR</span></label>
+              <input id="purchasePrice" data-setting="purchasePrice" type="number" min="0" step="1000">
+            </div>
+            <div class="field">
+              <label for="mortgageLtv">Hipoteca <span>% precio</span></label>
+              <input id="mortgageLtv" data-setting="mortgageLtv" type="number" min="0" max="100" step="1">
+            </div>
+            <div class="field">
+              <label for="taxPct">IVA/AJD/ITP <span>%</span></label>
+              <input id="taxPct" data-setting="taxPct" type="number" min="0" max="25" step="0.1">
+            </div>
+            <div class="field">
+              <label for="notaryRegistry">Notaria/registro <span>EUR</span></label>
+              <input id="notaryRegistry" data-setting="notaryRegistry" type="number" min="0" step="100">
+            </div>
+            <div class="field">
+              <label for="appraisalCost">Tasacion/gestoria <span>EUR</span></label>
+              <input id="appraisalCost" data-setting="appraisalCost" type="number" min="0" step="50">
+            </div>
+            <div class="field">
+              <label for="furnitureCost">Muebles/equipos <span>EUR</span></label>
+              <input id="furnitureCost" data-setting="furnitureCost" type="number" min="0" step="250">
+            </div>
+            <div class="field">
+              <label for="utilitiesCost">Altas/suministros <span>EUR</span></label>
+              <input id="utilitiesCost" data-setting="utilitiesCost" type="number" min="0" step="50">
+            </div>
+            <div class="field">
+              <label for="moveCost">Mudanza <span>EUR</span></label>
+              <input id="moveCost" data-setting="moveCost" type="number" min="0" step="100">
+            </div>
+            <div class="field">
+              <label for="mortgageRate">TIN hipoteca <span>%</span></label>
+              <input id="mortgageRate" data-setting="mortgageRate" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="bankMaxAge">Banco hasta edad <span>anos</span></label>
+              <input id="bankMaxAge" data-setting="bankMaxAge" type="number" min="50" max="85" step="1">
+            </div>
+            <div class="field">
+              <label for="maxMortgageYears">Plazo maximo <span>anos</span></label>
+              <input id="maxMortgageYears" data-setting="maxMortgageYears" type="number" min="1" max="40" step="1">
+            </div>
+            <div class="field">
+              <label for="maxDebtRatio">Ratio deuda max <span>%</span></label>
+              <input id="maxDebtRatio" data-setting="maxDebtRatio" type="number" min="10" max="60" step="1">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Coste futuro</h2>
+            <span>sensibilidad</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="investmentReturn">Inversion neta <span>% anual</span></label>
+              <input id="investmentReturn" data-setting="investmentReturn" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="inflation">Inflacion <span>% anual</span></label>
+              <input id="inflation" data-setting="inflation" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="rentGrowth">Subida alquiler <span>% anual</span></label>
+              <input id="rentGrowth" data-setting="rentGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="incomeGrowth">Subida ingresos <span>% anual</span></label>
+              <input id="incomeGrowth" data-setting="incomeGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="pensionGrowth">Subida pension <span>% anual</span></label>
+              <input id="pensionGrowth" data-setting="pensionGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="expenseGrowth">Gastos generales <span>% anual</span></label>
+              <input id="expenseGrowth" data-setting="expenseGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="homeAppreciation">Vivienda sube <span>% anual</span></label>
+              <input id="homeAppreciation" data-setting="homeAppreciation" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="saleCostPct">Coste vender <span>%</span></label>
+              <input id="saleCostPct" data-setting="saleCostPct" type="number" min="0" max="15" step="0.5">
+            </div>
+            <div class="field">
+              <label for="ownerMonthlyCosts">IBI/comunidad <span>EUR/mes</span></label>
+              <input id="ownerMonthlyCosts" data-setting="ownerMonthlyCosts" type="number" min="0" step="10">
+            </div>
+            <div class="field">
+              <label for="maintenancePct">Mantenimiento <span>% anual</span></label>
+              <input id="maintenancePct" data-setting="maintenancePct" type="number" min="0" step="0.1">
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="content">
+        <section class="panel verdict">
+          <div class="verdict-main">
+            <span class="eyebrow" id="verdictEyebrow">Resultado</span>
+            <h2 id="verdictTitle">-</h2>
+            <p id="verdictText">-</p>
+          </div>
+          <div class="kpi">
+            <span>Mejor edad compra</span>
+            <strong id="bestAge">-</strong>
+            <small id="bestAgeNote">-</small>
+          </div>
+          <div class="kpi">
+            <span>Comprar ahora</span>
+            <strong id="nowStatus">-</strong>
+            <small id="nowNote">-</small>
+          </div>
+          <div class="kpi">
+            <span>Alquilar/moverse</span>
+            <strong id="rentScore">-</strong>
+            <small id="rentWorth">-</small>
+          </div>
+          <div class="kpi">
+            <span>Mejor compra</span>
+            <strong id="buyScore">-</strong>
+            <small id="buyWorth">-</small>
+          </div>
+        </section>
+
+        <section class="facts-grid" id="factsGrid"></section>
+
+        <div class="grid-two">
+          <section class="panel chart-panel">
+            <div class="section-title">
+              <h2>Puntuacion por edad de compra</h2>
+              <span id="scoreChartHint">valor + libertad</span>
+            </div>
+            <div class="chart-wrap" id="scoreWrap">
+              <canvas id="scoreCanvas"></canvas>
+              <div class="tooltip" id="scoreTooltip"></div>
+            </div>
+          </section>
+
+          <section class="panel score-panel">
+            <div class="section-title">
+              <h2>Libertad y riesgo</h2>
+              <span id="riskCount">-</span>
+            </div>
+            <div class="score-card">
+              <div class="score-head">
+                <h3>Alquilar y moverse</h3>
+                <span class="score-value" id="rentFreedom">-</span>
+              </div>
+              <div id="rentMetrics"></div>
+            </div>
+            <div class="score-card">
+              <div class="score-head">
+                <h3>Mejor compra</h3>
+                <span class="score-value" id="buyFreedom">-</span>
+              </div>
+              <div id="buyMetrics"></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="grid-two">
+          <section class="panel chart-panel">
+            <div class="section-title">
+              <h2>Patrimonio proyectado</h2>
+              <span>euros de hoy</span>
+            </div>
+            <div class="chart-wrap small" id="wealthWrap">
+              <canvas id="wealthCanvas"></canvas>
+              <div class="tooltip" id="wealthTooltip"></div>
+            </div>
+          </section>
+
+          <section class="panel score-panel">
+            <div class="section-title">
+              <h2>Semaforo</h2>
+              <span>condiciones reales</span>
+            </div>
+            <ul class="warning-list" id="warningList"></ul>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="section-title">
+            <h2>Ventana de compra ano por ano</h2>
+            <span id="tableHint">hasta jubilacion</span>
+          </div>
+          <div class="table-shell">
+            <table class="plan-table">
+              <thead>
+                <tr>
+                  <th>Edad</th>
+                  <th>Estado</th>
+                  <th>Precio vivienda</th>
+                  <th>Coste compra real</th>
+                  <th>Caja antes</th>
+                  <th>Caja despues</th>
+                  <th>Colchon requerido</th>
+                  <th>Plazo banco</th>
+                  <th>Cuota total</th>
+                  <th>Ratio deuda</th>
+                  <th>Patrimonio real</th>
+                  <th>Libertad</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="timingRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel notes-panel">
+          <div class="section-title">
+            <h2>Destinos de jubilacion</h2>
+            <span>coste relativo</span>
+          </div>
+          <div class="dest-grid" id="destinationGrid"></div>
+          <p class="source-line">
+            Fuentes usadas para supuestos base:
+            <a href="https://www.ine.es/dyngs/Prensa/es/MNP2024.htm" target="_blank" rel="noreferrer">INE esperanza de vida</a>,
+            <a href="https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/PrestacionesPensionesTrabajadores/10963/28393/28396/28472?changeLanguage=es" target="_blank" rel="noreferrer">Seguridad Social edad ordinaria</a>,
+            <a href="https://www.seg-social.es/wps/portal/wss/internet/FAQ?selectedCnt=1574ddf6-bfbc-42b0-8f55-f873418fd6fa&temaPregunta=Pensionistas&view=FAQs_detalle_tema" target="_blank" rel="noreferrer">pensionistas en el extranjero</a>,
+            <a href="https://www.who.int/europe/news-room/fact-sheets/item/physical-activity" target="_blank" rel="noreferrer">OMS actividad fisica</a>,
+            <a href="https://www.numbeo.com/cost-of-living/rankings_by_country.jsp?displayColumn=2&title=2026" target="_blank" rel="noreferrer">Numbeo coste de vida + alquiler</a>.
+          </p>
+          <p class="source-line">
+            La longevidad aqui es una hipotesis financiera, no un diagnostico. El ajuste sedentario es editable porque la evidencia dice que la inactividad aumenta riesgo, pero no permite fijar una fecha personal precisa.
+          </p>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "prop-tienda-momento-compra-v1";
+
+    const propertyScenarios = [
+      { id: "can-colomer-3", name: "Can Colomer 3", place: "Terrassa", price: 168000, note: "90+5+5 no confirmado" },
+      { id: "can-colomer", name: "Can Colomer", place: "Terrassa", price: 177000, note: "90+5+5 no confirmado" },
+      { id: "vilafranca", name: "Vilafranca 1D", place: "Vilafranca", price: 194000, note: "90+5+5 confirmado" },
+      { id: "santa-coloma", name: "Santa Coloma 1D", place: "Santa Coloma", price: 275000, note: "confirmado, tensionado" },
+      { id: "interior-barato", name: "Interior barato", place: "Cataluna/Andalucia", price: 95000, note: "segunda mano hipotetica" },
+      { id: "pueblo-liquido", name: "Pueblo liquido", place: "zona viva", price: 75000, note: "compra defensiva" }
+    ];
+
+    const destinations = [
+      { id: "spain-current", name: "Espana actual", factor: 1.00, risk: 2, note: "misma zona y mismo coste" },
+      { id: "spain-cheap", name: "Espana barata", factor: 0.76, risk: 3, note: "ciudad mediana o interior" },
+      { id: "argentina", name: "Argentina", factor: 0.73, risk: 8, note: "barato, volatilidad alta" },
+      { id: "colombia", name: "Colombia", factor: 0.57, risk: 6, note: "coste bajo, riesgo medio" },
+      { id: "paraguay", name: "Paraguay", factor: 0.52, risk: 6, note: "coste bajo, menos liquidez" },
+      { id: "uruguay", name: "Uruguay", factor: 0.96, risk: 4, note: "estable, no tan barato" }
+    ];
+
+    const defaults = {
+      selectedProperty: "can-colomer-3",
+      currentAge: 45,
+      retireAge: 67,
+      monthlyIncome: 2585,
+      pensionMonthly: 1650,
+      currentSavings: 70000,
+      currentRent: 800,
+      monthlySaving: 425,
+      safetyMonths: 12,
+      baseLifeAge: 84.9,
+      sedentaryAdjustment: -1,
+      longLifeAge: 92,
+      lifeMode: "central",
+      moveBeforeRetire: false,
+      moveAtRetire: true,
+      preMoveAge: 55,
+      preMoveDestination: "spain-cheap",
+      retireDestination: "colombia",
+      retireStrategy: "sell",
+      purchasePrice: 168000,
+      mortgageLtv: 90,
+      taxPct: 11.5,
+      notaryRegistry: 1800,
+      appraisalCost: 700,
+      furnitureCost: 7000,
+      utilitiesCost: 800,
+      moveCost: 1500,
+      mortgageRate: 4,
+      bankMaxAge: 75,
+      maxMortgageYears: 30,
+      maxDebtRatio: 35,
+      investmentReturn: 2,
+      inflation: 2,
+      rentGrowth: 2,
+      incomeGrowth: 0.5,
+      pensionGrowth: 1.5,
+      expenseGrowth: 2,
+      homeAppreciation: 1.5,
+      saleCostPct: 3,
+      ownerMonthlyCosts: 130,
+      maintenancePct: 0.7
+    };
+
+    const nodes = {
+      propertyButtons: document.getElementById("propertyButtons"),
+      propertyHint: document.getElementById("propertyHint"),
+      saveBtn: document.getElementById("saveBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      preMoveDestination: document.getElementById("preMoveDestination"),
+      retireDestination: document.getElementById("retireDestination"),
+      verdictEyebrow: document.getElementById("verdictEyebrow"),
+      verdictTitle: document.getElementById("verdictTitle"),
+      verdictText: document.getElementById("verdictText"),
+      bestAge: document.getElementById("bestAge"),
+      bestAgeNote: document.getElementById("bestAgeNote"),
+      nowStatus: document.getElementById("nowStatus"),
+      nowNote: document.getElementById("nowNote"),
+      rentScore: document.getElementById("rentScore"),
+      rentWorth: document.getElementById("rentWorth"),
+      buyScore: document.getElementById("buyScore"),
+      buyWorth: document.getElementById("buyWorth"),
+      factsGrid: document.getElementById("factsGrid"),
+      scoreWrap: document.getElementById("scoreWrap"),
+      scoreCanvas: document.getElementById("scoreCanvas"),
+      scoreTooltip: document.getElementById("scoreTooltip"),
+      wealthWrap: document.getElementById("wealthWrap"),
+      wealthCanvas: document.getElementById("wealthCanvas"),
+      wealthTooltip: document.getElementById("wealthTooltip"),
+      rentFreedom: document.getElementById("rentFreedom"),
+      buyFreedom: document.getElementById("buyFreedom"),
+      rentMetrics: document.getElementById("rentMetrics"),
+      buyMetrics: document.getElementById("buyMetrics"),
+      warningList: document.getElementById("warningList"),
+      riskCount: document.getElementById("riskCount"),
+      timingRows: document.getElementById("timingRows"),
+      tableHint: document.getElementById("tableHint"),
+      destinationGrid: document.getElementById("destinationGrid")
+    };
+
+    const inputs = [...document.querySelectorAll("[data-setting]")];
+    let state = loadState();
+    let scorePoints = [];
+    let wealthPoints = [];
+
+    init();
+
+    function init() {
+      renderDestinationOptions();
+      renderPropertyButtons();
+      bindInputs();
+      syncInputs();
+      renderAll();
+      window.addEventListener("resize", () => renderAll(false));
+      nodes.scoreWrap.addEventListener("mousemove", handleScoreHover);
+      nodes.scoreWrap.addEventListener("mouseleave", () => nodes.scoreTooltip.classList.remove("visible"));
+      nodes.wealthWrap.addEventListener("mousemove", handleWealthHover);
+      nodes.wealthWrap.addEventListener("mouseleave", () => nodes.wealthTooltip.classList.remove("visible"));
+      nodes.saveBtn.addEventListener("click", () => {
+        saveState();
+        flashButton(nodes.saveBtn, "Guardado");
+      });
+      nodes.resetBtn.addEventListener("click", resetState);
+    }
+
+    function bindInputs() {
+      inputs.forEach((input) => {
+        const eventName = input.type === "checkbox" || input.tagName === "SELECT" ? "change" : "input";
+        input.addEventListener(eventName, () => {
+          const key = input.dataset.setting;
+          state[key] = input.type === "checkbox" ? input.checked : parseInputValue(input, state[key]);
+          renderAll();
+          saveState();
+        });
+      });
+    }
+
+    function renderDestinationOptions() {
+      const html = destinations.map((item) => `
+        <option value="${item.id}">${escapeHtml(item.name)} (${Math.round(item.factor * 100)}%)</option>
+      `).join("");
+      nodes.preMoveDestination.innerHTML = html;
+      nodes.retireDestination.innerHTML = html;
+    }
+
+    function renderPropertyButtons() {
+      nodes.propertyButtons.innerHTML = propertyScenarios.map((item) => `
+        <button class="scenario-btn" type="button" data-property="${item.id}" aria-current="${item.id === state.selectedProperty}">
+          ${escapeHtml(item.name)}<br><span>${formatCurrency(item.price)}</span>
+        </button>
+      `).join("");
+      [...nodes.propertyButtons.querySelectorAll("[data-property]")].forEach((button) => {
+        button.addEventListener("click", () => selectProperty(button.dataset.property));
+      });
+    }
+
+    function selectProperty(id) {
+      const item = propertyScenarios.find((candidate) => candidate.id === id);
+      if (!item) return;
+      state.selectedProperty = id;
+      state.purchasePrice = item.price;
+      syncInputs();
+      renderAll();
+      saveState();
+    }
+
+    function syncInputs() {
+      inputs.forEach((input) => {
+        const key = input.dataset.setting;
+        if (input.type === "checkbox") {
+          input.checked = Boolean(state[key]);
+        } else {
+          input.value = state[key];
+        }
+      });
+    }
+
+    function renderAll(save = true) {
+      state = normalizeState(state);
+      const model = buildModel(state);
+      renderSummary(model);
+      renderFacts(model);
+      renderFreedom(model);
+      renderWarnings(model);
+      renderTimingTable(model);
+      renderDestinations(model);
+      drawScoreChart(model);
+      drawWealthChart(model);
+      renderPropertyButtons();
+      syncInputs();
+      if (save) saveState();
+    }
+
+    function buildModel(settings) {
+      const planAge = getPlanAge(settings);
+      const rent = simulateRentForever(settings, planAge);
+      const entries = [];
+      const maxBuyAge = Math.min(settings.retireAge, settings.bankMaxAge - 1);
+      for (let age = settings.currentAge; age <= maxBuyAge; age += 1) {
+        entries.push(simulateBuyAtAge(settings, planAge, age));
+      }
+      const scored = scoreChoices(settings, planAge, rent, entries);
+      const feasible = scored.entries.filter((entry) => entry.feasible);
+      const bestBuy = feasible.length
+        ? feasible.slice().sort((a, b) => b.decisionScore - a.decisionScore)[0]
+        : scored.entries.slice().sort((a, b) => b.decisionScore - a.decisionScore)[0];
+      const bestOverall = bestBuy && bestBuy.decisionScore > scored.rentDecisionScore + 2 ? bestBuy : null;
+      const now = scored.entries.find((entry) => Math.round(entry.buyAge) === Math.round(settings.currentAge));
+      return { settings, planAge, rent: scored.rent, entries: scored.entries, bestBuy, bestOverall, now };
+    }
+
+    function simulateRentForever(settings, planAge) {
+      const totalMonths = ageToMonths(settings.currentAge, planAge);
+      let liquid = settings.currentSavings;
+      let minLiquid = liquid;
+      let maxHousingRatio = 0;
+      const series = [];
+
+      for (let month = 0; month <= totalMonths; month += 1) {
+        const age = settings.currentAge + month / 12;
+        const years = month / 12;
+        const snapshot = {
+          age,
+          realNetWorth: realValue(liquid, settings, years),
+          nominalNetWorth: liquid,
+          liquid,
+          debt: 0
+        };
+        series.push(snapshot);
+        if (month === totalMonths) break;
+
+        const flow = monthlyContext(settings, age, month + 1, "rent");
+        liquid = growLiquid(liquid, settings) + flow.income - flow.rent - flow.otherSpending;
+        minLiquid = Math.min(minLiquid, liquid);
+        maxHousingRatio = Math.max(maxHousingRatio, flow.income > 0 ? flow.rent / flow.income : 1);
+      }
+
+      const final = series[series.length - 1];
+      const freedom = freedomForRent(settings, final, minLiquid, maxHousingRatio);
+      return {
+        type: "rent",
+        feasible: true,
+        final,
+        series,
+        minLiquid,
+        maxHousingRatio,
+        freedom,
+        decisionScore: 0
+      };
+    }
+
+    function simulateBuyAtAge(settings, planAge, buyAge) {
+      const totalMonths = ageToMonths(settings.currentAge, planAge);
+      const buyMonth = ageToMonths(settings.currentAge, buyAge);
+      let liquid = settings.currentSavings;
+      let bought = false;
+      let sold = false;
+      let purchase = null;
+      let minLiquid = liquid;
+      let maxDebtRatio = 0;
+      let maxHousingRatio = 0;
+      const series = [];
+
+      for (let month = 0; month <= totalMonths; month += 1) {
+        const age = settings.currentAge + month / 12;
+        const years = month / 12;
+
+        if (!bought && month === buyMonth) {
+          purchase = purchasePackage(settings, buyAge, liquid);
+          liquid -= purchase.cashToClose;
+          bought = true;
+          minLiquid = Math.min(minLiquid, liquid);
+        }
+
+        if (bought && !sold && settings.moveAtRetire && settings.retireStrategy === "sell" && age >= settings.retireAge) {
+          const sale = saleSnapshot(settings, purchase, age);
+          liquid += sale.netSale - sale.mortgageBalance;
+          sold = true;
+          minLiquid = Math.min(minLiquid, liquid);
+        }
+
+        const snapshot = netWorthSnapshot(settings, planAge, age, month, liquid, purchase, bought, sold);
+        series.push(snapshot);
+        if (month === totalMonths) break;
+
+        const mode = bought && !sold && settings.retireStrategy !== "sell" ? "own" : "rent";
+        const flow = monthlyContext(settings, age, month + 1, mode);
+        const mortgage = bought && !sold ? mortgageDueAt(purchase, age) : 0;
+        const ownerCost = bought && !sold ? ownerCostAt(settings, age, month + 1) : 0;
+        const housing = mode === "own" ? mortgage + ownerCost : flow.rent;
+        liquid = growLiquid(liquid, settings) + flow.income - flow.otherSpending - housing;
+        minLiquid = Math.min(minLiquid, liquid);
+        maxDebtRatio = Math.max(maxDebtRatio, flow.income > 0 ? mortgage / flow.income : 1);
+        maxHousingRatio = Math.max(maxHousingRatio, flow.income > 0 ? housing / flow.income : 1);
+      }
+
+      const final = series[series.length - 1];
+      const feasible = purchase && purchase.safeAfterClose >= 0 && purchase.termYears >= 5 && maxDebtRatio * 100 <= settings.maxDebtRatio;
+      const freedom = freedomForBuy(settings, final, purchase, minLiquid, maxDebtRatio, maxHousingRatio, sold);
+      return {
+        type: "buy",
+        buyAge,
+        feasible,
+        purchase,
+        final,
+        series,
+        minLiquid,
+        maxDebtRatio,
+        maxHousingRatio,
+        freedom,
+        sold,
+        decisionScore: 0
+      };
+    }
+
+    function purchasePackage(settings, buyAge, cashBefore) {
+      const yearsUntilBuy = buyAge - settings.currentAge;
+      const price = settings.purchasePrice * Math.pow(1 + settings.homeAppreciation / 100, yearsUntilBuy);
+      const mortgagePrincipal = price * settings.mortgageLtv / 100;
+      const fixedCosts = futureCost(settings.notaryRegistry + settings.appraisalCost + settings.furnitureCost + settings.utilitiesCost + settings.moveCost, settings, yearsUntilBuy);
+      const taxes = price * settings.taxPct / 100;
+      const downPayment = price * (100 - settings.mortgageLtv) / 100;
+      const cashToClose = downPayment + taxes + fixedCosts;
+      const termYears = Math.max(0, Math.min(settings.maxMortgageYears, settings.bankMaxAge - buyAge));
+      const monthlyPayment = termYears > 0 ? payment(mortgagePrincipal, settings.mortgageRate, termYears) : Infinity;
+      const ctx = monthlyContext(settings, buyAge, ageToMonths(settings.currentAge, buyAge), "own");
+      const ownerCost = ownerCostAt(settings, buyAge, ageToMonths(settings.currentAge, buyAge));
+      const cushion = (ctx.otherSpending + ownerCost + monthlyPayment) * settings.safetyMonths;
+
+      return {
+        buyAge,
+        price,
+        mortgagePrincipal,
+        fixedCosts,
+        taxes,
+        downPayment,
+        cashToClose,
+        cashBefore,
+        cashAfter: cashBefore - cashToClose,
+        cushion,
+        safeAfterClose: cashBefore - cashToClose - cushion,
+        termYears,
+        monthlyPayment
+      };
+    }
+
+    function netWorthSnapshot(settings, planAge, age, month, liquid, purchase, bought, sold) {
+      let propertyValue = 0;
+      let mortgageBalance = 0;
+      let netSale = 0;
+      if (bought && purchase && !sold) {
+        const yearsOwned = Math.max(0, age - purchase.buyAge);
+        propertyValue = purchase.price * Math.pow(1 + settings.homeAppreciation / 100, yearsOwned);
+        mortgageBalance = balance(purchase.mortgagePrincipal, settings.mortgageRate, purchase.termYears, ageToMonths(purchase.buyAge, age));
+        netSale = propertyValue * (1 - settings.saleCostPct / 100);
+      }
+      const nominal = liquid + netSale - mortgageBalance;
+      return {
+        age,
+        realNetWorth: realValue(nominal, settings, age - settings.currentAge),
+        nominalNetWorth: nominal,
+        liquid,
+        propertyValue,
+        mortgageBalance,
+        debt: mortgageBalance
+      };
+    }
+
+    function saleSnapshot(settings, purchase, age) {
+      const yearsOwned = Math.max(0, age - purchase.buyAge);
+      const propertyValue = purchase.price * Math.pow(1 + settings.homeAppreciation / 100, yearsOwned);
+      const netSale = propertyValue * (1 - settings.saleCostPct / 100);
+      const mortgageBalance = balance(purchase.mortgagePrincipal, settings.mortgageRate, purchase.termYears, ageToMonths(purchase.buyAge, age));
+      return { propertyValue, netSale, mortgageBalance };
+    }
+
+    function scoreChoices(settings, planAge, rent, entries) {
+      const all = [rent, ...entries];
+      const values = all.map((item) => item.final.realNetWorth);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const scoreValue = (value) => max === min ? 50 : clamp(((value - min) / (max - min)) * 100, 0, 100);
+
+      rent.valueScore = scoreValue(rent.final.realNetWorth);
+      rent.decisionScore = decisionScore(rent.valueScore, rent.freedom.total, true);
+      entries.forEach((entry) => {
+        entry.valueScore = scoreValue(entry.final.realNetWorth);
+        entry.decisionScore = decisionScore(entry.valueScore, entry.freedom.total, entry.feasible);
+      });
+
+      return { rent, entries, rentDecisionScore: rent.decisionScore };
+    }
+
+    function decisionScore(valueScore, freedomScore, feasible) {
+      const base = valueScore * 0.58 + freedomScore * 0.42;
+      return clamp(base + (feasible ? 0 : -28), 0, 100);
+    }
+
+    function freedomForRent(settings, final, minLiquid, maxHousingRatio) {
+      const monthlyNeed = currentMonthlyNeed(settings, settings.retireAge, "rent");
+      const liquidityMonths = final.liquid / Math.max(1, monthlyNeed);
+      const liquidity = scoreRange(liquidityMonths, settings.safetyMonths, 48);
+      const mobility = 96;
+      const debt = 100;
+      const housing = scoreLower(maxHousingRatio * 100, 30, 60);
+      const destination = destinationRiskScore(settings.retireDestination);
+      const total = weighted([
+        [liquidity, 0.32],
+        [mobility, 0.22],
+        [debt, 0.18],
+        [housing, 0.16],
+        [destination, 0.12]
+      ]);
+      return {
+        total,
+        metrics: [
+          ["Liquidez final", liquidity],
+          ["Movilidad", mobility],
+          ["Sin deuda", debt],
+          ["Esfuerzo alquiler", housing],
+          ["Riesgo destino", destination]
+        ]
+      };
+    }
+
+    function freedomForBuy(settings, final, purchase, minLiquid, maxDebtRatio, maxHousingRatio, sold) {
+      const monthlyNeed = currentMonthlyNeed(settings, settings.retireAge, sold ? "rent" : "own");
+      const liquidityMonths = final.liquid / Math.max(1, monthlyNeed);
+      const liquidity = scoreRange(liquidityMonths, settings.safetyMonths, 42);
+      const debt = scoreLower(final.debt / Math.max(1, settings.pensionMonthly * 12), 0.3, 4.2);
+      const debtRatio = scoreLower(maxDebtRatio * 100, 30, 50);
+      const mobility = sold ? 88 : settings.retireStrategy === "stay" ? 54 : 45;
+      const feasibility = purchase && purchase.safeAfterClose >= 0 ? 100 : 10;
+      const destination = sold || settings.retireStrategy === "keep" ? destinationRiskScore(settings.retireDestination) : 72;
+      const total = weighted([
+        [liquidity, 0.28],
+        [debt, 0.18],
+        [debtRatio, 0.18],
+        [mobility, 0.13],
+        [feasibility, 0.13],
+        [destination, 0.10]
+      ]);
+      return {
+        total,
+        metrics: [
+          ["Liquidez final", liquidity],
+          ["Deuda baja", debt],
+          ["Ratio deuda", debtRatio],
+          ["Movilidad", mobility],
+          ["Caja segura", feasibility]
+        ]
+      };
+    }
+
+    function monthlyContext(settings, age, monthIndex, mode) {
+      const y = monthIndex / 12;
+      const retired = age >= settings.retireAge;
+      const dest = locationForAge(settings, age, mode);
+      const incomeBase = retired ? settings.pensionMonthly : settings.monthlyIncome;
+      const growth = retired ? settings.pensionGrowth : settings.incomeGrowth;
+      const incomeYears = Math.max(0, age - (retired ? settings.retireAge : settings.currentAge));
+      const income = incomeBase * Math.pow(1 + growth / 100, incomeYears);
+      const baseOther = Math.max(0, settings.monthlyIncome - settings.currentRent - settings.monthlySaving);
+      const otherSpending = baseOther * dest.factor * Math.pow(1 + settings.expenseGrowth / 100, y);
+      const rent = settings.currentRent * dest.factor * Math.pow(1 + settings.rentGrowth / 100, y);
+      return { income, otherSpending, rent, dest };
+    }
+
+    function locationForAge(settings, age, mode) {
+      if (mode === "own" && settings.retireStrategy === "stay") return getDestination("spain-current");
+      if (age >= settings.retireAge && settings.moveAtRetire && mode === "rent") return getDestination(settings.retireDestination);
+      if (age >= settings.retireAge && settings.moveAtRetire && settings.retireStrategy !== "stay") return getDestination(settings.retireDestination);
+      if (settings.moveBeforeRetire && age >= settings.preMoveAge) return getDestination(settings.preMoveDestination);
+      return getDestination("spain-current");
+    }
+
+    function ownerCostAt(settings, age, monthIndex) {
+      const y = monthIndex / 12;
+      const maintenance = settings.purchasePrice * settings.maintenancePct / 100 / 12;
+      return (settings.ownerMonthlyCosts + maintenance) * Math.pow(1 + settings.expenseGrowth / 100, y);
+    }
+
+    function mortgageDueAt(purchase, age) {
+      if (!purchase || purchase.termYears <= 0) return 0;
+      const months = ageToMonths(purchase.buyAge, age);
+      return months < purchase.termYears * 12 ? purchase.monthlyPayment : 0;
+    }
+
+    function getPlanAge(settings) {
+      const central = settings.baseLifeAge + settings.sedentaryAdjustment;
+      const selected = settings.lifeMode === "long" ? settings.longLifeAge : central;
+      return clamp(Math.max(settings.retireAge + 5, selected), settings.currentAge + 1, 105);
+    }
+
+    function currentMonthlyNeed(settings, age, mode) {
+      const ctx = monthlyContext(settings, age, ageToMonths(settings.currentAge, age), mode);
+      return ctx.otherSpending + (mode === "rent" ? ctx.rent : ownerCostAt(settings, age, ageToMonths(settings.currentAge, age)));
+    }
+
+    function renderSummary(model) {
+      const best = model.bestBuy;
+      const now = model.now;
+      const rent = model.rent;
+      const property = propertyScenarios.find((item) => item.id === state.selectedProperty);
+      nodes.propertyHint.textContent = property ? property.note : "editable";
+
+      nodes.bestAge.textContent = model.bestOverall ? `${Math.round(best.buyAge)} anos` : "No aparece";
+      nodes.bestAgeNote.textContent = model.bestOverall ? `score ${formatNumber(best.decisionScore, 0)}` : "alquilar/moverse domina";
+      nodes.nowStatus.textContent = now && now.feasible ? "Viable" : "No ideal";
+      nodes.nowNote.textContent = now ? `${statusLabel(now).label}, ${formatCurrency(now.purchase.safeAfterClose)} sobre colchon` : "-";
+      nodes.rentScore.textContent = formatNumber(rent.decisionScore, 0);
+      nodes.rentWorth.textContent = `${formatCurrency(rent.final.realNetWorth)} reales`;
+      nodes.buyScore.textContent = best ? formatNumber(best.decisionScore, 0) : "-";
+      nodes.buyWorth.textContent = best ? `${formatCurrency(best.final.realNetWorth)} reales` : "-";
+
+      if (!best || !best.feasible) {
+        nodes.verdictEyebrow.textContent = "Sin ventana clara";
+        nodes.verdictTitle.textContent = "No existe compra perfecta con estos supuestos";
+        nodes.verdictText.textContent = "La compra queda penalizada por caja, plazo bancario, deuda o perdida de movilidad. El plan racional es alquilar, invertir y conservar opciones.";
+        return;
+      }
+
+      const advantage = best.decisionScore - rent.decisionScore;
+      if (advantage <= 2) {
+        nodes.verdictEyebrow.textContent = "Empate practico";
+        nodes.verdictTitle.textContent = "Comprar no gana con claridad";
+        nodes.verdictText.textContent = `La mejor compra seria a los ${Math.round(best.buyAge)}, pero la ventaja frente a alquilar y moverse es demasiado pequena para llamarla perfecta.`;
+      } else if (Math.round(best.buyAge) <= state.currentAge) {
+        nodes.verdictEyebrow.textContent = "Ventana abierta";
+        nodes.verdictTitle.textContent = "Si compras, el momento fuerte es ahora";
+        nodes.verdictText.textContent = "Con 70.000 euros, la restriccion ya no es la entrada basica sino no destruir liquidez y no comprar algo que bloquee tu plan de jubilacion/mudanza.";
+      } else {
+        nodes.verdictEyebrow.textContent = "Esperar con objetivo";
+        nodes.verdictTitle.textContent = `La ventana mas fuerte aparece a los ${Math.round(best.buyAge)} anos`;
+        nodes.verdictText.textContent = "Esperar permite acumular mas caja, pero no demasiado: al acercarte a jubilacion el banco acorta plazo y la compra pierde libertad.";
+      }
+    }
+
+    function renderFacts(model) {
+      const best = model.bestBuy;
+      const now = model.now;
+      const planAge = model.planAge;
+      const destination = getDestination(state.retireDestination);
+      const central = state.baseLifeAge + state.sedentaryAdjustment;
+      const allInNow = now ? now.purchase.cashToClose + now.purchase.cushion : 0;
+      const facts = [
+        ["Edad de plan", `${formatNumber(planAge, 1)} anos`, state.lifeMode === "long" ? "escenario vida larga" : `central ajustado: ${formatNumber(central, 1)}`],
+        ["Ahorro corregido", formatCurrency(state.currentSavings), "cambia completamente la viabilidad"],
+        ["Compra ahora all-in", formatCurrency(allInNow), "entrada + impuestos + gastos + muebles + colchon"],
+        ["Caja tras comprar ahora", now ? formatCurrency(now.purchase.cashAfter) : "-", now ? `colchon: ${formatCurrency(now.purchase.cushion)}` : "-"],
+        ["Destino jubilacion", destination.name, `${Math.round(destination.factor * 100)}% del coste actual aprox.`],
+        ["Pension configurada", formatCurrency(state.pensionMonthly), "euros mensuales netos"],
+        ["Mejor patrimonio", best ? formatCurrency(best.final.realNetWorth) : "-", "euros de hoy al final del plan"],
+        ["Alquilar patrimonio", formatCurrency(model.rent.final.realNetWorth), "euros de hoy al final del plan"]
+      ];
+      nodes.factsGrid.innerHTML = facts.map(([label, value, note]) => `
+        <div class="fact">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <small>${escapeHtml(note)}</small>
+        </div>
+      `).join("");
+    }
+
+    function renderFreedom(model) {
+      nodes.rentFreedom.textContent = formatNumber(model.rent.freedom.total, 0);
+      nodes.buyFreedom.textContent = model.bestBuy ? formatNumber(model.bestBuy.freedom.total, 0) : "-";
+      nodes.rentMetrics.innerHTML = metricBars(model.rent.freedom.metrics);
+      nodes.buyMetrics.innerHTML = model.bestBuy ? metricBars(model.bestBuy.freedom.metrics) : "";
+    }
+
+    function metricBars(metrics) {
+      return metrics.map(([label, value]) => `
+        <div class="metric">
+          <div class="metric-label">
+            <span>${escapeHtml(label)}</span>
+            <span>${formatNumber(value, 0)}</span>
+          </div>
+          <div class="metric-bar"><span style="width: ${clamp(value, 0, 100)}%"></span></div>
+        </div>
+      `).join("");
+    }
+
+    function renderWarnings(model) {
+      const warnings = [];
+      const now = model.now;
+      const best = model.bestBuy;
+      const rent = model.rent;
+      if (now && now.purchase.safeAfterClose >= 0) {
+        warnings.push(["ok", "La entrada ya no es el cuello de botella", `Comprando ahora sobran ${formatCurrency(now.purchase.safeAfterClose)} sobre el colchon minimo configurado.`]);
+      } else if (now) {
+        warnings.push(["bad", "Comprar ahora consume demasiado colchon", `Faltan ${formatCurrency(Math.abs(now.purchase.safeAfterClose))} para cerrar y mantener el colchon.`]);
+      }
+
+      if (now && now.maxDebtRatio * 100 > state.maxDebtRatio) {
+        warnings.push(["bad", "La deuda sigue siendo el filtro bancario", `Ratio maximo estimado: ${formatPercent(now.maxDebtRatio * 100)}.`]);
+      } else {
+        warnings.push(["ok", "Ratio hipotecario razonable", now ? `Comprar ahora queda cerca de ${formatPercent(now.maxDebtRatio * 100)} de deuda/ingreso.` : ""]);
+      }
+
+      if (best && best.feasible && best.buyAge > state.currentAge + 5) {
+        warnings.push(["warn", "Esperar demasiado tiene coste bancario", "Cada ano reduce plazo potencial porque el banco mira edad al vencimiento."]);
+      }
+
+      if (state.moveAtRetire && state.retireStrategy === "sell") {
+        warnings.push(["warn", "Comprar y vender antes de irte exige acertar", "La vivienda debe subir lo bastante para compensar impuestos iniciales y coste de venta."]);
+      }
+
+      if (rent.final.realNetWorth > (best ? best.final.realNetWorth : -Infinity)) {
+        warnings.push(["warn", "Alquilar/moverse gana patrimonio real", "La movilidad geografica puede ser mas valiosa que forzar propiedad en Espana."]);
+      }
+
+      if (getDestination(state.retireDestination).risk >= 6) {
+        warnings.push(["warn", "Destino barato no significa sin riesgo", "Moneda, sanidad, seguridad juridica y residencia fiscal importan tanto como el alquiler."]);
+      }
+
+      nodes.warningList.innerHTML = warnings.map(([type, title, text]) => `
+        <li class="warning ${type === "ok" ? "" : type}">
+          <div>
+            <strong>${escapeHtml(title)}</strong>
+            <span>${escapeHtml(text)}</span>
+          </div>
+        </li>
+      `).join("");
+      nodes.riskCount.textContent = `${warnings.filter((item) => item[0] !== "ok").length} alertas`;
+    }
+
+    function renderTimingTable(model) {
+      const bestAge = model.bestBuy ? Math.round(model.bestBuy.buyAge) : null;
+      nodes.tableHint.textContent = `hasta ${Math.min(state.retireAge, state.bankMaxAge - 1)} anos`;
+      nodes.timingRows.innerHTML = model.entries.map((entry) => {
+        const status = statusLabel(entry);
+        return `
+          <tr data-best="${Math.round(entry.buyAge) === bestAge && entry.feasible}">
+            <td><strong>${Math.round(entry.buyAge)}</strong></td>
+            <td><span class="tag ${status.type}">${escapeHtml(status.label)}</span></td>
+            <td>${formatCurrency(entry.purchase.price)}</td>
+            <td>${formatCurrency(entry.purchase.cashToClose)}</td>
+            <td>${formatCurrency(entry.purchase.cashBefore)}</td>
+            <td>${formatCurrency(entry.purchase.cashAfter)}</td>
+            <td>${formatCurrency(entry.purchase.cushion)}</td>
+            <td>${formatNumber(entry.purchase.termYears, 0)} anos</td>
+            <td>${formatCurrency(entry.purchase.monthlyPayment + ownerCostAt(state, entry.buyAge, ageToMonths(state.currentAge, entry.buyAge)))}</td>
+            <td>${formatPercent(entry.maxDebtRatio * 100)}</td>
+            <td>${formatCurrency(entry.final.realNetWorth)}</td>
+            <td>${formatNumber(entry.freedom.total, 0)}</td>
+            <td>${formatNumber(entry.decisionScore, 0)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function statusLabel(entry) {
+      if (!entry.purchase || entry.purchase.termYears < 5) return { type: "bad", label: "sin plazo" };
+      if (entry.purchase.safeAfterClose < 0) return { type: "bad", label: "sin colchon" };
+      if (entry.maxDebtRatio * 100 > state.maxDebtRatio) return { type: "bad", label: "deuda alta" };
+      if (entry.minLiquid < 0) return { type: "warn", label: "liquidez baja" };
+      return { type: "ok", label: "viable" };
+    }
+
+    function renderDestinations(model) {
+      const baseNeed = state.currentRent + Math.max(0, state.monthlyIncome - state.currentRent - state.monthlySaving);
+      nodes.destinationGrid.innerHTML = destinations.map((destination) => {
+        const need = baseNeed * destination.factor;
+        const pensionGap = state.pensionMonthly - need;
+        const yearsCovered = pensionGap >= 0 ? "sin tirar de ahorro" : `${formatNumber(Math.abs(model.rent.final.realNetWorth / (pensionGap * 12)), 1)} anos`;
+        return `
+          <div class="dest-card">
+            <strong>${escapeHtml(destination.name)}</strong>
+            <span>Coste estimado: ${formatCurrency(need)}/mes</span>
+            <span>Pension - coste: ${signedCurrency(pensionGap)}/mes</span>
+            <small>${escapeHtml(destination.note)}. Ahorro cubre: ${yearsCovered}.</small>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function drawScoreChart(model) {
+      const canvas = nodes.scoreCanvas;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 30, right: 24, bottom: 44, left: 48 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+      const maxScore = 100;
+      const minScore = 0;
+      const entries = model.entries;
+      scorePoints = [];
+
+      ctx.clearRect(0, 0, width, height);
+      drawGrid(ctx, width, height, pad, minScore, maxScore, "score");
+
+      const rentY = pad.top + (1 - model.rent.decisionScore / 100) * plotH;
+      ctx.strokeStyle = "#b6780e";
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, rentY);
+      ctx.lineTo(width - pad.right, rentY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#835704";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("Alquilar/moverse", pad.left + 6, rentY - 8);
+
+      const barGap = 5;
+      const barW = Math.max(8, (plotW - barGap * Math.max(0, entries.length - 1)) / Math.max(1, entries.length));
+      entries.forEach((entry, index) => {
+        const x = pad.left + index * (barW + barGap);
+        const h = (entry.decisionScore / 100) * plotH;
+        const y = pad.top + plotH - h;
+        ctx.fillStyle = entry.feasible ? "#137865" : "#c84e58";
+        if (model.bestBuy && Math.round(entry.buyAge) === Math.round(model.bestBuy.buyAge) && entry.feasible) {
+          ctx.fillStyle = "#3f65a1";
+        }
+        ctx.fillRect(x, y, barW, h);
+        scorePoints.push({ x: x + barW / 2, y, r: Math.max(7, barW / 2), entry });
+
+        if (index % 3 === 0 || index === entries.length - 1) {
+          ctx.fillStyle = "#64716b";
+          ctx.font = "12px Inter, system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(Math.round(entry.buyAge), x + barW / 2, height - pad.bottom + 14);
+        }
+      });
+    }
+
+    function drawWealthChart(model) {
+      const canvas = nodes.wealthCanvas;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 28, right: 24, bottom: 42, left: 62 };
+      const best = model.bestBuy && model.bestBuy.feasible ? model.bestBuy : null;
+      const seriesList = [model.rent.series, best ? best.series : []].filter((series) => series.length);
+      const values = seriesList.flatMap((series) => series.map((point) => point.realNetWorth));
+      const yMin = niceFloor(Math.min(0, ...values));
+      const yMax = niceCeil(Math.max(1000, ...values));
+      const xMin = state.currentAge;
+      const xMax = model.planAge;
+      wealthPoints = [];
+
+      ctx.clearRect(0, 0, width, height);
+      drawMoneyGrid(ctx, width, height, pad, yMin, yMax, xMin, xMax);
+      drawWealthLine(ctx, model.rent.series, "#137865", "Alquiler/moverse", xMin, xMax, yMin, yMax, pad);
+      if (best) {
+        drawWealthLine(ctx, best.series, "#3f65a1", `Compra a ${Math.round(best.buyAge)}`, xMin, xMax, yMin, yMax, pad);
+      }
+      drawLegend(ctx, [
+        ["Alquiler/moverse", "#137865"],
+        [best ? `Compra a ${Math.round(best.buyAge)}` : "Compra no viable", best ? "#3f65a1" : "#c84e58"]
+      ], pad.left, 18);
+    }
+
+    function drawWealthLine(ctx, series, color, label, xMin, xMax, yMin, yMax, pad) {
+      const canvas = ctx.canvas;
+      const width = canvas.getBoundingClientRect().width;
+      const height = canvas.getBoundingClientRect().height;
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+      ctx.beginPath();
+      series.forEach((point, index) => {
+        const x = pad.left + ((point.age - xMin) / Math.max(1, xMax - xMin)) * plotW;
+        const y = pad.top + (1 - ((point.realNetWorth - yMin) / Math.max(1, yMax - yMin))) * plotH;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        if (index % 12 === 0 || index === series.length - 1) {
+          wealthPoints.push({ x, y, point, label });
+        }
+      });
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    }
+
+    function drawGrid(ctx, width, height, pad, minValue, maxValue, label) {
+      ctx.strokeStyle = "#d8e0da";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#64716b";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      const plotH = height - pad.top - pad.bottom;
+      for (let i = 0; i <= 4; i += 1) {
+        const t = i / 4;
+        const y = pad.top + t * plotH;
+        const value = maxValue - t * (maxValue - minValue);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        ctx.fillText(label === "score" ? formatNumber(value, 0) : compactCurrency(value), pad.left - 9, y);
+      }
+    }
+
+    function drawMoneyGrid(ctx, width, height, pad, yMin, yMax, xMin, xMax) {
+      drawGrid(ctx, width, height, pad, yMin, yMax, "money");
+      ctx.fillStyle = "#64716b";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      const steps = 5;
+      for (let i = 0; i <= steps; i += 1) {
+        const age = xMin + (i / steps) * (xMax - xMin);
+        const x = pad.left + (i / steps) * (width - pad.left - pad.right);
+        ctx.fillText(Math.round(age), x, height - pad.bottom + 14);
+      }
+    }
+
+    function drawLegend(ctx, items, x, y) {
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      let cursor = x;
+      items.forEach(([label, color]) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(cursor + 5, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#18211d";
+        ctx.fillText(label, cursor + 16, y);
+        cursor += ctx.measureText(label).width + 44;
+      });
+    }
+
+    function handleScoreHover(event) {
+      const rect = nodes.scoreCanvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const hit = scorePoints.find((point) => Math.hypot(point.x - x, point.y - y) <= point.r + 5);
+      if (!hit) {
+        nodes.scoreTooltip.classList.remove("visible");
+        return;
+      }
+      const entry = hit.entry;
+      nodes.scoreTooltip.innerHTML = `
+        <strong>Comprar a los ${Math.round(entry.buyAge)}</strong><br>
+        Score: ${formatNumber(entry.decisionScore, 0)} - ${statusLabel(entry).label}<br>
+        Patrimonio real: ${formatCurrency(entry.final.realNetWorth)}<br>
+        Caja despues: ${formatCurrency(entry.purchase.cashAfter)}
+      `;
+      nodes.scoreTooltip.style.left = `${x}px`;
+      nodes.scoreTooltip.style.top = `${y}px`;
+      nodes.scoreTooltip.classList.add("visible");
+    }
+
+    function handleWealthHover(event) {
+      const rect = nodes.wealthCanvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const hit = wealthPoints.find((point) => Math.hypot(point.x - x, point.y - y) <= 8);
+      if (!hit) {
+        nodes.wealthTooltip.classList.remove("visible");
+        return;
+      }
+      nodes.wealthTooltip.innerHTML = `
+        <strong>${escapeHtml(hit.label)}</strong><br>
+        Edad ${formatNumber(hit.point.age, 0)}: ${formatCurrency(hit.point.realNetWorth)} reales<br>
+        Liquidez: ${formatCurrency(hit.point.liquid)}
+      `;
+      nodes.wealthTooltip.style.left = `${x}px`;
+      nodes.wealthTooltip.style.top = `${y}px`;
+      nodes.wealthTooltip.classList.add("visible");
+    }
+
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+      canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return ctx;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && typeof saved === "object") {
+          return normalizeState({ ...defaults, ...saved });
+        }
+      } catch (error) {
+        return { ...defaults };
+      }
+      return { ...defaults };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function resetState() {
+      state = { ...defaults };
+      syncInputs();
+      renderAll();
+    }
+
+    function normalizeState(value) {
+      const clean = { ...defaults, ...value };
+      clean.currentAge = clamp(toNumber(clean.currentAge, defaults.currentAge), 18, 80);
+      clean.retireAge = clamp(toNumber(clean.retireAge, defaults.retireAge), clean.currentAge + 1, 80);
+      clean.monthlyIncome = Math.max(0, toNumber(clean.monthlyIncome, defaults.monthlyIncome));
+      clean.pensionMonthly = Math.max(0, toNumber(clean.pensionMonthly, defaults.pensionMonthly));
+      clean.currentSavings = Math.max(0, toNumber(clean.currentSavings, defaults.currentSavings));
+      clean.currentRent = Math.max(0, toNumber(clean.currentRent, defaults.currentRent));
+      clean.monthlySaving = toNumber(clean.monthlySaving, defaults.monthlySaving);
+      clean.safetyMonths = clamp(toNumber(clean.safetyMonths, defaults.safetyMonths), 0, 36);
+      clean.baseLifeAge = clamp(toNumber(clean.baseLifeAge, defaults.baseLifeAge), 65, 100);
+      clean.sedentaryAdjustment = clamp(toNumber(clean.sedentaryAdjustment, defaults.sedentaryAdjustment), -15, 10);
+      clean.longLifeAge = clamp(toNumber(clean.longLifeAge, defaults.longLifeAge), 70, 105);
+      clean.lifeMode = clean.lifeMode === "long" ? "long" : "central";
+      clean.moveBeforeRetire = Boolean(clean.moveBeforeRetire);
+      clean.moveAtRetire = Boolean(clean.moveAtRetire);
+      clean.preMoveAge = clamp(toNumber(clean.preMoveAge, defaults.preMoveAge), clean.currentAge, clean.retireAge);
+      clean.preMoveDestination = destinations.some((item) => item.id === clean.preMoveDestination) ? clean.preMoveDestination : defaults.preMoveDestination;
+      clean.retireDestination = destinations.some((item) => item.id === clean.retireDestination) ? clean.retireDestination : defaults.retireDestination;
+      clean.retireStrategy = ["sell", "keep", "stay"].includes(clean.retireStrategy) ? clean.retireStrategy : defaults.retireStrategy;
+      clean.selectedProperty = propertyScenarios.some((item) => item.id === clean.selectedProperty) ? clean.selectedProperty : defaults.selectedProperty;
+      clean.purchasePrice = Math.max(0, toNumber(clean.purchasePrice, defaults.purchasePrice));
+      clean.mortgageLtv = clamp(toNumber(clean.mortgageLtv, defaults.mortgageLtv), 0, 100);
+      clean.taxPct = clamp(toNumber(clean.taxPct, defaults.taxPct), 0, 25);
+      clean.notaryRegistry = Math.max(0, toNumber(clean.notaryRegistry, defaults.notaryRegistry));
+      clean.appraisalCost = Math.max(0, toNumber(clean.appraisalCost, defaults.appraisalCost));
+      clean.furnitureCost = Math.max(0, toNumber(clean.furnitureCost, defaults.furnitureCost));
+      clean.utilitiesCost = Math.max(0, toNumber(clean.utilitiesCost, defaults.utilitiesCost));
+      clean.moveCost = Math.max(0, toNumber(clean.moveCost, defaults.moveCost));
+      clean.mortgageRate = Math.max(0, toNumber(clean.mortgageRate, defaults.mortgageRate));
+      clean.bankMaxAge = clamp(toNumber(clean.bankMaxAge, defaults.bankMaxAge), clean.currentAge + 1, 85);
+      clean.maxMortgageYears = clamp(toNumber(clean.maxMortgageYears, defaults.maxMortgageYears), 1, 40);
+      clean.maxDebtRatio = clamp(toNumber(clean.maxDebtRatio, defaults.maxDebtRatio), 10, 60);
+      clean.investmentReturn = toNumber(clean.investmentReturn, defaults.investmentReturn);
+      clean.inflation = Math.max(0, toNumber(clean.inflation, defaults.inflation));
+      clean.rentGrowth = toNumber(clean.rentGrowth, defaults.rentGrowth);
+      clean.incomeGrowth = toNumber(clean.incomeGrowth, defaults.incomeGrowth);
+      clean.pensionGrowth = toNumber(clean.pensionGrowth, defaults.pensionGrowth);
+      clean.expenseGrowth = toNumber(clean.expenseGrowth, defaults.expenseGrowth);
+      clean.homeAppreciation = toNumber(clean.homeAppreciation, defaults.homeAppreciation);
+      clean.saleCostPct = clamp(toNumber(clean.saleCostPct, defaults.saleCostPct), 0, 15);
+      clean.ownerMonthlyCosts = Math.max(0, toNumber(clean.ownerMonthlyCosts, defaults.ownerMonthlyCosts));
+      clean.maintenancePct = Math.max(0, toNumber(clean.maintenancePct, defaults.maintenancePct));
+      return clean;
+    }
+
+    function parseInputValue(input, fallback) {
+      if (input.tagName === "SELECT") return input.value;
+      const value = Number(input.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function getDestination(id) {
+      return destinations.find((item) => item.id === id) || destinations[0];
+    }
+
+    function destinationRiskScore(id) {
+      const dest = getDestination(id);
+      return clamp(100 - dest.risk * 9, 0, 100);
+    }
+
+    function payment(principal, annualRate, years) {
+      const months = Math.max(1, Math.round(years * 12));
+      if (principal <= 0) return 0;
+      const monthlyRate = annualRate / 100 / 12;
+      if (monthlyRate === 0) return principal / months;
+      return principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    }
+
+    function balance(principal, annualRate, years, paidMonths) {
+      const months = Math.max(1, Math.round(years * 12));
+      const elapsed = clamp(paidMonths, 0, months);
+      if (principal <= 0 || elapsed >= months) return 0;
+      const monthlyRate = annualRate / 100 / 12;
+      const pmt = payment(principal, annualRate, years);
+      if (monthlyRate === 0) return Math.max(0, principal - pmt * elapsed);
+      const futurePrincipal = principal * Math.pow(1 + monthlyRate, elapsed);
+      const futurePayments = pmt * ((Math.pow(1 + monthlyRate, elapsed) - 1) / monthlyRate);
+      return Math.max(0, futurePrincipal - futurePayments);
+    }
+
+    function growLiquid(value, settings) {
+      if (value <= 0) return value;
+      const monthlyRate = Math.pow(1 + settings.investmentReturn / 100, 1 / 12) - 1;
+      return value * (1 + monthlyRate);
+    }
+
+    function futureCost(value, settings, years) {
+      return value * Math.pow(1 + settings.inflation / 100, years);
+    }
+
+    function realValue(value, settings, years) {
+      return value / Math.pow(1 + settings.inflation / 100, years);
+    }
+
+    function ageToMonths(fromAge, toAge) {
+      return Math.max(0, Math.round((toAge - fromAge) * 12));
+    }
+
+    function weighted(items) {
+      return clamp(items.reduce((sum, item) => sum + item[0] * item[1], 0), 0, 100);
+    }
+
+    function scoreRange(value, low, high) {
+      if (value <= low) return clamp((value / Math.max(1, low)) * 55, 0, 55);
+      if (value >= high) return 100;
+      return 55 + ((value - low) / Math.max(1, high - low)) * 45;
+    }
+
+    function scoreLower(value, ideal, unacceptable) {
+      if (value <= ideal) return 100;
+      if (value >= unacceptable) return 0;
+      return 100 - ((value - ideal) / Math.max(1, unacceptable - ideal)) * 100;
+    }
+
+    function niceCeil(value) {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.max(1, Math.abs(value)))));
+      return Math.ceil(value / magnitude * 2) / 2 * magnitude;
+    }
+
+    function niceFloor(value) {
+      if (value >= 0) return 0;
+      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.max(1, Math.abs(value)))));
+      return Math.floor(value / magnitude * 2) / 2 * magnitude;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("es-ES", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      }).format(toNumber(value, 0));
+    }
+
+    function signedCurrency(value) {
+      const formatted = formatCurrency(Math.abs(value));
+      if (Math.abs(value) < 1) return "0 EUR";
+      return value > 0 ? `+${formatted}` : `-${formatted}`;
+    }
+
+    function compactCurrency(value) {
+      return new Intl.NumberFormat("es-ES", {
+        notation: "compact",
+        maximumFractionDigits: 1
+      }).format(value);
+    }
+
+    function formatPercent(value) {
+      return `${formatNumber(value, 1)}%`;
+    }
+
+    function formatNumber(value, decimals = 0) {
+      return new Intl.NumberFormat("es-ES", {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals
+      }).format(toNumber(value, 0));
+    }
+
+    function toNumber(value, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function flashButton(button, text) {
+      const oldText = button.textContent;
+      button.textContent = text;
+      setTimeout(() => {
+        button.textContent = oldText;
+      }, 900);
+    }
+  </script>
+</body>
+</html>

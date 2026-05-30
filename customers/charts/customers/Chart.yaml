@@ -1,0 +1,9 @@
+apiVersion: v2
+name: magenta-customers
+description: Magenta Platform – Módulo Customers (Identidad, perfil y solvencia)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords: [magenta, customers, java, spring-boot]
+maintainers:
+  - name: Magenta Engineering

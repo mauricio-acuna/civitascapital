@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "servicios.fullname" . }}
+  labels:
+    {{- include "servicios.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "servicios.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "servicios.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "servicios.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+          env:
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

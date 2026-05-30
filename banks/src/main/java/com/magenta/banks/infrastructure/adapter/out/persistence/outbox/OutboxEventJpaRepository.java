@@ -1,0 +1,13 @@
+package com.magenta.banks.infrastructure.adapter.out.persistence.outbox;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface OutboxEventJpaRepository extends JpaRepository<OutboxEventJpaEntity, UUID> {
+
+    @Query("SELECT e FROM OutboxEventJpaEntity e WHERE e.publishedAt IS NULL ORDER BY e.createdAt ASC")
+    List<OutboxEventJpaEntity> findUnpublished();
+}

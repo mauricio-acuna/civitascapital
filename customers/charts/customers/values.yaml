@@ -1,0 +1,76 @@
+replicaCount: 2
+
+image:
+  repository: harbor.magenta.es/magenta/customers
+  pullPolicy: IfNotPresent
+  tag: ""   # Overridden by CI with image digest
+
+serviceAccount:
+  create: true
+  name: "magenta-customers"
+
+service:
+  type: ClusterIP
+  port: 8083
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 60
+
+env:
+  SPRING_PROFILES_ACTIVE: "docker"
+  SERVER_PORT: "8083"
+
+# Secrets inyectados via ExternalSecret / Vault Agent
+secretEnv:
+  DB_PASSWORD:
+    secretName: magenta-customers-db
+    key: password
+  KYC_HMAC_SECRET:
+    secretName: magenta-customers-kyc
+    key: hmac-secret
+  VAULT_TOKEN:
+    secretName: magenta-customers-vault
+    key: token
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8083
+  initialDelaySeconds: 60
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8083
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: /actuator/prometheus
+  prometheus.io/port: "8083"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault

@@ -1,0 +1,30 @@
+package com.magenta.banks.domain.port.out;
+
+import com.magenta.banks.domain.model.loanproduct.LoanProduct;
+import com.magenta.banks.domain.model.LoanCategory;
+import com.magenta.banks.domain.model.Scheme;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface LoanProductRepository {
+    LoanProduct save(LoanProduct product);
+    Optional<LoanProduct> findById(UUID id);
+    List<LoanProduct> findActiveByBankId(UUID bankId);
+
+    Page<LoanProduct> search(
+        UUID tenantId,
+        Scheme scheme,
+        BigDecimal ltvMin,
+        Integer maxAge,
+        BigDecimal ticketAmount,
+        LoanCategory category,
+        Pageable pageable
+    );
+
+    List<LoanProduct> findActiveByIds(List<UUID> ids);
+}

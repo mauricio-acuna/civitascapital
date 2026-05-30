@@ -1,0 +1,182 @@
+spring:
+  application:
+    name: magenta-banks
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/banks_db?currentSchema=banks
+    username: ${DB_USER:magenta}
+    password: ${DB_PASSWORD:magenta}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: banks
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    schemas: banks
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_URL:http://keycloak:8080}/realms/magenta/protocol/openid-connect/certs
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka:9092}
+    consumer:
+      group-id: magenta-banks
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        schema.registry.url: ${SCHEMA_REGISTRY_URL:http://schema-registry:8081}
+        specific.avro.reader: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        schema.registry.url: ${SCHEMA_REGISTRY_URL:http://schema-registry:8081}
+      acks: all
+      retries: 3
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8082
+  shutdown: graceful
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: ${TRACE_SAMPLE_RATE:0.1}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel-collector:4318/v1/traces}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  show-actuator: false
+
+magenta:
+  euribor:
+    feed-url: https://www.emmi-benchmarks.eu/api/euribor
+    bde-fallback-url: https://www.bde.es/webbde/es/estadis/infoest/tipos/ti_1_1.csv
+    cron: "0 30 6 * * MON-FRI"
+  clients:
+    customers: ${CUSTOMERS_URL:http://customers:8083}
+    products: ${PRODUCTS_URL:http://products:8084}
+    areas: ${AREAS_URL:http://areas:8081}
+  rate-limit:
+    simulations:
+      per-ip-rpm: 30
+      per-user-rpm: 300
+  cache:
+    products-ttl-minutes: 30
+    simulations-ttl-hours: 1
+
+resilience4j:
+  timelimiter:
+    instances:
+      customers:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+      products:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+      areas:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+  circuitbreaker:
+    instances:
+      customers:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+      products:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+      areas:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 20
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 1500ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+  retry:
+    instances:
+      customers:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      products:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      areas:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+  bulkhead:
+    instances:
+      customers:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0
+      products:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0
+      areas:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 0

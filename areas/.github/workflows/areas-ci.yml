@@ -1,0 +1,142 @@
+name: areas – CI Security Gate
+
+on:
+  push:
+    branches: ["main", "develop", "release/**"]
+    paths: ["areas/**", ".github/workflows/areas-ci.yml"]
+  pull_request:
+    branches: ["main", "develop"]
+    paths: ["areas/**"]
+
+defaults:
+  run:
+    working-directory: areas
+
+env:
+  JAVA_VERSION: "21"
+  MAVEN_OPTS: "-Xmx1g -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1 – Build, Unit tests, ArchUnit, BOLA tests
+  # ─────────────────────────────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit tests + ArchUnit + BOLA
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Run unit tests (incl. BOLA + ArchUnit)
+        run: mvn test -B --no-transfer-progress
+
+      - name: Upload Surefire reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: areas/target/surefire-reports/
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2 – Integration tests (Testcontainers PostGIS)
+  # ─────────────────────────────────────────────────────────────────────────────
+  integration-tests:
+    name: Integration tests (Testcontainers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Run integration tests
+        run: mvn failsafe:integration-test failsafe:verify -B --no-transfer-progress
+
+      - name: Upload Failsafe reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failsafe-reports
+          path: areas/target/failsafe-reports/
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 3 – OWASP Dependency-Check (CVE scan — OWASP Top 10 2025 A06)
+  # Runs only on push to main/develop or PRs targeting main
+  # ─────────────────────────────────────────────────────────────────────────────
+  owasp-dependency-check:
+    name: OWASP Dependency-Check (CVSSv3 ≥ 7 = FAIL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: unit-tests
+    # Cache the NVD database between runs to avoid rate-limiting
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Cache NVD database
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-${{ github.run_id }}
+          restore-keys: nvd-
+
+      - name: Run OWASP dependency-check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          mvn dependency-check:check -B --no-transfer-progress \
+            -Dodc.nvdApiKey="${NVD_API_KEY}" \
+            -Dodc.failBuildOnCVSS=7
+
+      - name: Upload dependency-check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: areas/target/dependency-check-report/
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 4 – JaCoCo coverage gate (ASVS L2 §1.1 — 70 % líneas en dominio)
+  # ─────────────────────────────────────────────────────────────────────────────
+  coverage-gate:
+    name: JaCoCo coverage gate (≥ 70% domain + application)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Build + coverage check
+        run: mvn verify -DskipITs -B --no-transfer-progress
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: areas/target/site/jacoco/

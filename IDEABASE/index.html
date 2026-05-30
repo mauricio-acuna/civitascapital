@@ -1,0 +1,2035 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balanceador de propiedades</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f4ee;
+      --surface: #ffffff;
+      --surface-2: #f1efe7;
+      --ink: #1f2623;
+      --muted: #68726c;
+      --line: #d9d4c8;
+      --teal: #14806d;
+      --teal-soft: #d9eee9;
+      --coral: #d75d4f;
+      --coral-soft: #f8ded9;
+      --amber: #b8790f;
+      --amber-soft: #f5e7c8;
+      --blue: #4267a6;
+      --blue-soft: #dfe8f4;
+      --shadow: 0 18px 50px rgba(35, 39, 36, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.18) 240px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 0 22px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.9rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      max-width: 860px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #ffffff;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 10px 24px rgba(31, 38, 35, 0.16);
+    }
+
+    .btn.secondary {
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--coral-soft);
+      color: #8b2b22;
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      cursor: progress;
+      opacity: 0.58;
+      box-shadow: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(217, 212, 200, 0.95);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      padding: 18px;
+    }
+
+    .importer {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .slider-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .control-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .control-row label,
+    .field label,
+    .metric-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .value-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--teal);
+    }
+
+    .thresholds {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select,
+    .candidate-table input {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .candidate-table input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(20, 128, 109, 0.14);
+    }
+
+    .import-status {
+      min-height: 18px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .import-status.ok {
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .import-status.warn {
+      color: #8b2b22;
+      font-weight: 800;
+    }
+
+    .selected {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .score-head {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .score-ring {
+      --score: 0;
+      width: 96px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, #ffffff 0 56%, transparent 57%),
+        conic-gradient(var(--teal) calc(var(--score) * 1%), var(--surface-2) 0);
+      border: 1px solid var(--line);
+    }
+
+    .score-ring strong {
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .score-info h3 {
+      margin: 0 0 6px;
+      font-size: 1.06rem;
+      line-height: 1.2;
+    }
+
+    .score-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .selected-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .fact {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .fact strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.94rem;
+    }
+
+    .fact a,
+    .source-under {
+      color: var(--teal);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .fact a:hover,
+    .source-under:hover {
+      text-decoration: underline;
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.95fr);
+      gap: 18px;
+    }
+
+    .chart-panel {
+      min-width: 0;
+      padding: 18px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 420px;
+      min-height: 320px;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(31, 38, 35, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(31, 38, 35, 0.035) 1px, transparent 1px),
+        #ffffff;
+      background-size: 36px 36px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .chart-wrap.small {
+      height: 278px;
+      min-height: 260px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tooltip {
+      position: absolute;
+      z-index: 4;
+      pointer-events: none;
+      transform: translate(12px, -12px);
+      max-width: 260px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(31, 38, 35, 0.95);
+      color: #ffffff;
+      font-size: 0.82rem;
+      box-shadow: 0 12px 26px rgba(31, 38, 35, 0.2);
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    .metrics {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+      border: 1px solid rgba(217, 212, 200, 0.85);
+    }
+
+    .metric-bar span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+      transition: width 160ms ease;
+    }
+
+    .metric:nth-child(2) .metric-bar span { background: var(--blue); }
+    .metric:nth-child(3) .metric-bar span { background: var(--amber); }
+    .metric:nth-child(4) .metric-bar span { background: #2f8f46; }
+    .metric:nth-child(5) .metric-bar span { background: #806443; }
+    .metric:nth-child(6) .metric-bar span { background: var(--coral); }
+
+    .ranking {
+      padding: 18px;
+    }
+
+    .rank-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rank-item {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .rank-item[aria-current="true"] {
+      border-color: var(--teal);
+      box-shadow: inset 0 0 0 2px rgba(20, 128, 109, 0.16);
+    }
+
+    .rank-no {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--teal-soft);
+      color: var(--teal);
+      font-weight: 900;
+    }
+
+    .rank-name strong,
+    .rank-name span {
+      display: block;
+    }
+
+    .rank-name strong {
+      font-size: 0.94rem;
+    }
+
+    .rank-name span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .rank-score {
+      min-width: 52px;
+      text-align: right;
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .data-panel {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .table-shell {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .candidate-table {
+      width: 100%;
+      min-width: 1060px;
+      border-collapse: collapse;
+    }
+
+    .candidate-table th,
+    .candidate-table td {
+      padding: 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .candidate-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f9f7f1;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .candidate-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .candidate-table tr[data-selected="true"] td {
+      background: rgba(20, 128, 109, 0.07);
+    }
+
+    .candidate-table .narrow {
+      width: 92px;
+    }
+
+    .candidate-table .medium {
+      width: 130px;
+    }
+
+    .delete-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--coral-soft);
+      color: #8b2b22;
+      font-weight: 900;
+    }
+
+    .mini-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .source-under {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 0.76rem;
+    }
+
+    .empty {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1120px) {
+      .layout,
+      .charts {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 20px, 1480px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .btn {
+        flex: 1 1 auto;
+      }
+
+      .score-head {
+        grid-template-columns: 80px 1fr;
+      }
+
+      .score-ring {
+        width: 80px;
+      }
+
+      .selected-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 340px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Balanceador de propiedades</h1>
+        <p>Compara viviendas por precio, distancia, servicios, internet, liquidez y riesgo para encontrar una opcion con margen real.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="addCandidateBtn" type="button">+ A&ntilde;adir</button>
+        <button class="btn secondary" id="saveBtn" type="button">Guardar</button>
+        <button class="btn danger" id="resetBtn" type="button">Restablecer</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel controls">
+        <section class="importer">
+          <div class="section-title">
+            <h2>Importar enlace</h2>
+            <span>Idealista u otra web</span>
+          </div>
+          <div class="field">
+            <label for="listingUrlInput">Enlace del anuncio</label>
+            <input id="listingUrlInput" type="url" placeholder="https://www.idealista.com/inmueble/110074662/">
+          </div>
+          <div class="field">
+            <label for="listingTextInput">Texto del anuncio <span>opcional</span></label>
+            <textarea id="listingTextInput" placeholder="Pega aqui precio, metros y ubicacion si quieres autocompletar mas datos."></textarea>
+          </div>
+          <button class="btn" id="importListingBtn" type="button">Importar al dashboard</button>
+          <p class="import-status" id="importStatus" aria-live="polite"></p>
+        </section>
+
+        <div class="section-title">
+          <h2>Pesos</h2>
+          <span id="totalWeight">100 puntos</span>
+        </div>
+        <div class="slider-list" id="weights"></div>
+
+        <div class="thresholds">
+          <div class="section-title">
+            <h3>Umbrales</h3>
+            <span>modelo ajustable</span>
+          </div>
+          <div class="field">
+            <label for="budgetInput">Presupuesto maximo <span>&euro;</span></label>
+            <input id="budgetInput" type="number" min="1000" step="1000">
+          </div>
+          <div class="field">
+            <label for="priceM2Input">Precio objetivo <span>&euro;/m&sup2;</span></label>
+            <input id="priceM2Input" type="number" min="100" step="25">
+          </div>
+          <div class="field">
+            <label for="distanceInput">Distancia limite <span>km</span></label>
+            <input id="distanceInput" type="number" min="1" step="5">
+          </div>
+        </div>
+
+        <section class="selected" aria-live="polite">
+          <div class="section-title">
+            <h3>Propiedad elegida</h3>
+            <span id="selectedRank"></span>
+          </div>
+          <div class="score-head">
+            <div class="score-ring" id="scoreRing">
+              <strong id="selectedScore">0</strong>
+            </div>
+            <div class="score-info">
+              <h3 id="selectedName">-</h3>
+              <p id="selectedBase">-</p>
+            </div>
+          </div>
+          <div class="selected-grid" id="selectedFacts"></div>
+        </section>
+      </aside>
+
+      <section class="content">
+        <div class="charts">
+          <section class="panel chart-panel">
+            <div class="section-title">
+              <h2>Precio vs distancia</h2>
+              <span>tama&ntilde;o = puntuacion</span>
+            </div>
+            <div class="chart-wrap" id="scatterWrap">
+              <canvas id="scatterCanvas"></canvas>
+              <div class="tooltip" id="scatterTooltip"></div>
+            </div>
+          </section>
+
+          <div class="content">
+            <section class="panel chart-panel">
+              <div class="section-title">
+                <h2>Perfil</h2>
+                <span id="radarName">-</span>
+              </div>
+              <div class="chart-wrap small">
+                <canvas id="radarCanvas"></canvas>
+              </div>
+            </section>
+
+            <section class="panel chart-panel">
+              <div class="section-title">
+                <h2>Desglose</h2>
+                <span>0 a 100</span>
+              </div>
+              <div class="metrics" id="metricBars"></div>
+            </section>
+          </div>
+        </div>
+
+        <section class="panel ranking">
+          <div class="section-title">
+            <h2>Ranking</h2>
+            <span id="bestHint">-</span>
+          </div>
+          <ol class="rank-list" id="rankList"></ol>
+        </section>
+
+        <section class="panel data-panel">
+          <div class="section-title">
+            <h2>Candidatos</h2>
+            <span class="mini-note">valores editables</span>
+          </div>
+          <div class="table-shell">
+            <table class="candidate-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Referencia</th>
+                  <th class="medium">Precio</th>
+                  <th class="narrow">m&sup2;</th>
+                  <th class="narrow">&euro;/m&sup2;</th>
+                  <th class="narrow">Dist. km</th>
+                  <th class="narrow">Servicios</th>
+                  <th class="narrow">Internet</th>
+                  <th class="narrow">Liquidez</th>
+                  <th class="narrow">Riesgo</th>
+                  <th class="narrow">Score</th>
+                  <th class="narrow"></th>
+                </tr>
+              </thead>
+              <tbody id="candidateRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "prop-tienda-balanceador-v1";
+
+    const metricConfig = [
+      { key: "price", label: "Precio", weightLabel: "Precio" },
+      { key: "distance", label: "Distancia", weightLabel: "Distancia" },
+      { key: "services", label: "Servicios", weightLabel: "Servicios" },
+      { key: "internet", label: "Internet", weightLabel: "Internet" },
+      { key: "liquidity", label: "Liquidez", weightLabel: "Liquidez" },
+      { key: "risk", label: "Riesgo bajo", weightLabel: "Riesgo" }
+    ];
+
+    const defaults = {
+      selectedId: "fuente-vaqueros",
+      settings: {
+        budget: 55000,
+        targetM2: 850,
+        maxDistance: 180
+      },
+      weights: {
+        price: 28,
+        distance: 20,
+        services: 18,
+        internet: 14,
+        liquidity: 12,
+        risk: 8
+      },
+      candidates: [
+        {
+          id: "fuente-vaqueros",
+          name: "Fuente Vaqueros",
+          base: "Granada",
+          price: 50000,
+          sqm: 80,
+          distanceKm: 17,
+          services: 7,
+          internet: 8,
+          liquidity: 7,
+          risk: 3
+        },
+        {
+          id: "illora",
+          name: "Illora",
+          base: "Granada",
+          price: 50000,
+          sqm: 85,
+          distanceKm: 35,
+          services: 6,
+          internet: 7,
+          liquidity: 6,
+          risk: 4
+        },
+        {
+          id: "tortosa",
+          name: "Tortosa",
+          base: "Barcelona",
+          price: 72000,
+          sqm: 75,
+          distanceKm: 180,
+          services: 8,
+          internet: 8,
+          liquidity: 8,
+          risk: 4
+        },
+        {
+          id: "balaguer",
+          name: "Balaguer",
+          base: "Barcelona",
+          price: 52000,
+          sqm: 75,
+          distanceKm: 145,
+          services: 6,
+          internet: 7,
+          liquidity: 5,
+          risk: 5
+        },
+        {
+          id: "manresa-bages",
+          name: "Manresa / Bages",
+          base: "Barcelona",
+          price: 75000,
+          sqm: 70,
+          distanceKm: 60,
+          services: 8,
+          internet: 9,
+          liquidity: 8,
+          risk: 5
+        },
+        {
+          id: "lleida-capital",
+          name: "Lleida capital",
+          base: "Barcelona",
+          price: 60000,
+          sqm: 85,
+          distanceKm: 160,
+          services: 8,
+          internet: 9,
+          liquidity: 7,
+          risk: 4
+        },
+        {
+          id: "villanueva-arzobispo",
+          name: "Villanueva del Arzobispo",
+          base: "Granada",
+          price: 45000,
+          sqm: 120,
+          distanceKm: 150,
+          services: 5,
+          internet: 6,
+          liquidity: 4,
+          risk: 5
+        },
+        {
+          id: "olvera",
+          name: "Olvera",
+          base: "Sevilla / Cadiz",
+          price: 45000,
+          sqm: 90,
+          distanceKm: 115,
+          services: 5,
+          internet: 6,
+          liquidity: 4,
+          risk: 4
+        }
+      ]
+    };
+
+    const state = loadState();
+    const nodes = {};
+    const scatterPoints = [];
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    function init() {
+      nodes.weights = document.getElementById("weights");
+      nodes.totalWeight = document.getElementById("totalWeight");
+      nodes.budgetInput = document.getElementById("budgetInput");
+      nodes.priceM2Input = document.getElementById("priceM2Input");
+      nodes.distanceInput = document.getElementById("distanceInput");
+      nodes.selectedRank = document.getElementById("selectedRank");
+      nodes.selectedScore = document.getElementById("selectedScore");
+      nodes.scoreRing = document.getElementById("scoreRing");
+      nodes.selectedName = document.getElementById("selectedName");
+      nodes.selectedBase = document.getElementById("selectedBase");
+      nodes.selectedFacts = document.getElementById("selectedFacts");
+      nodes.scatterCanvas = document.getElementById("scatterCanvas");
+      nodes.scatterWrap = document.getElementById("scatterWrap");
+      nodes.scatterTooltip = document.getElementById("scatterTooltip");
+      nodes.radarCanvas = document.getElementById("radarCanvas");
+      nodes.radarName = document.getElementById("radarName");
+      nodes.metricBars = document.getElementById("metricBars");
+      nodes.rankList = document.getElementById("rankList");
+      nodes.bestHint = document.getElementById("bestHint");
+      nodes.candidateRows = document.getElementById("candidateRows");
+      nodes.listingUrlInput = document.getElementById("listingUrlInput");
+      nodes.listingTextInput = document.getElementById("listingTextInput");
+      nodes.importListingBtn = document.getElementById("importListingBtn");
+      nodes.importStatus = document.getElementById("importStatus");
+
+      renderWeights();
+      bindControls();
+      renderTable();
+      renderAll();
+
+      const resizeObserver = new ResizeObserver(renderCharts);
+      resizeObserver.observe(nodes.scatterWrap);
+      resizeObserver.observe(nodes.radarCanvas.parentElement);
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && Array.isArray(saved.candidates) && saved.candidates.length) {
+          return mergeDefaults(saved);
+        }
+      } catch (error) {
+        console.warn("No se pudo leer el estado guardado", error);
+      }
+      return clone(defaults);
+    }
+
+    function mergeDefaults(saved) {
+      return {
+        selectedId: saved.selectedId || defaults.selectedId,
+        settings: normalizeSettings({ ...defaults.settings, ...(saved.settings || {}) }),
+        weights: { ...defaults.weights, ...(saved.weights || {}) },
+        candidates: saved.candidates.map(normalizeCandidate)
+      };
+    }
+
+    function normalizeCandidate(candidate, index = 0) {
+      return {
+        id: candidate.id || uniqueId(candidate.name || "candidato-" + index),
+        name: String(candidate.name || "Candidato " + (index + 1)),
+        base: String(candidate.base || "Referencia"),
+        price: toNumber(candidate.price, 0),
+        sqm: toNumber(candidate.sqm, 1),
+        distanceKm: toNumber(candidate.distanceKm, 0),
+        services: clamp(toNumber(candidate.services, 5), 1, 10),
+        internet: clamp(toNumber(candidate.internet, 5), 1, 10),
+        liquidity: clamp(toNumber(candidate.liquidity, 5), 1, 10),
+        risk: clamp(toNumber(candidate.risk, 5), 1, 10),
+        source: String(candidate.source || ""),
+        url: String(candidate.url || "")
+      };
+    }
+
+    function normalizeSettings(settings) {
+      return {
+        budget: Math.max(1000, toNumber(settings.budget, defaults.settings.budget)),
+        targetM2: Math.max(100, toNumber(settings.targetM2, defaults.settings.targetM2)),
+        maxDistance: Math.max(1, toNumber(settings.maxDistance, defaults.settings.maxDistance))
+      };
+    }
+
+    function bindControls() {
+      nodes.budgetInput.value = state.settings.budget;
+      nodes.priceM2Input.value = state.settings.targetM2;
+      nodes.distanceInput.value = state.settings.maxDistance;
+
+      nodes.weights.addEventListener("input", (event) => {
+        const input = event.target.closest("input[type='range']");
+        if (!input) return;
+        state.weights[input.dataset.key] = Number(input.value);
+        renderWeightValues();
+        renderAll();
+        saveState();
+      });
+
+      [nodes.budgetInput, nodes.priceM2Input, nodes.distanceInput].forEach((input) => {
+        input.addEventListener("input", () => {
+          state.settings = normalizeSettings({
+            budget: nodes.budgetInput.value,
+            targetM2: nodes.priceM2Input.value,
+            maxDistance: nodes.distanceInput.value
+          });
+          renderAll();
+          saveState();
+        });
+      });
+
+      nodes.importListingBtn.addEventListener("click", importListing);
+      nodes.listingUrlInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          importListing();
+        }
+      });
+
+      document.getElementById("addCandidateBtn").addEventListener("click", addCandidate);
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        saveState();
+        flashButton(document.getElementById("saveBtn"), "Guardado");
+      });
+      document.getElementById("resetBtn").addEventListener("click", resetState);
+
+      nodes.candidateRows.addEventListener("input", updateCandidateFromInput);
+      nodes.candidateRows.addEventListener("click", (event) => {
+        const deleteButton = event.target.closest("[data-action='delete']");
+        const row = event.target.closest("tr[data-id]");
+        if (deleteButton && row) {
+          removeCandidate(row.dataset.id);
+          return;
+        }
+        if (row && !event.target.matches("input, button")) {
+          selectCandidate(row.dataset.id);
+        }
+      });
+
+      nodes.rankList.addEventListener("click", (event) => {
+        const item = event.target.closest("[data-id]");
+        if (item) selectCandidate(item.dataset.id);
+      });
+
+      nodes.scatterCanvas.addEventListener("mousemove", handleScatterHover);
+      nodes.scatterCanvas.addEventListener("mouseleave", () => {
+        nodes.scatterTooltip.classList.remove("visible");
+      });
+      nodes.scatterCanvas.addEventListener("click", (event) => {
+        const point = findScatterPoint(event);
+        if (point) selectCandidate(point.id);
+      });
+    }
+
+    function renderWeights() {
+      nodes.weights.innerHTML = metricConfig.map((metric) => `
+        <div class="control-row">
+          <label for="weight-${metric.key}">
+            ${metric.weightLabel}
+            <span class="value-pill" data-weight-value="${metric.key}">${state.weights[metric.key]}</span>
+          </label>
+          <input id="weight-${metric.key}" data-key="${metric.key}" type="range" min="0" max="40" step="1" value="${state.weights[metric.key]}">
+        </div>
+      `).join("");
+      renderWeightValues();
+    }
+
+    function renderWeightValues() {
+      metricConfig.forEach((metric) => {
+        const label = document.querySelector(`[data-weight-value="${metric.key}"]`);
+        const slider = document.getElementById(`weight-${metric.key}`);
+        if (label) label.textContent = state.weights[metric.key];
+        if (slider && Number(slider.value) !== state.weights[metric.key]) {
+          slider.value = state.weights[metric.key];
+        }
+      });
+      nodes.totalWeight.textContent = `${totalWeight()} puntos`;
+    }
+
+    function renderTable() {
+      if (!state.candidates.length) {
+        nodes.candidateRows.innerHTML = `<tr><td colspan="12" class="empty">A&ntilde;ade una propiedad para empezar.</td></tr>`;
+        return;
+      }
+
+      nodes.candidateRows.innerHTML = state.candidates.map((candidate) => {
+        const computed = scoreCandidate(candidate);
+        const sourceLink = candidate.url
+          ? `<a class="source-under" href="${escapeHtml(candidate.url)}" target="_blank" rel="noreferrer">${escapeHtml(candidate.source || sourceNameFromUrl(candidate.url))}</a>`
+          : "";
+        return `
+          <tr data-id="${candidate.id}" data-selected="${candidate.id === state.selectedId}">
+            <td><input data-field="name" value="${escapeHtml(candidate.name)}">${sourceLink}</td>
+            <td><input data-field="base" value="${escapeHtml(candidate.base)}"></td>
+            <td><input data-field="price" type="number" min="0" step="1000" value="${candidate.price}"></td>
+            <td><input data-field="sqm" type="number" min="1" step="1" value="${candidate.sqm}"></td>
+            <td><strong>${formatNumber(computed.pricePerM2, 0)}</strong></td>
+            <td><input data-field="distanceKm" type="number" min="0" step="1" value="${candidate.distanceKm}"></td>
+            <td><input data-field="services" type="number" min="1" max="10" step="1" value="${candidate.services}"></td>
+            <td><input data-field="internet" type="number" min="1" max="10" step="1" value="${candidate.internet}"></td>
+            <td><input data-field="liquidity" type="number" min="1" max="10" step="1" value="${candidate.liquidity}"></td>
+            <td><input data-field="risk" type="number" min="1" max="10" step="1" value="${candidate.risk}"></td>
+            <td><strong>${Math.round(computed.score)}</strong></td>
+            <td><button class="delete-btn" data-action="delete" type="button" aria-label="Eliminar ${escapeHtml(candidate.name)}">x</button></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      ensureSelected();
+      renderSummary();
+      renderRanking();
+      renderCharts();
+      refreshTableComputedCells();
+    }
+
+    function renderSummary() {
+      const ranking = getRanking();
+      const selected = ranking.find((item) => item.id === state.selectedId) || ranking[0];
+      if (!selected) return;
+
+      const rankIndex = ranking.findIndex((item) => item.id === selected.id) + 1;
+      const metrics = selected.metrics;
+      nodes.selectedRank.textContent = `#${rankIndex} de ${ranking.length}`;
+      nodes.selectedScore.textContent = Math.round(selected.score);
+      nodes.scoreRing.style.setProperty("--score", Math.round(selected.score));
+      nodes.selectedName.textContent = selected.name;
+      nodes.selectedBase.textContent = `${selected.base} - ${formatNumber(selected.distanceKm, 0)} km`;
+      nodes.radarName.textContent = selected.name;
+
+      const factItems = [
+        ["Precio", `${formatCurrency(selected.price)}`],
+        ["Precio m2", `${formatNumber(selected.pricePerM2, 0)} &euro;/m&sup2;`],
+        ["Distancia", `${formatNumber(selected.distanceKm, 0)} km`],
+        ["Servicios", `${selected.services}/10`],
+        ["Internet", `${selected.internet}/10`],
+        ["Riesgo", `${selected.risk}/10`]
+      ];
+
+      if (selected.url) {
+        const sourceLabel = escapeHtml(selected.source || sourceNameFromUrl(selected.url));
+        factItems.push(["Fuente", `<a href="${escapeHtml(selected.url)}" target="_blank" rel="noreferrer">${sourceLabel}</a>`]);
+      }
+
+      nodes.selectedFacts.innerHTML = factItems.map(([label, value]) => `
+        <div class="fact">
+          <span>${label}</span>
+          <strong>${value}</strong>
+        </div>
+      `).join("");
+
+      nodes.metricBars.innerHTML = metricConfig.map((metric) => {
+        const value = Math.round(metrics[metric.key]);
+        return `
+          <div class="metric">
+            <div class="metric-label">
+              <span>${metric.label}</span>
+              <span>${value}</span>
+            </div>
+            <div class="metric-bar"><span style="width:${value}%"></span></div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRanking() {
+      const ranking = getRanking();
+      const best = ranking[0];
+      nodes.bestHint.textContent = best ? `${best.name}: ${Math.round(best.score)} puntos` : "-";
+      nodes.rankList.innerHTML = ranking.map((candidate, index) => `
+        <li class="rank-item" data-id="${candidate.id}" aria-current="${candidate.id === state.selectedId}">
+          <span class="rank-no">${index + 1}</span>
+          <span class="rank-name">
+            <strong>${escapeHtml(candidate.name)}</strong>
+            <span>${formatCurrency(candidate.price)} - ${formatNumber(candidate.pricePerM2, 0)} &euro;/m&sup2; - ${formatNumber(candidate.distanceKm, 0)} km</span>
+          </span>
+          <span class="rank-score">${Math.round(candidate.score)}</span>
+        </li>
+      `).join("");
+    }
+
+    function renderCharts() {
+      renderScatterChart();
+      renderRadarChart();
+    }
+
+    function renderScatterChart() {
+      const canvas = nodes.scatterCanvas;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const padding = { top: 26, right: 28, bottom: 54, left: 66 };
+      const plotW = Math.max(1, width - padding.left - padding.right);
+      const plotH = Math.max(1, height - padding.top - padding.bottom);
+      const ranking = getRanking();
+
+      ctx.clearRect(0, 0, width, height);
+      scatterPoints.length = 0;
+
+      if (!ranking.length) return;
+
+      const maxDistance = Math.max(state.settings.maxDistance, ...ranking.map((item) => item.distanceKm), 10) * 1.08;
+      const maxPriceM2 = Math.max(state.settings.targetM2 * 1.6, ...ranking.map((item) => item.pricePerM2), 1000) * 1.08;
+
+      drawAxis(ctx, padding, width, height, plotW, plotH, maxDistance, maxPriceM2);
+
+      const targetX = padding.left + (state.settings.maxDistance / maxDistance) * plotW;
+      const targetY = padding.top + plotH - (state.settings.targetM2 / maxPriceM2) * plotH;
+      ctx.save();
+      ctx.strokeStyle = "rgba(20, 128, 109, 0.42)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(targetX, padding.top);
+      ctx.lineTo(targetX, padding.top + plotH);
+      ctx.moveTo(padding.left, targetY);
+      ctx.lineTo(padding.left + plotW, targetY);
+      ctx.stroke();
+      ctx.restore();
+
+      ranking.slice().reverse().forEach((item) => {
+        const x = padding.left + (item.distanceKm / maxDistance) * plotW;
+        const y = padding.top + plotH - (item.pricePerM2 / maxPriceM2) * plotH;
+        const radius = 8 + item.score / 8;
+        const fill = colorForScore(item.score);
+        const selected = item.id === state.selectedId;
+
+        ctx.save();
+        ctx.shadowColor = "rgba(31, 38, 35, 0.18)";
+        ctx.shadowBlur = selected ? 18 : 9;
+        ctx.shadowOffsetY = selected ? 6 : 3;
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.strokeStyle = selected ? "#1f2623" : "#ffffff";
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = "#1f2623";
+        ctx.font = selected ? "700 12px Inter, sans-serif" : "600 11px Inter, sans-serif";
+        ctx.textAlign = "center";
+        const label = shortLabel(item.name);
+        ctx.fillText(label, x, y - radius - 7);
+        ctx.restore();
+
+        scatterPoints.push({ id: item.id, x, y, r: radius, item });
+      });
+
+      ctx.save();
+      ctx.fillStyle = "#68726c";
+      ctx.font = "700 12px Inter, sans-serif";
+      ctx.fillText("Distancia limite", targetX + 8, padding.top + 16);
+      ctx.fillText("Precio objetivo", padding.left + 8, targetY - 8);
+      ctx.restore();
+    }
+
+    function drawAxis(ctx, padding, width, height, plotW, plotH, maxDistance, maxPriceM2) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(31, 38, 35, 0.16)";
+      ctx.fillStyle = "#68726c";
+      ctx.lineWidth = 1;
+      ctx.font = "12px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      for (let i = 0; i <= 4; i++) {
+        const x = padding.left + (plotW / 4) * i;
+        const value = Math.round((maxDistance / 4) * i);
+        ctx.beginPath();
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, padding.top + plotH);
+        ctx.stroke();
+        ctx.fillText(value, x, padding.top + plotH + 22);
+      }
+
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const y = padding.top + (plotH / 4) * i;
+        const value = Math.round(maxPriceM2 - (maxPriceM2 / 4) * i);
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(padding.left + plotW, y);
+        ctx.stroke();
+        ctx.fillText(value, padding.left - 10, y);
+      }
+
+      ctx.strokeStyle = "#1f2623";
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top + plotH);
+      ctx.lineTo(padding.left + plotW, padding.top + plotH);
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, padding.top + plotH);
+      ctx.stroke();
+
+      ctx.fillStyle = "#1f2623";
+      ctx.font = "700 13px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("km al destino de referencia", padding.left + plotW / 2, height - 18);
+      ctx.save();
+      ctx.translate(18, padding.top + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("precio por m2", 0, 0);
+      ctx.restore();
+      ctx.restore();
+    }
+
+    function renderRadarChart() {
+      const canvas = nodes.radarCanvas;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const ranking = getRanking();
+      const selected = ranking.find((item) => item.id === state.selectedId) || ranking[0];
+
+      ctx.clearRect(0, 0, width, height);
+      if (!selected) return;
+
+      const centerX = width / 2;
+      const centerY = height / 2 + 8;
+      const radius = Math.min(width, height) * 0.32;
+      const axes = metricConfig.map((metric) => ({
+        key: metric.key,
+        label: metric.label,
+        value: selected.metrics[metric.key]
+      }));
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      for (let ring = 1; ring <= 4; ring++) {
+        const ringRadius = (radius / 4) * ring;
+        drawRadarPath(ctx, axes.length, ringRadius);
+        ctx.strokeStyle = "rgba(31, 38, 35, 0.15)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      axes.forEach((axis, index) => {
+        const angle = angleForIndex(index, axes.length);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "rgba(31, 38, 35, 0.12)";
+        ctx.stroke();
+
+        const labelX = Math.cos(angle) * (radius + 32);
+        const labelY = Math.sin(angle) * (radius + 24);
+        ctx.fillStyle = "#68726c";
+        ctx.font = "700 11px Inter, sans-serif";
+        ctx.textAlign = labelX < -5 ? "right" : labelX > 5 ? "left" : "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(axis.label, labelX, labelY);
+      });
+
+      ctx.beginPath();
+      axes.forEach((axis, index) => {
+        const angle = angleForIndex(index, axes.length);
+        const pointRadius = radius * (axis.value / 100);
+        const x = Math.cos(angle) * pointRadius;
+        const y = Math.sin(angle) * pointRadius;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(20, 128, 109, 0.28)";
+      ctx.strokeStyle = "#14806d";
+      ctx.lineWidth = 2.5;
+      ctx.fill();
+      ctx.stroke();
+
+      axes.forEach((axis, index) => {
+        const angle = angleForIndex(index, axes.length);
+        const pointRadius = radius * (axis.value / 100);
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#14806d";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(Math.cos(angle) * pointRadius, Math.sin(angle) * pointRadius, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function drawRadarPath(ctx, points, radius) {
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        const angle = angleForIndex(i, points);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    function angleForIndex(index, total) {
+      return -Math.PI / 2 + (Math.PI * 2 * index) / total;
+    }
+
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.max(1, window.devicePixelRatio || 1);
+      const width = Math.max(1, rect.width);
+      const height = Math.max(1, rect.height);
+      if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) {
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+      }
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return ctx;
+    }
+
+    function updateCandidateFromInput(event) {
+      const input = event.target.closest("input[data-field]");
+      if (!input) return;
+      const row = input.closest("tr[data-id]");
+      const candidate = state.candidates.find((item) => item.id === row.dataset.id);
+      if (!candidate) return;
+
+      const field = input.dataset.field;
+      if (field === "name" || field === "base") {
+        candidate[field] = input.value;
+      } else {
+        const value = toNumber(input.value, 0);
+        if (["services", "internet", "liquidity", "risk"].includes(field)) {
+          candidate[field] = clamp(value, 1, 10);
+        } else if (field === "sqm") {
+          candidate[field] = Math.max(1, value);
+        } else {
+          candidate[field] = Math.max(0, value);
+        }
+      }
+
+      renderAll();
+      saveState();
+    }
+
+    function refreshTableComputedCells() {
+      const rows = nodes.candidateRows.querySelectorAll("tr[data-id]");
+      rows.forEach((row) => {
+        const candidate = state.candidates.find((item) => item.id === row.dataset.id);
+        if (!candidate) return;
+        const computed = scoreCandidate(candidate);
+        row.dataset.selected = candidate.id === state.selectedId;
+        row.children[4].innerHTML = `<strong>${formatNumber(computed.pricePerM2, 0)}</strong>`;
+        row.children[10].innerHTML = `<strong>${Math.round(computed.score)}</strong>`;
+      });
+    }
+
+    function addCandidate() {
+      const id = uniqueId("nuevo-candidato");
+      const candidate = {
+        id,
+        name: "Nuevo candidato",
+        base: "Referencia",
+        price: state.settings.budget,
+        sqm: 75,
+        distanceKm: Math.round(state.settings.maxDistance / 2),
+        services: 6,
+        internet: 7,
+        liquidity: 5,
+        risk: 4,
+        source: "",
+        url: ""
+      };
+      state.candidates.push(candidate);
+      state.selectedId = id;
+      renderTable();
+      renderAll();
+      saveState();
+    }
+
+    async function importListing() {
+      const rawUrl = nodes.listingUrlInput.value.trim();
+      if (!rawUrl) {
+        showImportStatus("Pega primero un enlace de anuncio.", "warn");
+        return;
+      }
+
+      const url = parseUrl(rawUrl);
+      if (!url) {
+        showImportStatus("El enlace no parece valido.", "warn");
+        return;
+      }
+
+      showImportStatus("Leyendo enlace...", "");
+      nodes.importListingBtn.disabled = true;
+
+      const remote = await fetchListingData(url);
+      const manualText = nodes.listingTextInput.value.trim();
+      const text = [manualText, remote.text].filter(Boolean).join("\n");
+      const candidate = candidateFromListing(url, text, remote.structured);
+      const existing = state.candidates.find((item) => normalizeUrl(item.url) === normalizeUrl(candidate.url));
+
+      if (existing) {
+        Object.assign(existing, candidate, { id: existing.id });
+        state.selectedId = existing.id;
+        showImportStatus(importStatusMessage(`Actualizado: ${candidate.name}`, remote, manualText), "ok");
+      } else {
+        state.candidates.push(candidate);
+        state.selectedId = candidate.id;
+        showImportStatus(importStatusMessage(`Importado: ${candidate.name}`, remote, manualText), "ok");
+      }
+
+      nodes.importListingBtn.disabled = false;
+      nodes.listingUrlInput.value = "";
+      renderTable();
+      renderAll();
+      saveState();
+    }
+
+    function candidateFromListing(url, text, structured = {}) {
+      const source = detectSource(url.hostname);
+      const urlHints = extractUrlHints(url, source);
+      const textHints = extractListingText(text);
+      const price = structured.price || textHints.price || state.settings.budget;
+      let sqm = structured.sqm || textHints.sqm || 75;
+
+      if (!structured.sqm && !textHints.sqm && textHints.pricePerM2 && price) {
+        sqm = Math.max(20, Math.round(price / textHints.pricePerM2));
+      }
+
+      const name = structured.name || textHints.name || urlHints.name || `${source.label}${urlHints.propertyId ? " " + urlHints.propertyId : ""}`;
+      const base = structured.base || textHints.base || urlHints.location || source.label;
+      const distanceKm = textHints.distanceKm ?? Math.round(state.settings.maxDistance * 0.6);
+
+      return {
+        id: uniqueId(`${source.key}-${urlHints.propertyId || name}`),
+        name,
+        base,
+        price,
+        sqm,
+        distanceKm,
+        services: source.key === "idealista" ? 6 : 5,
+        internet: 7,
+        liquidity: source.key === "idealista" ? 6 : 5,
+        risk: 4,
+        source: source.label,
+        url: url.href
+      };
+    }
+
+    async function fetchListingData(url) {
+      if (typeof fetch !== "function" || typeof DOMParser !== "function") {
+        return { ok: false, blocked: true, text: "", structured: {} };
+      }
+
+      try {
+        const response = await fetch(url.href, {
+          method: "GET",
+          mode: "cors",
+          credentials: "omit"
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const html = await response.text();
+        return { ok: true, blocked: false, ...parseListingHtml(html) };
+      } catch (error) {
+        return { ok: false, blocked: true, text: "", structured: {} };
+      }
+    }
+
+    function parseListingHtml(html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const title = metaContent(doc, "meta[property='og:title']") || doc.title || "";
+      const description = metaContent(doc, "meta[name='description']") || metaContent(doc, "meta[property='og:description']") || "";
+      const jsonItems = jsonLdItems(doc);
+      const structured = structuredFromJsonLd(jsonItems);
+      const bodyText = doc.body ? (doc.body.innerText || doc.body.textContent || "").slice(0, 5000) : "";
+
+      return {
+        text: [title, description, bodyText].filter(Boolean).join("\n"),
+        structured
+      };
+    }
+
+    function metaContent(doc, selector) {
+      const element = doc.querySelector(selector);
+      return element ? element.getAttribute("content") || "" : "";
+    }
+
+    function jsonLdItems(doc) {
+      const scripts = [...doc.querySelectorAll("script[type='application/ld+json']")];
+      return scripts.flatMap((script) => {
+        try {
+          const value = JSON.parse(script.textContent || "{}");
+          return flattenJsonLd(value);
+        } catch (error) {
+          return [];
+        }
+      });
+    }
+
+    function flattenJsonLd(value) {
+      if (Array.isArray(value)) return value.flatMap(flattenJsonLd);
+      if (!value || typeof value !== "object") return [];
+      const graph = Array.isArray(value["@graph"]) ? value["@graph"].flatMap(flattenJsonLd) : [];
+      return [value, ...graph];
+    }
+
+    function structuredFromJsonLd(items) {
+      const item = items.find((entry) => {
+        const type = Array.isArray(entry["@type"]) ? entry["@type"].join(" ") : entry["@type"] || "";
+        return /apartment|house|residence|product|offer/i.test(type);
+      }) || {};
+      const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers || item;
+      const address = item.address || {};
+      const floorSize = item.floorSize || item.size || item.additionalProperty;
+      const structured = {
+        name: item.name || "",
+        price: parsePossibleNumber(offer.price || item.price),
+        sqm: parseFloorSize(floorSize),
+        base: [address.addressLocality, address.addressRegion].filter(Boolean).join(", ")
+      };
+      return Object.fromEntries(Object.entries(structured).filter(([, value]) => Boolean(value)));
+    }
+
+    function parseFloorSize(value) {
+      if (!value) return 0;
+      if (typeof value === "number") return value;
+      if (typeof value === "string") return extractSqm(value);
+      if (Array.isArray(value)) {
+        return value.map(parseFloorSize).find(Boolean) || 0;
+      }
+      if (typeof value === "object") {
+        return parsePossibleNumber(value.value || value.amount || value.name || value.description);
+      }
+      return 0;
+    }
+
+    function parsePossibleNumber(value) {
+      if (value === null || value === undefined || value === "") return 0;
+      return parseSpanishNumber(String(value));
+    }
+
+    function importStatusMessage(prefix, remote, manualText) {
+      if (remote.ok) return `${prefix}. Datos leidos desde la pagina.`;
+      if (manualText) return `${prefix}. Lectura directa bloqueada; use el texto pegado.`;
+      return `${prefix}. Lectura directa bloqueada; completa precio, m2 y distancia en la tabla.`;
+    }
+
+    function detectSource(hostname) {
+      const host = hostname.toLowerCase().replace(/^www\./, "");
+      if (host.includes("idealista.")) return { key: "idealista", label: "Idealista" };
+      if (host.includes("fotocasa.")) return { key: "fotocasa", label: "Fotocasa" };
+      if (host.includes("habitaclia.")) return { key: "habitaclia", label: "Habitaclia" };
+      if (host.includes("pisos.")) return { key: "pisos", label: "Pisos.com" };
+      if (host.includes("yaencontre.")) return { key: "yaencontre", label: "Yaencontre" };
+      return { key: "web", label: titleCase(host.split(".")[0] || "Web") };
+    }
+
+    function extractUrlHints(url, source) {
+      const path = decodeURIComponent(url.pathname);
+      const propertyId = (path.match(/\/inmueble\/(\d+)/i) || [])[1] || "";
+      const segments = path.split("/").filter(Boolean);
+      const ignored = new Set([
+        "venta-viviendas",
+        "alquiler-viviendas",
+        "inmueble",
+        "foto",
+        "con-buen-estado",
+        "con-ascensor",
+        "sin-ascensor"
+      ]);
+      const locationSlug = segments.find((segment) => {
+        const clean = segment.toLowerCase();
+        return !ignored.has(clean) && !/^\d+$/.test(clean) && !clean.includes("ordenado-por");
+      });
+      const location = locationSlug ? formatSlugLocation(locationSlug) : "";
+
+      return {
+        propertyId,
+        location,
+        name: propertyId && source.key === "idealista"
+          ? `Idealista ${propertyId}`
+          : location
+      };
+    }
+
+    function extractListingText(text) {
+      if (!text) return {};
+      const clean = text
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const lines = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const titleLine = lines.find((line) => /piso|casa|chalet|duplex|atico|apartamento/i.test(line) && line.length <= 90);
+      const price = extractPrice(clean);
+      const pricePerM2 = extractPricePerM2(clean);
+      const sqm = extractSqm(clean);
+      const distanceKm = extractDistance(clean);
+      const base = extractBase(clean);
+
+      return {
+        name: titleLine ? titleCase(titleLine) : "",
+        base,
+        price,
+        pricePerM2,
+        sqm,
+        distanceKm
+      };
+    }
+
+    function extractPrice(text) {
+      const matches = [...text.matchAll(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,7})\s*(?:\u20ac|eur|euros)/gi)];
+      const prices = matches
+        .filter((match) => !text.slice(match.index, match.index + match[0].length + 8).includes("/m"))
+        .map((match) => parseSpanishNumber(match[1]))
+        .filter((value) => value >= 10000 && value <= 1000000);
+      return prices[0] || 0;
+    }
+
+    function extractPricePerM2(text) {
+      const match = text.match(/(\d{2,5}(?:[.,]\d+)?)\s*(?:\u20ac|eur)?\s*\/\s*m(?:\u00b2|2)/i);
+      return match ? parseSpanishNumber(match[1]) : 0;
+    }
+
+    function extractSqm(text) {
+      const matches = [...text.matchAll(/(\d{2,4}(?:[.,]\d+)?)\s*m(?:\u00b2|2|etros cuadrados)?/gi)];
+      const values = matches
+        .filter((match) => !text.slice(Math.max(0, match.index - 5), match.index).includes("/"))
+        .map((match) => parseSpanishNumber(match[1]))
+        .filter((value) => value >= 20 && value <= 500);
+      return values[0] || 0;
+    }
+
+    function extractDistance(text) {
+      const match = text.match(/(?:distancia|a|de)\s*(\d{1,4}(?:[.,]\d+)?)\s*km/i);
+      return match ? parseSpanishNumber(match[1]) : null;
+    }
+
+    function extractBase(text) {
+      const match = text.match(/(?:en venta en|venta en|ubicado en|ubicada en)\s+([^.,;|]{3,60})/i);
+      return match ? titleCase(match[1].trim()) : "";
+    }
+
+    function formatSlugLocation(slug) {
+      const parts = slug.split("-").filter(Boolean);
+      if (!parts.length) return "";
+      if (parts.length >= 2) {
+        const province = parts[parts.length - 1];
+        const town = parts.slice(0, -1).join(" ");
+        return `${titleCase(town)}, ${titleCase(province)}`;
+      }
+      return titleCase(parts.join(" "));
+    }
+
+    function parseSpanishNumber(value) {
+      const clean = String(value).replace(/\s/g, "");
+      if (clean.includes(",") && clean.includes(".")) {
+        return Number(clean.replace(/\./g, "").replace(",", "."));
+      }
+      if (clean.includes(",")) {
+        return Number(clean.replace(",", "."));
+      }
+      return Number(clean.replace(/\./g, ""));
+    }
+
+    function parseUrl(rawUrl) {
+      try {
+        const withProtocol = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+        return new URL(withProtocol);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function normalizeUrl(url) {
+      if (!url) return "";
+      const parsed = parseUrl(url);
+      if (!parsed) return String(url).trim();
+      parsed.hash = "";
+      parsed.search = "";
+      return parsed.href.replace(/\/$/, "");
+    }
+
+    function sourceNameFromUrl(url) {
+      const parsed = parseUrl(url);
+      return parsed ? detectSource(parsed.hostname).label : "Web";
+    }
+
+    function showImportStatus(message, type) {
+      nodes.importStatus.textContent = message;
+      nodes.importStatus.className = `import-status ${type || ""}`;
+    }
+
+    function removeCandidate(id) {
+      state.candidates = state.candidates.filter((item) => item.id !== id);
+      if (state.selectedId === id) {
+        state.selectedId = state.candidates[0] ? state.candidates[0].id : null;
+      }
+      renderTable();
+      renderAll();
+      saveState();
+    }
+
+    function selectCandidate(id) {
+      state.selectedId = id;
+      renderAll();
+      saveState();
+    }
+
+    function resetState() {
+      const clean = clone(defaults);
+      state.selectedId = clean.selectedId;
+      state.settings = clean.settings;
+      state.weights = clean.weights;
+      state.candidates = clean.candidates;
+      nodes.budgetInput.value = state.settings.budget;
+      nodes.priceM2Input.value = state.settings.targetM2;
+      nodes.distanceInput.value = state.settings.maxDistance;
+      renderWeightValues();
+      renderTable();
+      renderAll();
+      saveState();
+    }
+
+    function ensureSelected() {
+      if (!state.candidates.length) return;
+      if (!state.candidates.some((item) => item.id === state.selectedId)) {
+        state.selectedId = state.candidates[0].id;
+      }
+    }
+
+    function getRanking() {
+      return state.candidates.map(scoreCandidate).sort((a, b) => b.score - a.score);
+    }
+
+    function scoreCandidate(candidate) {
+      const pricePerM2 = candidate.sqm > 0 ? candidate.price / candidate.sqm : 0;
+      const settings = state.settings;
+      const metrics = {
+        price: (scoreLower(pricePerM2, settings.targetM2, settings.targetM2 * 1.65) * 0.64) +
+          (scoreLower(candidate.price, settings.budget * 0.92, settings.budget * 1.28) * 0.36),
+        distance: scoreLower(candidate.distanceKm, settings.maxDistance * 0.28, settings.maxDistance),
+        services: scoreTen(candidate.services),
+        internet: scoreTen(candidate.internet),
+        liquidity: scoreTen(candidate.liquidity),
+        risk: scoreRisk(candidate.risk)
+      };
+      const weight = totalWeight() || 1;
+      const score = metricConfig.reduce((sum, metric) => {
+        return sum + metrics[metric.key] * (state.weights[metric.key] || 0);
+      }, 0) / weight;
+      return { ...candidate, pricePerM2, metrics, score: clamp(score, 0, 100) };
+    }
+
+    function scoreLower(value, ideal, unacceptable) {
+      if (!Number.isFinite(value)) return 0;
+      if (value <= ideal) return 100;
+      if (value >= unacceptable) return 0;
+      return clamp(100 - ((value - ideal) / (unacceptable - ideal)) * 100, 0, 100);
+    }
+
+    function scoreTen(value) {
+      return clamp((toNumber(value, 0) / 10) * 100, 0, 100);
+    }
+
+    function scoreRisk(value) {
+      return clamp(((10 - toNumber(value, 10)) / 9) * 100, 0, 100);
+    }
+
+    function totalWeight() {
+      return metricConfig.reduce((sum, metric) => sum + (Number(state.weights[metric.key]) || 0), 0);
+    }
+
+    function handleScatterHover(event) {
+      const point = findScatterPoint(event);
+      if (!point) {
+        nodes.scatterTooltip.classList.remove("visible");
+        return;
+      }
+      const item = point.item;
+      nodes.scatterTooltip.innerHTML = `
+        <strong>${escapeHtml(item.name)}</strong><br>
+        ${formatCurrency(item.price)} - ${formatNumber(item.pricePerM2, 0)} &euro;/m&sup2;<br>
+        ${formatNumber(item.distanceKm, 0)} km - score ${Math.round(item.score)}
+      `;
+      const rect = nodes.scatterWrap.getBoundingClientRect();
+      nodes.scatterTooltip.style.left = `${event.clientX - rect.left}px`;
+      nodes.scatterTooltip.style.top = `${event.clientY - rect.top}px`;
+      nodes.scatterTooltip.classList.add("visible");
+    }
+
+    function findScatterPoint(event) {
+      const rect = nodes.scatterCanvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      return scatterPoints
+        .slice()
+        .reverse()
+        .find((point) => Math.hypot(point.x - x, point.y - y) <= point.r + 5);
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function flashButton(button, text) {
+      const oldText = button.textContent;
+      button.textContent = text;
+      setTimeout(() => {
+        button.textContent = oldText;
+      }, 900);
+    }
+
+    function clone(value) {
+      if (typeof structuredClone === "function") {
+        return structuredClone(value);
+      }
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function uniqueId(seed) {
+      const base = String(seed)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "candidato";
+      let id = base;
+      let index = 2;
+      let sourceCandidates = defaults.candidates;
+      try {
+        if (state && Array.isArray(state.candidates)) {
+          sourceCandidates = state.candidates;
+        }
+      } catch (error) {
+        sourceCandidates = defaults.candidates;
+      }
+      const ids = new Set(sourceCandidates.map((item) => item.id));
+      while (ids.has(id)) {
+        id = `${base}-${index}`;
+        index += 1;
+      }
+      return id;
+    }
+
+    function colorForScore(score) {
+      if (score >= 76) return "#14806d";
+      if (score >= 62) return "#b8790f";
+      if (score >= 48) return "#4267a6";
+      return "#d75d4f";
+    }
+
+    function shortLabel(name) {
+      const words = String(name).split(/\s+/).filter(Boolean);
+      if (words.length <= 2) return name;
+      return words.slice(0, 2).join(" ");
+    }
+
+    function titleCase(value) {
+      return String(value)
+        .toLowerCase()
+        .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("es-ES", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      }).format(toNumber(value, 0));
+    }
+
+    function formatNumber(value, decimals = 0) {
+      return new Intl.NumberFormat("es-ES", {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals
+      }).format(toNumber(value, 0));
+    }
+
+    function toNumber(value, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>

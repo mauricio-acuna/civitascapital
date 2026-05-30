@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "magenta-customers.fullname" . }}
+  labels:
+    {{- include "magenta-customers.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "magenta-customers.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "magenta-customers.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "magenta-customers.fullname" . }}-config
+          env:
+            {{- range $key, $value := .Values.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.secretName }}
+                  key: {{ $value.key }}
+            {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.service.port }}
+            failureThreshold: 20
+            periodSeconds: 10
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              {{- include "magenta-customers.selectorLabels" . | nindent 14 }}

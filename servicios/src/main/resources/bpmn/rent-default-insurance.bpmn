@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                  id="rent-default-insurance" targetNamespace="http://magenta.com/bpmn">
+  <bpmn:process id="rent-default-insurance" name="Seguro Impago Alquiler" isExecutable="true">
+    <bpmn:startEvent id="start"><bpmn:outgoing>f1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:serviceTask id="validateInputs" name="Validar inputs + KYC inquilino">
+      <bpmn:extensionElements><zeebe:taskDefinition type="validateInputs"/></bpmn:extensionElements>
+      <bpmn:incoming>f1</bpmn:incoming><bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="quotePrice" name="Cotizar prima seguro">
+      <bpmn:extensionElements><zeebe:taskDefinition type="quotePrice"/></bpmn:extensionElements>
+      <bpmn:incoming>f2</bpmn:incoming><bpmn:outgoing>f3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="chargeCustomer" name="Cobrar prima">
+      <bpmn:extensionElements><zeebe:taskDefinition type="chargeCustomer"/></bpmn:extensionElements>
+      <bpmn:incoming>f3</bpmn:incoming><bpmn:outgoing>f4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="assignPartner" name="Seleccionar aseguradora">
+      <bpmn:extensionElements><zeebe:taskDefinition type="assignPartner"/></bpmn:extensionElements>
+      <bpmn:incoming>f4</bpmn:incoming><bpmn:outgoing>f5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="signPolicy" name="Firma remota póliza (eSignature)">
+      <bpmn:incoming>f5</bpmn:incoming><bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="verifyDeliverable" name="Verificar póliza">
+      <bpmn:extensionElements><zeebe:taskDefinition type="verifyDeliverable"/></bpmn:extensionElements>
+      <bpmn:incoming>f6</bpmn:incoming><bpmn:outgoing>f7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="generateInvoice" name="Generar factura">
+      <bpmn:extensionElements><zeebe:taskDefinition type="generateInvoice"/></bpmn:extensionElements>
+      <bpmn:incoming>f7</bpmn:incoming><bpmn:outgoing>f8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="closeOrder" name="Cerrar orden">
+      <bpmn:extensionElements><zeebe:taskDefinition type="closeOrder"/></bpmn:extensionElements>
+      <bpmn:incoming>f8</bpmn:incoming><bpmn:outgoing>f9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="end"><bpmn:incoming>f9</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="validateInputs"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="validateInputs" targetRef="quotePrice"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="quotePrice" targetRef="chargeCustomer"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="chargeCustomer" targetRef="assignPartner"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="assignPartner" targetRef="signPolicy"/>
+    <bpmn:sequenceFlow id="f6" sourceRef="signPolicy" targetRef="verifyDeliverable"/>
+    <bpmn:sequenceFlow id="f7" sourceRef="verifyDeliverable" targetRef="generateInvoice"/>
+    <bpmn:sequenceFlow id="f8" sourceRef="generateInvoice" targetRef="closeOrder"/>
+    <bpmn:sequenceFlow id="f9" sourceRef="closeOrder" targetRef="end"/>
+  </bpmn:process>
+</bpmn:definitions>

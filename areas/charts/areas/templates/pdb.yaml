@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "areas.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "areas.labels" . | nindent 4 }}
+spec:
+  # Garantiza al menos 1 pod disponible durante rolling updates o drenados de nodo
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "areas.selectorLabels" . | nindent 6 }}

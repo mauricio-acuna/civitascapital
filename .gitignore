@@ -1,0 +1,45 @@
+# Build outputs
+target/
+build/
+/out/
+
+# Java / Maven
+.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+application-local-secret.yml
+application-secret.yml
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+*.iml
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Personal notes
+notas/
+
+# Node / frontend if added later
+node_modules/
+dist/
+.angular/
+
+# Test and coverage
+coverage/
+*.exec

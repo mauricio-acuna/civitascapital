@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                  id="mortgage-broker" targetNamespace="http://magenta.com/bpmn">
+  <bpmn:process id="mortgage-broker" name="Mediación Hipotecaria" isExecutable="true">
+    <bpmn:startEvent id="start"><bpmn:outgoing>f1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:serviceTask id="validateInputs" name="Validar inputs">
+      <bpmn:extensionElements><zeebe:taskDefinition type="validateInputs"/></bpmn:extensionElements>
+      <bpmn:incoming>f1</bpmn:incoming><bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="chargeCustomer" name="Cobrar cliente">
+      <bpmn:extensionElements><zeebe:taskDefinition type="chargeCustomer"/></bpmn:extensionElements>
+      <bpmn:incoming>f2</bpmn:incoming><bpmn:outgoing>f3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="requestPreapproval" name="Solicitar preaprobaciones multi-banco">
+      <bpmn:extensionElements><zeebe:taskDefinition type="requestPreapproval"/></bpmn:extensionElements>
+      <bpmn:incoming>f3</bpmn:incoming><bpmn:outgoing>f4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="clientSelectOffer" name="Cliente selecciona oferta">
+      <bpmn:incoming>f4</bpmn:incoming><bpmn:outgoing>f5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="notifyCustomer" name="Notificar cliente">
+      <bpmn:extensionElements><zeebe:taskDefinition type="notifyCustomer"/></bpmn:extensionElements>
+      <bpmn:incoming>f5</bpmn:incoming><bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="closeOrder" name="Cerrar orden">
+      <bpmn:extensionElements><zeebe:taskDefinition type="closeOrder"/></bpmn:extensionElements>
+      <bpmn:incoming>f6</bpmn:incoming><bpmn:outgoing>f7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="end"><bpmn:incoming>f7</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="validateInputs"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="validateInputs" targetRef="chargeCustomer"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="chargeCustomer" targetRef="requestPreapproval"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="requestPreapproval" targetRef="clientSelectOffer"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="clientSelectOffer" targetRef="notifyCustomer"/>
+    <bpmn:sequenceFlow id="f6" sourceRef="notifyCustomer" targetRef="closeOrder"/>
+    <bpmn:sequenceFlow id="f7" sourceRef="closeOrder" targetRef="end"/>
+  </bpmn:process>
+</bpmn:definitions>

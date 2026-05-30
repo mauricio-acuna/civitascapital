@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "magenta-customers.fullname" . }}
+  labels:
+    {{- include "magenta-customers.labels" . | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "magenta-customers.selectorLabels" . | nindent 6 }}

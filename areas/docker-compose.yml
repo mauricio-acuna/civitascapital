@@ -1,0 +1,127 @@
+# docker-compose.yml — Magenta · módulo areas · entorno local
+#
+# Decisión PAE-001 (parcial): infraestructura alineada con el stack baseline
+# 30/05/2026 (PostgreSQL 18, Redis 8, Kafka KRaft / Confluent 8.0.0).
+# El código del módulo sigue en Java 21 / Spring Boot 3.3 (ADR-001 v1.0).
+#
+# Uso:
+#   docker compose up -d                     # levanta toda la infra
+#   mvn spring-boot:run -Plocal              # arranca areas apuntando a esta infra
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL 18 + PostGIS ───────────────────────────────────────────────
+  postgres:
+    image: postgis/postgis:18-3.5-alpine
+    environment:
+      POSTGRES_DB: areas_db
+      POSTGRES_USER: magenta
+      POSTGRES_PASSWORD: magenta
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U magenta -d areas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis 8 ──────────────────────────────────────────────────────────────
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Kafka KRaft (Confluent 8.0.0 — sin Zookeeper) ───────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:8.0.0
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # Topics que produce areas:
+      #   magenta.areas.zone.v1
+      #   magenta.areas.price-index.v1
+      # Topics que consume areas:
+      #   magenta.products.transaction.v1
+      #   magenta.products.property.v1
+      #   magenta.servicios.workflow.v1
+      CLUSTER_ID: 'QWxwaGFBcmVhc0NsdXN0ZXI'
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Schema Registry (Confluent 8.0.0) ────────────────────────────────────
+  schema-registry:
+    image: confluentinc/cp-schema-registry:8.0.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8085:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
+
+  # ── Keycloak 24 ───────────────────────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.4
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/magenta-realm.json:/opt/keycloak/data/import/magenta-realm.json:ro
+
+  # ── areas service ─────────────────────────────────────────────────────────
+  areas:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_USER: magenta
+      DB_PASSWORD: magenta
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      REDIS_HOST: redis
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/magenta/protocol/openid-connect/certs
+      OTLP_ENDPOINT: ""
+      TRACE_SAMPLE_RATE: "0.1"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health/liveness | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:

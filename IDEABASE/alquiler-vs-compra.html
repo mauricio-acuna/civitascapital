@@ -1,0 +1,1990 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alquiler vs compra</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7f7;
+      --surface: #ffffff;
+      --surface-2: #eef3f1;
+      --surface-3: #f8faf9;
+      --ink: #17211f;
+      --muted: #62706c;
+      --line: #d8e0dd;
+      --teal: #127c6b;
+      --teal-soft: #d9efeb;
+      --indigo: #405d9b;
+      --indigo-soft: #e0e8f7;
+      --amber: #b8790f;
+      --amber-soft: #f4e6c8;
+      --rose: #c84f59;
+      --rose-soft: #f7dfe2;
+      --violet: #7259a6;
+      --green: #2f8b55;
+      --shadow: 0 16px 44px rgba(23, 33, 31, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.28) 260px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1500px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 38px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 0 18px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      max-width: 930px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #ffffff;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 10px 24px rgba(23, 33, 31, 0.16);
+    }
+
+    .btn.secondary {
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--rose-soft);
+      color: #872b35;
+      box-shadow: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(290px, 380px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      padding: 16px;
+    }
+
+    .control-section {
+      padding: 0 0 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .control-section:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label,
+    .toggle label,
+    .metric-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .field label span,
+    .toggle label span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 8px 9px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(18, 124, 107, 0.14);
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-3);
+    }
+
+    .toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--teal);
+    }
+
+    .scenario-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .scenario-btn {
+      min-height: 42px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-align: left;
+    }
+
+    .scenario-btn[aria-current="true"] {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: #0e5f53;
+      box-shadow: inset 0 0 0 2px rgba(18, 124, 107, 0.14);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .verdict {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(150px, 0.42fr));
+      gap: 12px;
+      padding: 16px;
+      align-items: stretch;
+    }
+
+    .verdict-main {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .verdict-main h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.2vw, 2.1rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .verdict-main p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .kpi {
+      display: grid;
+      align-content: space-between;
+      gap: 8px;
+      min-height: 116px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .kpi span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: clamp(1.2rem, 2vw, 1.65rem);
+      line-height: 1.05;
+      word-break: break-word;
+    }
+
+    .kpi small {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
+      gap: 18px;
+    }
+
+    .chart-panel {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 390px;
+      min-height: 300px;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(23, 33, 31, 0.045) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(23, 33, 31, 0.045) 1px, transparent 1px),
+        #ffffff;
+      background-size: 42px 42px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .chart-wrap.small {
+      height: 250px;
+      min-height: 230px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tooltip {
+      position: absolute;
+      z-index: 4;
+      pointer-events: none;
+      transform: translate(12px, -12px);
+      max-width: 260px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(23, 33, 31, 0.95);
+      color: #ffffff;
+      font-size: 0.82rem;
+      box-shadow: 0 12px 26px rgba(23, 33, 31, 0.22);
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    .score-stack {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .score-card {
+      display: grid;
+      gap: 10px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .score-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .score-head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .score-value {
+      display: inline-grid;
+      place-items: center;
+      min-width: 48px;
+      height: 34px;
+      padding: 0 9px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-weight: 900;
+    }
+
+    .metric {
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric-bar {
+      height: 11px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+      border: 1px solid rgba(216, 224, 221, 0.95);
+    }
+
+    .metric-bar span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+      transition: width 160ms ease;
+    }
+
+    .metric:nth-child(2) .metric-bar span { background: var(--indigo); }
+    .metric:nth-child(3) .metric-bar span { background: var(--amber); }
+    .metric:nth-child(4) .metric-bar span { background: var(--green); }
+    .metric:nth-child(5) .metric-bar span { background: var(--violet); }
+
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fact {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .fact strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1rem;
+      word-break: break-word;
+    }
+
+    .fact small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .risk-panel,
+    .table-panel,
+    .notes-panel {
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .warning-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .warning {
+      display: grid;
+      grid-template-columns: 10px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .warning::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    .warning.warn::before {
+      background: var(--amber);
+    }
+
+    .warning.bad::before {
+      background: var(--rose);
+    }
+
+    .warning strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.91rem;
+    }
+
+    .warning span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .table-shell {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .scenario-table {
+      width: 100%;
+      min-width: 1060px;
+      border-collapse: collapse;
+    }
+
+    .scenario-table th,
+    .scenario-table td {
+      padding: 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.86rem;
+    }
+
+    .scenario-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8faf9;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .scenario-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .scenario-table tr[data-selected="true"] td {
+      background: rgba(18, 124, 107, 0.07);
+    }
+
+    .pick-btn {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tag.ok {
+      background: var(--teal-soft);
+      color: #0e5f53;
+    }
+
+    .tag.warn {
+      background: var(--amber-soft);
+      color: #835704;
+    }
+
+    .tag.bad {
+      background: var(--rose-soft);
+      color: #872b35;
+    }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .note-box {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .note-box h3 {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+    }
+
+    .note-box ul {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .source-line {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .source-line a {
+      color: var(--teal);
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .source-line a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1180px) {
+      .layout,
+      .grid-two,
+      .verdict {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+        max-height: none;
+      }
+
+      .facts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 20px, 1500px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+
+      .actions,
+      .btn {
+        width: 100%;
+      }
+
+      .field-grid,
+      .scenario-buttons,
+      .facts-grid,
+      .notes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Alquiler vs compra</h1>
+        <p>Proyecta tu patrimonio y tu libertad hasta la jubilacion con los costes reales de comprar, alquilar, invertir, endeudarte y conservar liquidez.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="saveBtn" type="button">Guardar</button>
+        <button class="btn danger" id="resetBtn" type="button">Restablecer</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel controls">
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Escenario compra</h2>
+            <span id="scenarioHint">editable</span>
+          </div>
+          <div class="scenario-buttons" id="scenarioButtons"></div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Perfil</h2>
+            <span>base hablada</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="currentAge">Edad actual <span>a&ntilde;os</span></label>
+              <input id="currentAge" data-setting="currentAge" type="number" min="18" max="80" step="1">
+            </div>
+            <div class="field">
+              <label for="retireAge">Jubilacion <span>a&ntilde;os</span></label>
+              <input id="retireAge" data-setting="retireAge" type="number" min="45" max="80" step="1">
+            </div>
+            <div class="field">
+              <label for="monthlyIncome">Neto mensual <span>&euro;</span></label>
+              <input id="monthlyIncome" data-setting="monthlyIncome" type="number" min="0" step="25">
+            </div>
+            <div class="field">
+              <label for="currentSavings">Ahorro actual <span>&euro;</span></label>
+              <input id="currentSavings" data-setting="currentSavings" type="number" min="0" step="500">
+            </div>
+            <div class="field">
+              <label for="safetyMonths">Colchon minimo <span>meses</span></label>
+              <input id="safetyMonths" data-setting="safetyMonths" type="number" min="0" max="36" step="1">
+            </div>
+            <div class="field">
+              <label for="extraCash">Ahorro extra <span>&euro;</span></label>
+              <input id="extraCash" data-setting="extraCash" type="number" min="0" step="500">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Alquiler</h2>
+            <span>seguir invirtiendo</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="rentMonthly">Alquiler hoy <span>&euro;/mes</span></label>
+              <input id="rentMonthly" data-setting="rentMonthly" type="number" min="0" step="25">
+            </div>
+            <div class="field">
+              <label for="rentSaving">Ahorro mensual <span>&euro;</span></label>
+              <input id="rentSaving" data-setting="rentSaving" type="number" step="25">
+            </div>
+            <div class="field">
+              <label for="rentGrowth">Subida alquiler <span>% anual</span></label>
+              <input id="rentGrowth" data-setting="rentGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="investmentReturn">Inversion neta <span>% anual</span></label>
+              <input id="investmentReturn" data-setting="investmentReturn" type="number" step="0.1">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Compra</h2>
+            <span>coste total</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="purchasePrice">Precio vivienda <span>&euro;</span></label>
+              <input id="purchasePrice" data-setting="purchasePrice" type="number" min="0" step="1000">
+            </div>
+            <div class="field">
+              <label for="mortgageLtv">Hipoteca <span>% precio</span></label>
+              <input id="mortgageLtv" data-setting="mortgageLtv" type="number" min="0" max="100" step="1">
+            </div>
+            <div class="field">
+              <label for="mortgageRate">TIN hipoteca <span>%</span></label>
+              <input id="mortgageRate" data-setting="mortgageRate" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="mortgageYears">Plazo <span>a&ntilde;os</span></label>
+              <input id="mortgageYears" data-setting="mortgageYears" type="number" min="1" max="40" step="1">
+            </div>
+            <div class="field">
+              <label for="downPaymentPct">Entrada propia <span>%</span></label>
+              <input id="downPaymentPct" data-setting="downPaymentPct" type="number" min="0" max="100" step="0.5">
+            </div>
+            <div class="field">
+              <label for="taxPct">Impuestos <span>%</span></label>
+              <input id="taxPct" data-setting="taxPct" type="number" min="0" max="25" step="0.1">
+            </div>
+            <div class="field">
+              <label for="closingCosts">Otros gastos <span>&euro;</span></label>
+              <input id="closingCosts" data-setting="closingCosts" type="number" min="0" step="250">
+            </div>
+            <div class="field">
+              <label for="ownerMonthlyCosts">Comunidad/IBI <span>&euro;/mes</span></label>
+              <input id="ownerMonthlyCosts" data-setting="ownerMonthlyCosts" type="number" min="0" step="10">
+            </div>
+            <div class="field">
+              <label for="maintenancePct">Mantenimiento <span>% anual</span></label>
+              <input id="maintenancePct" data-setting="maintenancePct" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="homeAppreciation">Vivienda sube <span>% anual</span></label>
+              <input id="homeAppreciation" data-setting="homeAppreciation" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="saleCostPct">Coste vender <span>%</span></label>
+              <input id="saleCostPct" data-setting="saleCostPct" type="number" min="0" max="15" step="0.5">
+            </div>
+            <div class="field">
+              <label for="purchaseType">Tipo compra <span>fiscal</span></label>
+              <select id="purchaseType" data-setting="purchaseType">
+                <option value="new">Obra nueva</option>
+                <option value="used">Segunda mano</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Deuda extra</h2>
+            <span>prueba de estres</span>
+          </div>
+          <div class="field-grid single">
+            <div class="toggle">
+              <label for="usePersonalLoan">Usar prestamo personal para cubrir deficit <span>CIRBE</span></label>
+              <input id="usePersonalLoan" data-setting="usePersonalLoan" type="checkbox">
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="personalLoanLimit">Limite prestamo <span>&euro;</span></label>
+              <input id="personalLoanLimit" data-setting="personalLoanLimit" type="number" min="0" step="500">
+            </div>
+            <div class="field">
+              <label for="personalLoanRate">TIN prestamo <span>%</span></label>
+              <input id="personalLoanRate" data-setting="personalLoanRate" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="personalLoanYears">Plazo prestamo <span>a&ntilde;os</span></label>
+              <input id="personalLoanYears" data-setting="personalLoanYears" type="number" min="1" max="10" step="1">
+            </div>
+            <div class="field">
+              <label for="maxDebtRatio">Ratio prudente <span>%</span></label>
+              <input id="maxDebtRatio" data-setting="maxDebtRatio" type="number" min="10" max="60" step="1">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <h2>Macro</h2>
+            <span>poder adquisitivo</span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="inflation">Inflacion <span>% anual</span></label>
+              <input id="inflation" data-setting="inflation" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="incomeGrowth">Subida ingresos <span>% anual</span></label>
+              <input id="incomeGrowth" data-setting="incomeGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="expenseGrowth">Gastos no vivienda <span>% anual</span></label>
+              <input id="expenseGrowth" data-setting="expenseGrowth" type="number" step="0.1">
+            </div>
+            <div class="field">
+              <label for="viewMode">Grafico <span>valor</span></label>
+              <select id="viewMode" data-setting="viewMode">
+                <option value="real">Euros de hoy</option>
+                <option value="nominal">Nominal</option>
+              </select>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="content">
+        <section class="panel verdict">
+          <div class="verdict-main">
+            <span class="eyebrow" id="verdictEyebrow">Resultado</span>
+            <h2 id="verdictTitle">-</h2>
+            <p id="verdictText">-</p>
+          </div>
+          <div class="kpi">
+            <span>Patrimonio alquiler</span>
+            <strong id="rentNetWorth">-</strong>
+            <small id="rentRealWorth">-</small>
+          </div>
+          <div class="kpi">
+            <span>Patrimonio compra</span>
+            <strong id="buyNetWorth">-</strong>
+            <small id="buyRealWorth">-</small>
+          </div>
+          <div class="kpi">
+            <span>Diferencia real</span>
+            <strong id="netDifference">-</strong>
+            <small id="freedomWinner">-</small>
+          </div>
+        </section>
+
+        <section class="facts-grid" id="factsGrid"></section>
+
+        <div class="grid-two">
+          <section class="panel chart-panel">
+            <div class="section-title">
+              <h2>Patrimonio hasta jubilacion</h2>
+              <span id="chartModeLabel">euros de hoy</span>
+            </div>
+            <div class="chart-wrap" id="wealthWrap">
+              <canvas id="wealthCanvas"></canvas>
+              <div class="tooltip" id="wealthTooltip"></div>
+            </div>
+          </section>
+
+          <section class="panel score-stack">
+            <div class="section-title">
+              <h2>Libertad</h2>
+              <span>0 a 100</span>
+            </div>
+            <div class="score-card">
+              <div class="score-head">
+                <h3>Alquiler</h3>
+                <span class="score-value" id="rentFreedom">-</span>
+              </div>
+              <div class="metrics" id="rentMetrics"></div>
+            </div>
+            <div class="score-card">
+              <div class="score-head">
+                <h3>Compra</h3>
+                <span class="score-value" id="buyFreedom">-</span>
+              </div>
+              <div class="metrics" id="buyMetrics"></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="grid-two">
+          <section class="panel chart-panel">
+            <div class="section-title">
+              <h2>Composicion a los 67</h2>
+              <span>liquidez, vivienda y deuda</span>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="compositionCanvas"></canvas>
+            </div>
+          </section>
+
+          <section class="panel risk-panel">
+            <div class="section-title">
+              <h2>Semaforo</h2>
+              <span id="riskHint">riesgos vivos</span>
+            </div>
+            <ul class="warning-list" id="warningList"></ul>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="section-title">
+            <h2>Candidatos de compra</h2>
+            <span>precios del contexto</span>
+          </div>
+          <div class="table-shell">
+            <table class="scenario-table">
+              <thead>
+                <tr>
+                  <th>Opcion</th>
+                  <th>Precio</th>
+                  <th>Caja necesaria</th>
+                  <th>Deficit</th>
+                  <th>Hipoteca</th>
+                  <th>Cuota compra</th>
+                  <th>Ratio deuda</th>
+                  <th>Patrimonio real</th>
+                  <th>Libertad</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="scenarioRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel notes-panel">
+          <div class="section-title">
+            <h2>Realidades que pesan</h2>
+            <span>no solo cuota</span>
+          </div>
+          <div class="notes-grid">
+            <article class="note-box">
+              <h3>Comprar</h3>
+              <ul>
+                <li>La entrada comercial no incluye impuestos, AJD, notaria, registro, tasacion, muebles, alta de suministros ni colchones.</li>
+                <li>Una hipoteca a 30 a&ntilde;os iniciada a los 45 deja deuda pendiente al jubilarte a los 67.</li>
+                <li>La vivienda aporta estabilidad, pero reduce movilidad y convierte parte del patrimonio en iliquido.</li>
+                <li>El prestamo personal puede tapar la entrada y a la vez hundir el scoring por ratio de deuda.</li>
+              </ul>
+            </article>
+            <article class="note-box">
+              <h3>Alquilar</h3>
+              <ul>
+                <li>La libertad depende de invertir el ahorro cada mes, sin romper la disciplina durante 22 a&ntilde;os.</li>
+                <li>El riesgo principal es que el alquiler suba mas rapido que ingresos y ahorro.</li>
+                <li>La liquidez es alta y permite moverte, cambiar de ciudad o esperar una compra mejor.</li>
+                <li>No capitalizas vivienda: a la jubilacion sigues necesitando pagar alojamiento.</li>
+              </ul>
+            </article>
+          </div>
+          <p class="source-line">
+            Referencias verificadas: AEAT sobre IVA en vivienda nueva, ATC sobre AJD en compraventas sujetas a IVA y Banco de Espa&ntilde;a sobre capacidad de endeudamiento.
+          </p>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "prop-tienda-alquiler-compra-v1";
+
+    const scenarios = [
+      {
+        id: "can-colomer-3",
+        name: "Can Colomer 3",
+        place: "Terrassa",
+        price: 168000,
+        confidence: "90+5+5 no confirmado"
+      },
+      {
+        id: "can-colomer",
+        name: "Can Colomer",
+        place: "Terrassa",
+        price: 177000,
+        confidence: "90+5+5 no confirmado"
+      },
+      {
+        id: "vilafranca",
+        name: "Vilafranca 1D",
+        place: "Vilafranca del Penedes",
+        price: 194000,
+        confidence: "90+5+5 confirmado"
+      },
+      {
+        id: "santa-coloma",
+        name: "Santa Coloma 1D",
+        place: "Santa Coloma",
+        price: 275000,
+        confidence: "90+5+5 confirmado"
+      }
+    ];
+
+    const defaults = {
+      selectedScenario: "can-colomer-3",
+      currentAge: 45,
+      retireAge: 67,
+      monthlyIncome: 2585,
+      currentSavings: 20000,
+      safetyMonths: 6,
+      extraCash: 0,
+      rentMonthly: 800,
+      rentSaving: 425,
+      rentGrowth: 0,
+      investmentReturn: 2,
+      purchasePrice: 168000,
+      mortgageLtv: 90,
+      mortgageRate: 4,
+      mortgageYears: 30,
+      downPaymentPct: 10,
+      taxPct: 11.5,
+      closingCosts: 2500,
+      ownerMonthlyCosts: 120,
+      maintenancePct: 0.6,
+      homeAppreciation: 1.5,
+      saleCostPct: 3,
+      purchaseType: "new",
+      usePersonalLoan: false,
+      personalLoanLimit: 34000,
+      personalLoanRate: 8,
+      personalLoanYears: 7,
+      maxDebtRatio: 35,
+      inflation: 2,
+      incomeGrowth: 0,
+      expenseGrowth: 0,
+      viewMode: "real"
+    };
+
+    const nodes = {
+      scenarioButtons: document.getElementById("scenarioButtons"),
+      scenarioHint: document.getElementById("scenarioHint"),
+      saveBtn: document.getElementById("saveBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      verdictEyebrow: document.getElementById("verdictEyebrow"),
+      verdictTitle: document.getElementById("verdictTitle"),
+      verdictText: document.getElementById("verdictText"),
+      rentNetWorth: document.getElementById("rentNetWorth"),
+      rentRealWorth: document.getElementById("rentRealWorth"),
+      buyNetWorth: document.getElementById("buyNetWorth"),
+      buyRealWorth: document.getElementById("buyRealWorth"),
+      netDifference: document.getElementById("netDifference"),
+      freedomWinner: document.getElementById("freedomWinner"),
+      factsGrid: document.getElementById("factsGrid"),
+      chartModeLabel: document.getElementById("chartModeLabel"),
+      wealthCanvas: document.getElementById("wealthCanvas"),
+      wealthWrap: document.getElementById("wealthWrap"),
+      wealthTooltip: document.getElementById("wealthTooltip"),
+      compositionCanvas: document.getElementById("compositionCanvas"),
+      rentFreedom: document.getElementById("rentFreedom"),
+      buyFreedom: document.getElementById("buyFreedom"),
+      rentMetrics: document.getElementById("rentMetrics"),
+      buyMetrics: document.getElementById("buyMetrics"),
+      warningList: document.getElementById("warningList"),
+      riskHint: document.getElementById("riskHint"),
+      scenarioRows: document.getElementById("scenarioRows")
+    };
+
+    const inputs = [...document.querySelectorAll("[data-setting]")];
+    let state = loadState();
+    let wealthPoints = [];
+
+    init();
+
+    function init() {
+      renderScenarioButtons();
+      bindInputs();
+      syncInputs();
+      renderAll();
+      window.addEventListener("resize", renderCharts);
+      nodes.wealthWrap.addEventListener("mousemove", handleWealthHover);
+      nodes.wealthWrap.addEventListener("mouseleave", () => nodes.wealthTooltip.classList.remove("visible"));
+      nodes.saveBtn.addEventListener("click", () => {
+        saveState();
+        flashButton(nodes.saveBtn, "Guardado");
+      });
+      nodes.resetBtn.addEventListener("click", resetState);
+    }
+
+    function bindInputs() {
+      inputs.forEach((input) => {
+        const eventName = input.type === "checkbox" || input.tagName === "SELECT" ? "change" : "input";
+        input.addEventListener(eventName, () => {
+          const key = input.dataset.setting;
+          state[key] = input.type === "checkbox" ? input.checked : parseInputValue(input, state[key]);
+          if (key === "mortgageLtv") {
+            state.downPaymentPct = clamp(100 - state.mortgageLtv, 0, 100);
+            syncInputs();
+          }
+          if (key === "downPaymentPct") {
+            state.mortgageLtv = clamp(100 - state.downPaymentPct, 0, 100);
+            syncInputs();
+          }
+          if (key === "purchaseType") {
+            state.taxPct = input.value === "new" ? 11.5 : 10;
+            syncInputs();
+          }
+          renderAll();
+          saveState();
+        });
+      });
+    }
+
+    function renderScenarioButtons() {
+      nodes.scenarioButtons.innerHTML = scenarios.map((scenario) => `
+        <button class="scenario-btn" type="button" data-scenario="${scenario.id}" aria-current="${scenario.id === state.selectedScenario}">
+          ${escapeHtml(scenario.name)}<br><span>${formatCurrency(scenario.price)}</span>
+        </button>
+      `).join("");
+      [...nodes.scenarioButtons.querySelectorAll("[data-scenario]")].forEach((button) => {
+        button.addEventListener("click", () => selectScenario(button.dataset.scenario));
+      });
+    }
+
+    function selectScenario(id) {
+      const scenario = scenarios.find((item) => item.id === id);
+      if (!scenario) return;
+      state.selectedScenario = id;
+      state.purchasePrice = scenario.price;
+      syncInputs();
+      renderScenarioButtons();
+      renderAll();
+      saveState();
+    }
+
+    function syncInputs() {
+      inputs.forEach((input) => {
+        const key = input.dataset.setting;
+        if (input.type === "checkbox") {
+          input.checked = Boolean(state[key]);
+        } else {
+          input.value = state[key];
+        }
+      });
+    }
+
+    function renderAll() {
+      state = normalizeState(state);
+      const result = calculate(state);
+      renderSummary(result);
+      renderFacts(result);
+      renderFreedom(result);
+      renderWarnings(result);
+      renderScenarioTable();
+      renderCharts(result);
+      renderScenarioButtons();
+    }
+
+    function calculate(settings) {
+      const months = Math.max(1, Math.round((settings.retireAge - settings.currentAge) * 12));
+      const years = months / 12;
+      const availableCash = settings.currentSavings + settings.extraCash;
+      const mortgagePrincipal = settings.purchasePrice * settings.mortgageLtv / 100;
+      const cashNeeded = settings.purchasePrice * (settings.downPaymentPct + settings.taxPct) / 100 + settings.closingCosts;
+      const initialGap = Math.max(0, cashNeeded - availableCash);
+      const personalLoan = settings.usePersonalLoan ? Math.min(initialGap, settings.personalLoanLimit) : 0;
+      const uncoveredGap = Math.max(0, initialGap - personalLoan);
+      const mortgagePaymentValue = payment(mortgagePrincipal, settings.mortgageRate, settings.mortgageYears);
+      const personalPayment = payment(personalLoan, settings.personalLoanRate, settings.personalLoanYears);
+      const monthlyMaintenance = settings.purchasePrice * settings.maintenancePct / 100 / 12;
+      const baseOwnerExtra = settings.ownerMonthlyCosts + monthlyMaintenance;
+      const baseOtherSpending = Math.max(0, settings.monthlyIncome - settings.rentMonthly - settings.rentSaving);
+      const investmentMonthly = annualToMonthly(settings.investmentReturn);
+      const inflationMonthly = annualToMonthly(settings.inflation);
+
+      let rentLiquid = settings.currentSavings;
+      let buyLiquid = availableCash + personalLoan - cashNeeded;
+      let totalRentPaid = 0;
+      let totalOwnerCosts = cashNeeded;
+      let maxRentRatio = 0;
+      let maxBuyDebtRatio = 0;
+      let lowestBuyLiquid = buyLiquid;
+      const series = [];
+
+      for (let month = 0; month <= months; month += 1) {
+        const elapsedYears = month / 12;
+        const inflationFactor = Math.pow(1 + settings.inflation / 100, elapsedYears);
+        const propertyValue = settings.purchasePrice * Math.pow(1 + settings.homeAppreciation / 100, elapsedYears);
+        const mortgageBalanceValue = balance(mortgagePrincipal, settings.mortgageRate, settings.mortgageYears, month);
+        const personalBalance = balance(personalLoan, settings.personalLoanRate, settings.personalLoanYears, month);
+        const saleValue = propertyValue * (1 - settings.saleCostPct / 100);
+        const equity = saleValue - mortgageBalanceValue;
+        const rentNet = rentLiquid;
+        const buyNet = buyLiquid + equity - personalBalance;
+
+        series.push({
+          month,
+          age: settings.currentAge + elapsedYears,
+          rentNominal: rentNet,
+          buyNominal: buyNet,
+          rentReal: rentNet / inflationFactor,
+          buyReal: buyNet / inflationFactor,
+          mortgageBalance: mortgageBalanceValue,
+          personalBalance,
+          propertyValue,
+          equity,
+          rentLiquid,
+          buyLiquid
+        });
+
+        if (month === months) break;
+
+        const nextMonth = month + 1;
+        const y = nextMonth / 12;
+        const income = settings.monthlyIncome * Math.pow(1 + settings.incomeGrowth / 100, y);
+        const otherSpending = baseOtherSpending * Math.pow(1 + settings.expenseGrowth / 100, y);
+        const rent = settings.rentMonthly * Math.pow(1 + settings.rentGrowth / 100, y);
+        const ownerExtra = baseOwnerExtra * Math.pow(1 + settings.expenseGrowth / 100, y);
+        const mortgageDue = nextMonth <= settings.mortgageYears * 12 ? mortgagePaymentValue : 0;
+        const personalDue = nextMonth <= settings.personalLoanYears * 12 ? personalPayment : 0;
+        const buyHousing = mortgageDue + ownerExtra + personalDue;
+
+        rentLiquid = growLiquid(rentLiquid, investmentMonthly) + (income - otherSpending - rent);
+        buyLiquid = growLiquid(buyLiquid, investmentMonthly) + (income - otherSpending - buyHousing);
+        lowestBuyLiquid = Math.min(lowestBuyLiquid, buyLiquid);
+        totalRentPaid += rent;
+        totalOwnerCosts += ownerExtra + personalDue + mortgageDue;
+        maxRentRatio = Math.max(maxRentRatio, income > 0 ? rent / income : 0);
+        maxBuyDebtRatio = Math.max(maxBuyDebtRatio, income > 0 ? (mortgageDue + personalDue) / income : 1);
+      }
+
+      const final = series[series.length - 1];
+      const monthlyNeed = Math.max(1, settings.monthlyIncome - settings.rentSaving);
+      const rentFreedom = freedomRent(settings, final, maxRentRatio, monthlyNeed);
+      const buyFreedom = freedomBuy(settings, final, maxBuyDebtRatio, monthlyNeed, uncoveredGap, lowestBuyLiquid);
+      const viableNow = uncoveredGap <= 1 && maxBuyDebtRatio * 100 <= settings.maxDebtRatio && lowestBuyLiquid >= -1;
+
+      return {
+        settings,
+        months,
+        years,
+        series,
+        final,
+        availableCash,
+        cashNeeded,
+        initialGap,
+        personalLoan,
+        uncoveredGap,
+        mortgagePrincipal,
+        mortgagePayment: mortgagePaymentValue,
+        personalPayment,
+        ownerExtraMonthly: baseOwnerExtra,
+        totalRentPaid,
+        totalOwnerCosts,
+        maxRentRatio,
+        maxBuyDebtRatio,
+        lowestBuyLiquid,
+        rentFreedom,
+        buyFreedom,
+        viableNow
+      };
+    }
+
+    function freedomRent(settings, final, maxRentRatio, monthlyNeed) {
+      const liquidityMonths = final.rentReal / Math.max(1, monthlyNeed);
+      const liquidity = scoreRange(liquidityMonths, settings.safetyMonths, 36);
+      const stress = scoreLower(maxRentRatio * 100, 30, 55);
+      const mobility = 95;
+      const debt = 100;
+      const housingControl = scoreLower(settings.rentGrowth, 0, 5) * 0.55 + 30;
+      const total = weighted([
+        [liquidity, 0.34],
+        [stress, 0.18],
+        [mobility, 0.22],
+        [debt, 0.16],
+        [housingControl, 0.10]
+      ]);
+      return {
+        total,
+        metrics: [
+          ["Liquidez", liquidity],
+          ["Movilidad", mobility],
+          ["Sin deuda", debt],
+          ["Esfuerzo mensual", stress],
+          ["Control vivienda", housingControl]
+        ]
+      };
+    }
+
+    function freedomBuy(settings, final, maxBuyDebtRatio, monthlyNeed, uncoveredGap, lowestBuyLiquid) {
+      const liquidityMonths = final.buyLiquid / Math.max(1, monthlyNeed);
+      const liquidity = scoreRange(liquidityMonths, settings.safetyMonths, 30);
+      const stress = scoreLower(maxBuyDebtRatio * 100, 30, 50);
+      const debtLoad = final.mortgageBalance + final.personalBalance;
+      const annualIncome = Math.max(1, settings.monthlyIncome * 12);
+      const debt = scoreLower(debtLoad / annualIncome, 0.4, 4);
+      const control = 90;
+      const mobility = 48;
+      const cash = uncoveredGap > 0 ? 5 : lowestBuyLiquid < 0 ? 25 : 100;
+      const total = weighted([
+        [liquidity, 0.30],
+        [stress, 0.18],
+        [debt, 0.20],
+        [control, 0.14],
+        [mobility, 0.10],
+        [cash, 0.08]
+      ]);
+      return {
+        total,
+        metrics: [
+          ["Liquidez", liquidity],
+          ["Deuda baja", debt],
+          ["Esfuerzo mensual", stress],
+          ["Control vivienda", control],
+          ["Movilidad", mobility]
+        ]
+      };
+    }
+
+    function renderSummary(result) {
+      const final = result.final;
+      const diffReal = final.buyReal - final.rentReal;
+      const freedomDiff = result.buyFreedom.total - result.rentFreedom.total;
+      const selected = scenarios.find((item) => item.id === state.selectedScenario);
+      const valueWinner = diffReal > 5000 ? "compra" : diffReal < -5000 ? "alquiler" : "empate";
+      const freedomWinner = freedomDiff > 5 ? "compra" : freedomDiff < -5 ? "alquiler" : "empate";
+
+      let title = "Alquilar e invertir gana por prudencia";
+      let eyebrow = "Decision defensiva";
+      let text = "La compra no compensa el bloqueo inicial de caja o deja demasiada deuda para tu objetivo de libertad.";
+
+      if (result.uncoveredGap > 0) {
+        title = "Compra bloqueada por caja inicial";
+        eyebrow = "No comprar todavia";
+        text = `Faltan ${formatCurrency(result.uncoveredGap)} incluso despues de la caja disponible. La operacion depende de ahorro extra, ayuda no reembolsable o cambiar de vivienda.`;
+      } else if (result.maxBuyDebtRatio * 100 > state.maxDebtRatio) {
+        title = "Compra tensionada por deuda";
+        eyebrow = "Ratio alto";
+        text = `La deuda mensual llega al ${formatPercent(result.maxBuyDebtRatio * 100)} de tu neto, por encima del umbral prudente configurado.`;
+      } else if (valueWinner === "compra" && freedomWinner !== "alquiler") {
+        title = "Comprar gana en valor sin romper libertad";
+        eyebrow = "Compra defendible";
+        text = `${selected ? selected.name : "La vivienda"} deja mas patrimonio real a los ${state.retireAge}, manteniendo una libertad similar o mejor que alquilar.`;
+      } else if (valueWinner === "alquiler" && freedomWinner === "alquiler") {
+        title = "Alquilar gana en valor y libertad";
+        eyebrow = "Seguir esperando";
+        text = "El ahorro invertido conserva mas liquidez, menos deuda y mejor movilidad en este conjunto de supuestos.";
+      } else if (valueWinner === "compra" && freedomWinner === "alquiler") {
+        title = "Compra gana patrimonio, alquiler gana libertad";
+        eyebrow = "Decision mixta";
+        text = "Hay mas valor neto en la vivienda, pero se paga con iliquidez, deuda pendiente o menor movilidad.";
+      }
+
+      nodes.verdictEyebrow.textContent = eyebrow;
+      nodes.verdictTitle.textContent = title;
+      nodes.verdictText.textContent = text;
+      nodes.rentNetWorth.textContent = formatCurrency(final.rentNominal);
+      nodes.rentRealWorth.textContent = `${formatCurrency(final.rentReal)} en euros de hoy`;
+      nodes.buyNetWorth.textContent = formatCurrency(final.buyNominal);
+      nodes.buyRealWorth.textContent = `${formatCurrency(final.buyReal)} en euros de hoy`;
+      nodes.netDifference.textContent = signedCurrency(diffReal);
+      nodes.freedomWinner.textContent = freedomWinner === "empate"
+        ? "Libertad similar"
+        : `Mas libertad: ${freedomWinner}`;
+      nodes.chartModeLabel.textContent = state.viewMode === "real" ? "euros de hoy" : "nominal";
+      nodes.scenarioHint.textContent = selected ? selected.confidence : "editable";
+    }
+
+    function renderFacts(result) {
+      const final = result.final;
+      const safetyNeed = (state.monthlyIncome - state.rentSaving) * state.safetyMonths;
+      const personalText = result.personalLoan > 0 ? `${formatCurrency(result.personalPayment)}/mes` : "No usado";
+      const facts = [
+        ["Caja para comprar", formatCurrency(result.cashNeeded), `Disponible: ${formatCurrency(result.availableCash)}`],
+        ["Deficit inicial", formatCurrency(result.initialGap), result.uncoveredGap > 0 ? "No cubierto" : "Cubierto"],
+        ["Cuota hipoteca", formatCurrency(result.mortgagePayment), `${formatCurrency(result.mortgagePrincipal)} al ${formatPercent(state.mortgageRate)}`],
+        ["Gastos propiedad", formatCurrency(result.ownerExtraMonthly), "comunidad, IBI, seguro, mantenimiento"],
+        ["Deuda a los 67", formatCurrency(final.mortgageBalance + final.personalBalance), `${formatCurrency(final.mortgageBalance)} hipoteca`],
+        ["Liquidez compra", formatCurrency(final.buyLiquid), `Minimo deseado: ${formatCurrency(safetyNeed)}`],
+        ["Liquidez alquiler", formatCurrency(final.rentLiquid), "capital invertible"],
+        ["Prestamo personal", personalText, result.personalLoan > 0 ? `Capital: ${formatCurrency(result.personalLoan)}` : "Evita contaminar ratio"]
+      ];
+
+      nodes.factsGrid.innerHTML = facts.map(([label, value, note]) => `
+        <div class="fact">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <small>${escapeHtml(note)}</small>
+        </div>
+      `).join("");
+    }
+
+    function renderFreedom(result) {
+      nodes.rentFreedom.textContent = Math.round(result.rentFreedom.total);
+      nodes.buyFreedom.textContent = Math.round(result.buyFreedom.total);
+      nodes.rentMetrics.innerHTML = renderMetricBars(result.rentFreedom.metrics);
+      nodes.buyMetrics.innerHTML = renderMetricBars(result.buyFreedom.metrics);
+    }
+
+    function renderMetricBars(metrics) {
+      return metrics.map(([label, value]) => `
+        <div class="metric">
+          <div class="metric-label">
+            <span>${escapeHtml(label)}</span>
+            <span>${Math.round(value)}</span>
+          </div>
+          <div class="metric-bar"><span style="width: ${clamp(value, 0, 100)}%"></span></div>
+        </div>
+      `).join("");
+    }
+
+    function renderWarnings(result) {
+      const warnings = [];
+      if (result.uncoveredGap > 0) {
+        warnings.push(["bad", "Falta caja propia", `La compra necesita ${formatCurrency(result.cashNeeded)} y quedan ${formatCurrency(result.uncoveredGap)} sin cubrir.`]);
+      } else if (result.initialGap > 0 && result.personalLoan > 0) {
+        warnings.push(["bad", "La entrada viene de deuda", `El prestamo personal cubre ${formatCurrency(result.personalLoan)} y suma ${formatCurrency(result.personalPayment)}/mes durante ${state.personalLoanYears} anos.`]);
+      } else {
+        warnings.push(["ok", "Caja inicial cubierta", "La entrada, impuestos y gastos caben con el ahorro disponible configurado."]);
+      }
+
+      if (result.maxBuyDebtRatio * 100 > state.maxDebtRatio) {
+        warnings.push(["bad", "Ratio de deuda por encima del umbral", `La compra llega al ${formatPercent(result.maxBuyDebtRatio * 100)} frente al ${formatPercent(state.maxDebtRatio)} configurado.`]);
+      } else {
+        warnings.push(["ok", "Ratio de deuda dentro del umbral", `Maximo estimado: ${formatPercent(result.maxBuyDebtRatio * 100)}.`]);
+      }
+
+      if (result.final.mortgageBalance > 0) {
+        warnings.push(["warn", "Hipoteca pendiente en jubilacion", `A los ${state.retireAge} aun quedarian ${formatCurrency(result.final.mortgageBalance)} de hipoteca.`]);
+      } else {
+        warnings.push(["ok", "Vivienda sin hipoteca al jubilarte", "La deuda hipotecaria queda amortizada antes del horizonte."]);
+      }
+
+      if (result.lowestBuyLiquid < 0) {
+        warnings.push(["bad", "Caja negativa durante el camino", `El peor punto de liquidez comprando cae a ${formatCurrency(result.lowestBuyLiquid)}.`]);
+      } else if (result.final.buyLiquid < (state.monthlyIncome - state.rentSaving) * state.safetyMonths) {
+        warnings.push(["warn", "Liquidez justa comprando", "El patrimonio existe, pero queda demasiado concentrado en la vivienda."]);
+      } else {
+        warnings.push(["ok", "Liquidez razonable comprando", "La compra conserva colchon liquido segun el umbral configurado."]);
+      }
+
+      if (state.rentGrowth > state.incomeGrowth + 1) {
+        warnings.push(["warn", "Alquiler sube mas que ingresos", "La opcion de alquilar pierde fuerza si el alquiler crece mas rapido que tu nomina."]);
+      } else {
+        warnings.push(["ok", "Riesgo de alquiler controlado", "Con estos supuestos, el alquiler no erosiona dramaticamente el ahorro mensual."]);
+      }
+
+      nodes.warningList.innerHTML = warnings.map(([type, title, text]) => `
+        <li class="warning ${type === "ok" ? "" : type}">
+          <div>
+            <strong>${escapeHtml(title)}</strong>
+            <span>${escapeHtml(text)}</span>
+          </div>
+        </li>
+      `).join("");
+      nodes.riskHint.textContent = `${warnings.filter((item) => item[0] !== "ok").length} alertas`;
+    }
+
+    function renderScenarioTable() {
+      const rows = scenarios.map((scenario) => {
+        const scenarioState = { ...state, selectedScenario: scenario.id, purchasePrice: scenario.price };
+        const result = calculate(normalizeState(scenarioState));
+        const status = statusFor(result);
+        return { scenario, result, status };
+      });
+
+      nodes.scenarioRows.innerHTML = rows.map(({ scenario, result, status }) => `
+        <tr data-selected="${scenario.id === state.selectedScenario}">
+          <td><strong>${escapeHtml(scenario.name)}</strong><br><span class="tag">${escapeHtml(scenario.place)}</span></td>
+          <td>${formatCurrency(scenario.price)}</td>
+          <td>${formatCurrency(result.cashNeeded)}</td>
+          <td>${result.initialGap > 0 ? formatCurrency(result.initialGap) : "0"}</td>
+          <td>${formatCurrency(result.mortgagePrincipal)}</td>
+          <td>${formatCurrency(result.mortgagePayment + result.ownerExtraMonthly + result.personalPayment)}</td>
+          <td>${formatPercent(result.maxBuyDebtRatio * 100)}</td>
+          <td>${formatCurrency(result.final.buyReal)}</td>
+          <td>${Math.round(result.buyFreedom.total)}</td>
+          <td><span class="tag ${status.type}">${escapeHtml(status.label)}</span></td>
+          <td><button class="pick-btn" type="button" data-pick="${scenario.id}">Elegir</button></td>
+        </tr>
+      `).join("");
+
+      [...nodes.scenarioRows.querySelectorAll("[data-pick]")].forEach((button) => {
+        button.addEventListener("click", () => selectScenario(button.dataset.pick));
+      });
+    }
+
+    function statusFor(result) {
+      if (result.uncoveredGap > 0) return { type: "bad", label: "falta caja" };
+      if (result.maxBuyDebtRatio * 100 > state.maxDebtRatio) return { type: "bad", label: "deuda alta" };
+      if (result.final.buyLiquid < 0 || result.lowestBuyLiquid < 0) return { type: "warn", label: "liquidez justa" };
+      if (result.final.buyReal < result.final.rentReal) return { type: "warn", label: "pierde valor" };
+      return { type: "ok", label: "defendible" };
+    }
+
+    function renderCharts(result = calculate(state)) {
+      drawWealthChart(result);
+      drawCompositionChart(result);
+    }
+
+    function drawWealthChart(result) {
+      const canvas = nodes.wealthCanvas;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 26, right: 22, bottom: 42, left: 62 };
+      const view = state.viewMode === "real" ? "Real" : "Nominal";
+      const rentKey = `rent${view}`;
+      const buyKey = `buy${view}`;
+      const values = result.series.flatMap((point) => [point[rentKey], point[buyKey]]);
+      const minValue = Math.min(0, ...values);
+      const maxValue = Math.max(1000, ...values);
+      const yMin = niceFloor(minValue);
+      const yMax = niceCeil(maxValue);
+      const xMin = state.currentAge;
+      const xMax = state.retireAge;
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      ctx.clearRect(0, 0, width, height);
+      drawAxes(ctx, width, height, pad, yMin, yMax, xMin, xMax);
+      wealthPoints = [];
+      drawLine(ctx, result.series, rentKey, "#127c6b", xMin, xMax, yMin, yMax, pad, plotW, plotH, "Alquiler");
+      drawLine(ctx, result.series, buyKey, "#405d9b", xMin, xMax, yMin, yMax, pad, plotW, plotH, "Compra");
+      drawLegend(ctx, [
+        ["Alquiler + inversion", "#127c6b"],
+        ["Compra + vivienda", "#405d9b"]
+      ], pad.left, 18);
+    }
+
+    function drawLine(ctx, series, key, color, xMin, xMax, yMin, yMax, pad, plotW, plotH, label) {
+      ctx.beginPath();
+      series.forEach((point, index) => {
+        const x = pad.left + ((point.age - xMin) / Math.max(1, xMax - xMin)) * plotW;
+        const y = pad.top + (1 - ((point[key] - yMin) / Math.max(1, yMax - yMin))) * plotH;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        if (point.month % 12 === 0 || point.month === series[series.length - 1].month) {
+          wealthPoints.push({ x, y, point, key, label, value: point[key] });
+        }
+      });
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      const last = series[series.length - 1];
+      const lastX = pad.left + ((last.age - xMin) / Math.max(1, xMax - xMin)) * plotW;
+      const lastY = pad.top + (1 - ((last[key] - yMin) / Math.max(1, yMax - yMin))) * plotH;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawAxes(ctx, width, height, pad, yMin, yMax, xMin, xMax) {
+      ctx.strokeStyle = "#d8e0dd";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#62706c";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      for (let i = 0; i <= 4; i += 1) {
+        const t = i / 4;
+        const y = pad.top + t * (height - pad.top - pad.bottom);
+        const value = yMax - t * (yMax - yMin);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        ctx.fillText(compactCurrency(value), pad.left - 9, y);
+      }
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      const steps = Math.min(5, Math.max(1, Math.round(xMax - xMin)));
+      for (let i = 0; i <= steps; i += 1) {
+        const age = xMin + (i / steps) * (xMax - xMin);
+        const x = pad.left + (i / steps) * (width - pad.left - pad.right);
+        ctx.fillText(Math.round(age), x, height - pad.bottom + 14);
+      }
+    }
+
+    function drawLegend(ctx, items, x, y) {
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      let cursor = x;
+      items.forEach(([label, color]) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(cursor + 5, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#17211f";
+        ctx.fillText(label, cursor + 16, y);
+        cursor += ctx.measureText(label).width + 44;
+      });
+    }
+
+    function drawCompositionChart(result) {
+      const canvas = nodes.compositionCanvas;
+      const ctx = setupCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 24, right: 24, bottom: 38, left: 64 };
+      const final = result.final;
+      const inflationFactor = Math.pow(1 + state.inflation / 100, result.years);
+      const bars = [
+        { label: "Alquiler", parts: [
+          { label: "Liquidez", value: final.rentLiquid / inflationFactor, color: "#127c6b" }
+        ] },
+        { label: "Compra", parts: [
+          { label: "Liquidez", value: final.buyLiquid / inflationFactor, color: "#127c6b" },
+          { label: "Vivienda", value: final.equity / inflationFactor, color: "#405d9b" },
+          { label: "Deuda extra", value: -final.personalBalance / inflationFactor, color: "#c84f59" }
+        ] }
+      ];
+      const maxValue = niceCeil(Math.max(1000, ...bars.map((bar) => bar.parts.reduce((sum, part) => sum + Math.max(0, part.value), 0))));
+      const minValue = Math.min(0, ...bars.flatMap((bar) => bar.parts.map((part) => part.value)));
+      const yMin = niceFloor(minValue);
+      const yMax = maxValue;
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      ctx.clearRect(0, 0, width, height);
+      drawYAxisGrid(ctx, width, height, pad, yMin, yMax);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      const zeroY = pad.top + (1 - ((0 - yMin) / Math.max(1, yMax - yMin))) * plotH;
+
+      bars.forEach((bar, index) => {
+        const xCenter = pad.left + plotW * (index + 0.5) / bars.length;
+        const barW = Math.min(92, plotW / bars.length * 0.5);
+        let positiveY = zeroY;
+        let negativeY = zeroY;
+        bar.parts.forEach((part) => {
+          const valueH = Math.abs(part.value) / Math.max(1, yMax - yMin) * plotH;
+          ctx.fillStyle = part.color;
+          if (part.value >= 0) {
+            positiveY -= valueH;
+            ctx.fillRect(xCenter - barW / 2, positiveY, barW, valueH);
+          } else {
+            ctx.fillRect(xCenter - barW / 2, negativeY, barW, valueH);
+            negativeY += valueH;
+          }
+        });
+        ctx.fillStyle = "#17211f";
+        ctx.font = "12px Inter, system-ui, sans-serif";
+        ctx.fillText(bar.label, xCenter, height - pad.bottom + 14);
+      });
+    }
+
+    function drawYAxisGrid(ctx, width, height, pad, yMin, yMax) {
+      ctx.strokeStyle = "#d8e0dd";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#62706c";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      for (let i = 0; i <= 4; i += 1) {
+        const t = i / 4;
+        const y = pad.top + t * (height - pad.top - pad.bottom);
+        const value = yMax - t * (yMax - yMin);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        ctx.fillText(compactCurrency(value), pad.left - 9, y);
+      }
+
+      const zeroY = pad.top + (1 - ((0 - yMin) / Math.max(1, yMax - yMin))) * (height - pad.top - pad.bottom);
+      ctx.strokeStyle = "#9ba8a4";
+      ctx.beginPath();
+      ctx.moveTo(pad.left, zeroY);
+      ctx.lineTo(width - pad.right, zeroY);
+      ctx.stroke();
+    }
+
+    function handleWealthHover(event) {
+      const rect = nodes.wealthCanvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const hit = wealthPoints.find((point) => Math.hypot(point.x - x, point.y - y) <= 8);
+      if (!hit) {
+        nodes.wealthTooltip.classList.remove("visible");
+        return;
+      }
+      nodes.wealthTooltip.innerHTML = `
+        <strong>${escapeHtml(hit.label)}</strong><br>
+        Edad ${formatNumber(hit.point.age, 0)}: ${formatCurrency(hit.value)}<br>
+        ${state.viewMode === "real" ? "Euros de hoy" : "Nominal"}
+      `;
+      nodes.wealthTooltip.style.left = `${x}px`;
+      nodes.wealthTooltip.style.top = `${y}px`;
+      nodes.wealthTooltip.classList.add("visible");
+    }
+
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+      canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return ctx;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && typeof saved === "object") {
+          return normalizeState({ ...defaults, ...saved });
+        }
+      } catch (error) {
+        return { ...defaults };
+      }
+      return { ...defaults };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function resetState() {
+      state = { ...defaults };
+      syncInputs();
+      renderAll();
+      saveState();
+    }
+
+    function normalizeState(value) {
+      const clean = { ...defaults, ...value };
+      clean.currentAge = clamp(toNumber(clean.currentAge, defaults.currentAge), 18, 80);
+      clean.retireAge = clamp(toNumber(clean.retireAge, defaults.retireAge), clean.currentAge + 1, 80);
+      clean.monthlyIncome = Math.max(0, toNumber(clean.monthlyIncome, defaults.monthlyIncome));
+      clean.currentSavings = Math.max(0, toNumber(clean.currentSavings, defaults.currentSavings));
+      clean.safetyMonths = clamp(toNumber(clean.safetyMonths, defaults.safetyMonths), 0, 36);
+      clean.extraCash = Math.max(0, toNumber(clean.extraCash, defaults.extraCash));
+      clean.rentMonthly = Math.max(0, toNumber(clean.rentMonthly, defaults.rentMonthly));
+      clean.rentSaving = toNumber(clean.rentSaving, defaults.rentSaving);
+      clean.rentGrowth = toNumber(clean.rentGrowth, defaults.rentGrowth);
+      clean.investmentReturn = toNumber(clean.investmentReturn, defaults.investmentReturn);
+      clean.purchasePrice = Math.max(0, toNumber(clean.purchasePrice, defaults.purchasePrice));
+      clean.mortgageLtv = clamp(toNumber(clean.mortgageLtv, defaults.mortgageLtv), 0, 100);
+      clean.mortgageRate = Math.max(0, toNumber(clean.mortgageRate, defaults.mortgageRate));
+      clean.mortgageYears = clamp(toNumber(clean.mortgageYears, defaults.mortgageYears), 1, 40);
+      clean.downPaymentPct = clamp(toNumber(clean.downPaymentPct, defaults.downPaymentPct), 0, 100);
+      clean.taxPct = clamp(toNumber(clean.taxPct, defaults.taxPct), 0, 25);
+      clean.closingCosts = Math.max(0, toNumber(clean.closingCosts, defaults.closingCosts));
+      clean.ownerMonthlyCosts = Math.max(0, toNumber(clean.ownerMonthlyCosts, defaults.ownerMonthlyCosts));
+      clean.maintenancePct = Math.max(0, toNumber(clean.maintenancePct, defaults.maintenancePct));
+      clean.homeAppreciation = toNumber(clean.homeAppreciation, defaults.homeAppreciation);
+      clean.saleCostPct = clamp(toNumber(clean.saleCostPct, defaults.saleCostPct), 0, 15);
+      clean.purchaseType = clean.purchaseType === "used" ? "used" : "new";
+      clean.usePersonalLoan = Boolean(clean.usePersonalLoan);
+      clean.personalLoanLimit = Math.max(0, toNumber(clean.personalLoanLimit, defaults.personalLoanLimit));
+      clean.personalLoanRate = Math.max(0, toNumber(clean.personalLoanRate, defaults.personalLoanRate));
+      clean.personalLoanYears = clamp(toNumber(clean.personalLoanYears, defaults.personalLoanYears), 1, 10);
+      clean.maxDebtRatio = clamp(toNumber(clean.maxDebtRatio, defaults.maxDebtRatio), 10, 60);
+      clean.inflation = Math.max(0, toNumber(clean.inflation, defaults.inflation));
+      clean.incomeGrowth = toNumber(clean.incomeGrowth, defaults.incomeGrowth);
+      clean.expenseGrowth = toNumber(clean.expenseGrowth, defaults.expenseGrowth);
+      clean.viewMode = clean.viewMode === "nominal" ? "nominal" : "real";
+      if (!scenarios.some((item) => item.id === clean.selectedScenario)) {
+        clean.selectedScenario = defaults.selectedScenario;
+      }
+      return clean;
+    }
+
+    function parseInputValue(input, fallback) {
+      if (input.tagName === "SELECT") return input.value;
+      const value = Number(input.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function annualToMonthly(rate) {
+      return Math.pow(1 + rate / 100, 1 / 12) - 1;
+    }
+
+    function payment(principal, annualRate, years) {
+      const months = Math.max(1, Math.round(years * 12));
+      if (principal <= 0) return 0;
+      const monthlyRate = annualRate / 100 / 12;
+      if (monthlyRate === 0) return principal / months;
+      return principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    }
+
+    function balance(principal, annualRate, years, paidMonths) {
+      const months = Math.max(1, Math.round(years * 12));
+      const elapsed = clamp(paidMonths, 0, months);
+      if (principal <= 0 || elapsed >= months) return 0;
+      const monthlyRate = annualRate / 100 / 12;
+      const pmt = payment(principal, annualRate, years);
+      if (monthlyRate === 0) return Math.max(0, principal - pmt * elapsed);
+      const futurePrincipal = principal * Math.pow(1 + monthlyRate, elapsed);
+      const futurePayments = pmt * ((Math.pow(1 + monthlyRate, elapsed) - 1) / monthlyRate);
+      return Math.max(0, futurePrincipal - futurePayments);
+    }
+
+    function growLiquid(value, monthlyRate) {
+      if (value > 0) return value * (1 + monthlyRate);
+      return value;
+    }
+
+    function weighted(items) {
+      return clamp(items.reduce((sum, item) => sum + item[0] * item[1], 0), 0, 100);
+    }
+
+    function scoreRange(value, low, high) {
+      if (value <= low) return clamp((value / Math.max(1, low)) * 55, 0, 55);
+      if (value >= high) return 100;
+      return 55 + ((value - low) / Math.max(1, high - low)) * 45;
+    }
+
+    function scoreLower(value, ideal, unacceptable) {
+      if (value <= ideal) return 100;
+      if (value >= unacceptable) return 0;
+      return 100 - ((value - ideal) / Math.max(1, unacceptable - ideal)) * 100;
+    }
+
+    function niceCeil(value) {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.max(1, Math.abs(value)))));
+      return Math.ceil(value / magnitude * 2) / 2 * magnitude;
+    }
+
+    function niceFloor(value) {
+      if (value >= 0) return 0;
+      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.max(1, Math.abs(value)))));
+      return Math.floor(value / magnitude * 2) / 2 * magnitude;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("es-ES", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      }).format(toNumber(value, 0));
+    }
+
+    function signedCurrency(value) {
+      const formatted = formatCurrency(Math.abs(value));
+      if (Math.abs(value) < 1) return "0 EUR";
+      return value > 0 ? `+${formatted}` : `-${formatted}`;
+    }
+
+    function compactCurrency(value) {
+      return new Intl.NumberFormat("es-ES", {
+        notation: "compact",
+        maximumFractionDigits: 1
+      }).format(value);
+    }
+
+    function formatPercent(value) {
+      return `${formatNumber(value, 1)}%`;
+    }
+
+    function formatNumber(value, decimals = 0) {
+      return new Intl.NumberFormat("es-ES", {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals
+      }).format(toNumber(value, 0));
+    }
+
+    function toNumber(value, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function flashButton(button, text) {
+      const oldText = button.textContent;
+      button.textContent = text;
+      setTimeout(() => {
+        button.textContent = oldText;
+      }, 900);
+    }
+  </script>
+</body>
+</html>

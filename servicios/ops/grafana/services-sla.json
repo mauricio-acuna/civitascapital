@@ -1,0 +1,54 @@
+{
+  "__inputs": [{ "name": "DS_PROMETHEUS", "label": "Prometheus", "type": "datasource", "pluginId": "prometheus" }],
+  "title": "Magenta Servicios – SLA Dashboard",
+  "uid": "magenta-servicios-sla",
+  "version": 1,
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Órdenes activas",
+      "type": "stat",
+      "targets": [{ "expr": "sum(magenta_servicios_orders_active_total)", "legendFormat": "Activas" }],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "id": 2,
+      "title": "Órdenes con SLA vencido",
+      "type": "stat",
+      "targets": [{ "expr": "sum(magenta_servicios_sla_breached_total)", "legendFormat": "SLA vencido" }],
+      "fieldConfig": { "defaults": { "thresholds": { "steps": [{ "color": "green", "value": 0 }, { "color": "red", "value": 1 }] } } },
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "id": 3,
+      "title": "Latencia /quote p95",
+      "type": "timeseries",
+      "targets": [{ "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri='/api/v1/catalog/{code}/quote'}[5m]))", "legendFormat": "p95" }],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 }
+    },
+    {
+      "id": 4,
+      "title": "Órdenes por estado",
+      "type": "piechart",
+      "targets": [{ "expr": "sum by(status) (magenta_servicios_orders_by_status)", "legendFormat": "{{status}}" }],
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "id": 5,
+      "title": "Lag Kafka consumidores",
+      "type": "timeseries",
+      "targets": [{ "expr": "sum by(topic) (kafka_consumer_lag_sum{group='magenta-servicios'})", "legendFormat": "{{topic}}" }],
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 }
+    },
+    {
+      "id": 6,
+      "title": "Pagos capturados (últimas 24h)",
+      "type": "stat",
+      "targets": [{ "expr": "sum(increase(magenta_servicios_payments_captured_total[24h]))", "legendFormat": "Pagos" }],
+      "gridPos": { "x": 12, "y": 8, "w": 6, "h": 4 }
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" },
+  "refresh": "1m"
+}

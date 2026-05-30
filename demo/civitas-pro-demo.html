@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Civitas Pro Demo</title>
+  <style>
+    :root {
+      --ink: #19212b;
+      --muted: #657182;
+      --line: #d9e1ea;
+      --panel: #ffffff;
+      --bg: #f4f7f8;
+      --navy: #1b2b45;
+      --teal: #147c78;
+      --gold: #b8872b;
+      --green: #237a4b;
+      --amber: #a76416;
+      --red: #a63b3b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 18px 28px;
+      background: var(--navy);
+      color: white;
+      border-bottom: 4px solid var(--gold);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(255,255,255,.78);
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,.78);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .status {
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.28);
+      color: rgba(255,255,255,.88);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: calc(100vh - 74px);
+    }
+
+    aside {
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      background: #eef3f3;
+    }
+
+    section {
+      padding: 22px;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    select, input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 0 10px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric, .panel, .property, .service {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .metric {
+      padding: 16px;
+      min-height: 96px;
+    }
+
+    .metric small, .property small, .service small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .properties {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .property {
+      padding: 14px;
+      min-height: 188px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .property h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 13px;
+      border-top: 1px solid #edf1f5;
+      padding-top: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      color: white;
+      width: fit-content;
+    }
+
+    .viable { background: var(--green); }
+    .tight { background: var(--amber); }
+    .blocked { background: var(--red); }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .service {
+      padding: 12px;
+      min-height: 92px;
+      border-left: 4px solid var(--teal);
+    }
+
+    .service strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .summary p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1050px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .grid, .properties, .services, .summary {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status {
+        white-space: normal;
+      }
+
+      .grid, .properties, .services, .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">C</div>
+      <div>
+        <h1>Civitas Pro</h1>
+        <div class="subtitle">Buyer qualification desk</div>
+      </div>
+    </div>
+    <div class="status">Demo con datos sinteticos</div>
+  </header>
+
+  <main>
+    <aside>
+      <label for="buyer">Comprador</label>
+      <select id="buyer"></select>
+
+      <label for="income">Ingresos netos mensuales</label>
+      <input id="income" type="number" step="100">
+
+      <label for="funds">Ahorros disponibles</label>
+      <input id="funds" type="number" step="1000">
+
+      <label for="debt">Deuda mensual actual</label>
+      <input id="debt" type="number" step="50">
+
+      <label for="ltv">Financiacion estimada</label>
+      <select id="ltv">
+        <option value="0.8">80% LTV</option>
+        <option value="0.9">90% LTV</option>
+        <option value="0.95">95% LTV</option>
+      </select>
+    </aside>
+
+    <section>
+      <div class="grid">
+        <div class="metric">
+          <small>Cuota prudente</small>
+          <strong id="maxPayment">-</strong>
+          <span>35% ingresos menos deuda</span>
+        </div>
+        <div class="metric">
+          <small>Ticket recomendado</small>
+          <strong id="ticket">-</strong>
+          <span>Estimacion por LTV y ahorros</span>
+        </div>
+        <div class="metric">
+          <small>Lead score</small>
+          <strong id="score">-</strong>
+          <span>Viabilidad operativa</span>
+        </div>
+        <div class="metric">
+          <small>Siguiente accion</small>
+          <strong id="nextAction">-</strong>
+          <span>Monetizacion probable</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Inmuebles compatibles</h2>
+        <div class="properties" id="properties"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Servicios recomendados</h2>
+        <div class="services" id="services"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Ficha de oportunidad</h2>
+        <div class="summary">
+          <p id="summaryA"></p>
+          <p id="summaryB"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const data = {
+      buyers: [
+        { id: "buyer-001", name: "Familia Martin Lopez", netIncomeMonthly: 4200, ownFunds: 55000, otherDebtMonthly: 250, preferredZones: ["zone-mad-sur", "zone-getafe", "zone-leganes"], roomsMin: 3 },
+        { id: "buyer-002", name: "Ana Ruiz", netIncomeMonthly: 2850, ownFunds: 38000, otherDebtMonthly: 0, preferredZones: ["zone-valencia-centro"], roomsMin: 2 },
+        { id: "buyer-003", name: "Inversor Patrimonial SL", netIncomeMonthly: 9200, ownFunds: 180000, otherDebtMonthly: 1100, preferredZones: ["zone-malaga-centro"], roomsMin: 2 }
+      ],
+      zones: {
+        "zone-mad-sur": "Madrid Sur",
+        "zone-getafe": "Getafe",
+        "zone-leganes": "Leganes",
+        "zone-valencia-centro": "Valencia Centro",
+        "zone-malaga-centro": "Malaga Centro"
+      },
+      properties: [
+        { id: "property-001", reference: "MAD-SUR-3D-001", zoneId: "zone-mad-sur", type: "Piso", rooms: 3, surfaceSqm: 92, price: 298000 },
+        { id: "property-002", reference: "GETAFE-FAM-014", zoneId: "zone-getafe", type: "Piso", rooms: 3, surfaceSqm: 101, price: 275000 },
+        { id: "property-003", reference: "LEGANES-ATICO-009", zoneId: "zone-leganes", type: "Atico", rooms: 3, surfaceSqm: 88, price: 332000 },
+        { id: "property-004", reference: "VAL-CENTRO-2D-031", zoneId: "zone-valencia-centro", type: "Apartamento", rooms: 2, surfaceSqm: 74, price: 268000 },
+        { id: "property-005", reference: "MALAGA-CENTRO-INV-006", zoneId: "zone-malaga-centro", type: "Apartamento", rooms: 2, surfaceSqm: 81, price: 410000 }
+      ],
+      services: [
+        ["Mediacion hipotecaria", "lead financiero"],
+        ["Tasacion", "margen servicio"],
+        ["Notaria y gestoria", "partner"],
+        ["Seguro de hogar", "comision"],
+        ["Asesoria fiscal", "fee fijo"]
+      ]
+    };
+
+    const buyerSelect = document.querySelector("#buyer");
+    const income = document.querySelector("#income");
+    const funds = document.querySelector("#funds");
+    const debt = document.querySelector("#debt");
+    const ltv = document.querySelector("#ltv");
+
+    const euro = value => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+
+    data.buyers.forEach(buyer => {
+      const option = document.createElement("option");
+      option.value = buyer.id;
+      option.textContent = buyer.name;
+      buyerSelect.appendChild(option);
+    });
+
+    function selectedBuyer() {
+      return data.buyers.find(buyer => buyer.id === buyerSelect.value);
+    }
+
+    function hydrateBuyer() {
+      const buyer = selectedBuyer();
+      income.value = buyer.netIncomeMonthly;
+      funds.value = buyer.ownFunds;
+      debt.value = buyer.otherDebtMonthly;
+      render();
+    }
+
+    function classify(property, maxTicket, buyer) {
+      if (!buyer.preferredZones.includes(property.zoneId) || property.rooms < buyer.roomsMin) return "blocked";
+      if (property.price <= maxTicket) return "viable";
+      if (property.price <= maxTicket * 1.12) return "tight";
+      return "blocked";
+    }
+
+    function render() {
+      const buyer = selectedBuyer();
+      const netIncome = Number(income.value || 0);
+      const ownFunds = Number(funds.value || 0);
+      const debtMonthly = Number(debt.value || 0);
+      const ltvValue = Number(ltv.value);
+      const maxPayment = Math.max(0, netIncome * 0.35 - debtMonthly);
+      const byFunds = ownFunds / Math.max(0.05, 1 - ltvValue);
+      const byIncome = maxPayment * 205;
+      const maxTicket = Math.min(byFunds, byIncome);
+
+      document.querySelector("#maxPayment").textContent = euro(maxPayment);
+      document.querySelector("#ticket").textContent = euro(maxTicket);
+
+      const classified = data.properties.map(property => ({ ...property, status: classify(property, maxTicket, buyer) }));
+      const viableCount = classified.filter(property => property.status === "viable").length;
+      const tightCount = classified.filter(property => property.status === "tight").length;
+      const score = viableCount >= 2 ? "ALTO" : viableCount === 1 || tightCount >= 1 ? "MEDIO" : "BAJO";
+
+      document.querySelector("#score").textContent = score;
+      document.querySelector("#nextAction").textContent = score === "ALTO" ? "Broker" : score === "MEDIO" ? "Ajustar busqueda" : "Nutrir lead";
+
+      document.querySelector("#properties").innerHTML = classified.map(property => {
+        const label = property.status === "viable" ? "VIABLE" : property.status === "tight" ? "AJUSTADO" : "DESCARTADO";
+        return `
+          <article class="property">
+            <div>
+              <small>${data.zones[property.zoneId]}</small>
+              <h3>${property.reference}</h3>
+            </div>
+            <span class="badge ${property.status}">${label}</span>
+            <div class="row"><span>Precio</span><strong>${euro(property.price)}</strong></div>
+            <div class="row"><span>Tipo</span><strong>${property.type}</strong></div>
+            <div class="row"><span>Habitaciones</span><strong>${property.rooms}</strong></div>
+          </article>
+        `;
+      }).join("");
+
+      document.querySelector("#services").innerHTML = data.services.map(service => `
+        <article class="service">
+          <small>${service[1]}</small>
+          <strong>${service[0]}</strong>
+        </article>
+      `).join("");
+
+      document.querySelector("#summaryA").textContent = `${buyer.name} tiene una cuota prudente estimada de ${euro(maxPayment)} y un ticket recomendado de ${euro(maxTicket)} con el escenario seleccionado.`;
+      document.querySelector("#summaryB").textContent = `Resultado: ${viableCount} inmuebles viables y ${tightCount} ajustados. La oportunidad comercial prioritaria es ${document.querySelector("#nextAction").textContent.toLowerCase()}.`;
+    }
+
+    buyerSelect.addEventListener("change", hydrateBuyer);
+    [income, funds, debt, ltv].forEach(control => control.addEventListener("input", render));
+    hydrateBuyer();
+  </script>
+</body>
+</html>
+
