@@ -288,7 +288,7 @@
 | ⬜ | **Sustituir "RFC 7807" por "RFC 9457"** en F8 (`GlobalExceptionHandler — Problem Details RFC 7807`) y en docstrings: Spring 6.1+ `ProblemDetail` ya cumple 9457 (que reemplaza al 7807). | Baseline §6 |
 | ✅ | **`SimulateNinetyFiveFiveUseCase` (UC-B4)** implementado con desglose explícito 90+5+5, delegación en `SimulateLoanUseCase` y endpoint `POST /api/v1/simulations/90-5-5`. | Producto |
 | ⬜ | **`Idempotency-Key` obligatoria** en `POST /simulations`, `POST /preapprovals`, `POST /appraisals` con persistencia de respuesta (idempotencia exacta de servidor). Evita duplicados ante reintentos del cliente. | Baseline §6 |
-| ⬜ | **Tabla `processed_message(consumer_name, event_id)`** para los 6 consumers Kafka pendientes (Customer/Property/Transaction/Zone/PriceIndex/Kyc). Sin ella no hay garantía at-least-once + idempotencia. | Baseline §5 |
+| ✅ | **Tabla `processed_event(consumer_name, event_id)`** para los consumers Kafka pendientes + `ProcessedEventService`. | Baseline §5 |
 | ⬜ | Paginación **cursor-based** en `GET /products?...` y `GET /banks/{id}/products` (hoy offset por defecto Spring Data). | Baseline §6 |
 | ⬜ | **Test de autorización BOLA**: ningún `bankOfficer` debe poder leer preaprobaciones de otra entidad bancaria; ningún `customer` debe poder ver simulaciones/preaprobaciones de otro `customerId` aunque comparta tenant. | OWASP API1 2023 |
 | ⬜ | **Helm chart `charts/banks/`** alineado al estándar de los demás módulos: `securityContext` restricted (runAsNonRoot, readOnlyRootFilesystem, capabilities drop ALL, seccompProfile RuntimeDefault), startupProbe, PDB, NetworkPolicy default-deny + flujos PG/Kafka/Redis/Keycloak/OTel/DNS. | Baseline §9.5 |
