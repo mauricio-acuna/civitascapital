@@ -88,7 +88,7 @@
 | ✅ | `SimulateNinetyFiveFiveUseCase` | UC-B4 | `application/usecase/SimulateNinetyFiveFiveUseCase.java` |
 | ✅ | `RequestPreapprovalUseCase` | UC-B5 | `application/usecase/RequestPreapprovalUseCase.java` |
 | ✅ | `UpdatePreapprovalStatusUseCase` | UC-B5 | `application/usecase/UpdatePreapprovalStatusUseCase.java` |
-| ⬜ | `MarkPropertyFinanciableUseCase` | UC-B6 | `application/usecase/MarkPropertyFinanciableUseCase.java` |
+| ✅ | `MarkPropertyFinanciableUseCase` | UC-B6 | `application/usecase/MarkPropertyFinanciableUseCase.java` |
 | ✅ | `CompareProductsUseCase` | UC-B7 | `application/usecase/CompareProductsUseCase.java` |
 | ✅ | `RegisterAppraisalUseCase` | UC-B10 | `application/usecase/RegisterAppraisalUseCase.java` |
 | ✅ | `GetFinancingFeasibilityUseCase` | UC-B6 | `application/usecase/GetFinancingFeasibilityUseCase.java` |
