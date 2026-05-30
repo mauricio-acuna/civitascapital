@@ -3,9 +3,9 @@ package com.magenta.banks.application.usecase;
 import com.magenta.banks.domain.model.LoanCategory;
 import com.magenta.banks.domain.model.Scheme;
 import com.magenta.banks.domain.model.loanproduct.LoanProduct;
+import com.magenta.banks.domain.model.pagination.PageResult;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.port.out.LoanProductRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,14 +30,14 @@ public class SearchProductsUseCase {
         Integer maxAge,
         BigDecimal ticketAmount,
         LoanCategory category,
-        Pageable pageable
+        PageSpec page
     ) {}
 
     @Transactional(readOnly = true)
-    public Page<LoanProduct> execute(Query q) {
+    public PageResult<LoanProduct> execute(Query q) {
         return productRepository.search(
             q.tenantId(), q.scheme(), q.ltvMin(),
-            q.maxAge(), q.ticketAmount(), q.category(), q.pageable()
+            q.maxAge(), q.ticketAmount(), q.category(), q.page()
         );
     }
 

@@ -7,10 +7,10 @@ import com.magenta.banks.domain.model.loanproduct.LoanProduct;
 import com.magenta.banks.domain.model.loansimulation.BorrowerProfile;
 import com.magenta.banks.domain.model.loansimulation.EvaluationContext;
 import com.magenta.banks.domain.model.loansimulation.TaxInfo;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.port.out.*;
 import com.magenta.banks.domain.service.FrenchAmortizationService;
 import com.magenta.banks.domain.service.RuleEngine;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,9 +78,9 @@ public class GetFinancingFeasibilityUseCase {
 
         // Buscar productos activos de cualquier banco
         var products = productRepository.search(tenantId, null, null, null, price, null,
-                Pageable.ofSize(100));
+                PageSpec.of(0, 100));
 
-        return products.getContent().stream().map(p -> evaluate(p, price, borrower)).collect(Collectors.toList());
+        return products.content().stream().map(p -> evaluate(p, price, borrower)).collect(Collectors.toList());
     }
 
     private FeasibilityResult evaluate(LoanProduct product, BigDecimal price, BorrowerProfile borrower) {

@@ -4,7 +4,7 @@ import com.magenta.banks.application.usecase.RequestPreapprovalUseCase;
 import com.magenta.banks.application.usecase.UpdatePreapprovalStatusUseCase;
 import com.magenta.banks.domain.model.PreapprovalStatus;
 import com.magenta.banks.domain.model.preapproval.Preapproval;
-import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
+import com.magenta.banks.infrastructure.service.IdempotencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

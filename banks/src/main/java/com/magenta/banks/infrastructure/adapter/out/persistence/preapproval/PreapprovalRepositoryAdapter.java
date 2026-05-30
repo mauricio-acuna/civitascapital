@@ -3,10 +3,13 @@ package com.magenta.banks.infrastructure.adapter.out.persistence.preapproval;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magenta.banks.domain.model.PreapprovalStatus;
+import com.magenta.banks.domain.model.pagination.PageResult;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.model.preapproval.Preapproval;
 import com.magenta.banks.domain.model.preapproval.StatusChange;
 import com.magenta.banks.domain.port.out.PreapprovalRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +49,15 @@ public class PreapprovalRepositoryAdapter implements PreapprovalRepository {
     }
 
     @Override
-    public Page<Preapproval> findByCustomerId(UUID customerId, Pageable pageable) {
-        return preapprovalRepository.findByCustomerId(customerId, pageable).map(this::toDomain);
+    public PageResult<Preapproval> findByCustomerId(UUID customerId, PageSpec page) {
+        Pageable pageable = PageRequest.of(page.page(), page.size());
+        Page<Preapproval> result = preapprovalRepository.findByCustomerId(customerId, pageable).map(this::toDomain);
+        return new PageResult<>(
+                result.getContent(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages());
     }
 
     @Override

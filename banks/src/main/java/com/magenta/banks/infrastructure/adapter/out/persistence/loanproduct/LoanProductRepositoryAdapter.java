@@ -10,9 +10,13 @@ import com.magenta.banks.domain.model.Scheme;
 import com.magenta.banks.domain.model.loanproduct.EligibilityRules;
 import com.magenta.banks.domain.model.loanproduct.LoanProduct;
 import com.magenta.banks.domain.model.loanproduct.RateInfo;
+import com.magenta.banks.domain.model.pagination.PageResult;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.port.out.LoanProductRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -50,11 +54,18 @@ public class LoanProductRepositoryAdapter implements LoanProductRepository {
     }
 
     @Override
-    public Page<LoanProduct> search(UUID tenantId, Scheme scheme, BigDecimal ltvMin, Integer maxAge,
-                                     BigDecimal ticketAmount, LoanCategory category, Pageable pageable) {
-        return jpaRepository.search(tenantId, scheme, scheme != null ? scheme.name() : null,
+    public PageResult<LoanProduct> search(UUID tenantId, Scheme scheme, BigDecimal ltvMin, Integer maxAge,
+                                          BigDecimal ticketAmount, LoanCategory category, PageSpec page) {
+        Pageable pageable = PageRequest.of(page.page(), page.size(), Sort.by("validFrom").descending());
+        Page<LoanProduct> result = jpaRepository.search(tenantId, scheme, scheme != null ? scheme.name() : null,
                 ltvMin, ticketAmount, category, category != null ? category.name() : null, pageable)
                 .map(this::toDomain);
+        return new PageResult<>(
+                result.getContent(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages());
     }
 
     @Override

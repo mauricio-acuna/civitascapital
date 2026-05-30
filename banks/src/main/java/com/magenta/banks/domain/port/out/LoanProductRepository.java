@@ -3,8 +3,8 @@ package com.magenta.banks.domain.port.out;
 import com.magenta.banks.domain.model.loanproduct.LoanProduct;
 import com.magenta.banks.domain.model.LoanCategory;
 import com.magenta.banks.domain.model.Scheme;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.magenta.banks.domain.model.pagination.PageResult;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,14 +16,14 @@ public interface LoanProductRepository {
     Optional<LoanProduct> findById(UUID id);
     List<LoanProduct> findActiveByBankId(UUID bankId);
 
-    Page<LoanProduct> search(
+    PageResult<LoanProduct> search(
         UUID tenantId,
         Scheme scheme,
         BigDecimal ltvMin,
         Integer maxAge,
         BigDecimal ticketAmount,
         LoanCategory category,
-        Pageable pageable
+        PageSpec page
     );
 
     List<LoanProduct> findActiveByIds(List<UUID> ids);

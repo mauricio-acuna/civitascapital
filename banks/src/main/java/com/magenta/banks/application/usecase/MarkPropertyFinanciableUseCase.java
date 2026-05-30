@@ -2,8 +2,8 @@ package com.magenta.banks.application.usecase;
 
 import com.magenta.banks.domain.model.Scheme;
 import com.magenta.banks.domain.model.loanproduct.LoanProduct;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.port.out.LoanProductRepository;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +47,8 @@ public class MarkPropertyFinanciableUseCase {
         }
 
         List<LoanProduct> products = productRepository
-                .search(command.tenantId(), null, null, null, command.propertyPrice(), null, Pageable.ofSize(100))
-                .getContent()
+                .search(command.tenantId(), null, null, null, command.propertyPrice(), null, PageSpec.of(0, 100))
+                .content()
                 .stream()
                 .filter(LoanProduct::isActive)
                 .toList();
@@ -63,4 +63,3 @@ public class MarkPropertyFinanciableUseCase {
         return new Result(command.propertyId(), ids, bestNinetyFiveFive, bestNinetyFiveFive != null);
     }
 }
-

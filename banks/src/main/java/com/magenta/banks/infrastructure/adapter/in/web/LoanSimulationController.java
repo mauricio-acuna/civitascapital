@@ -6,7 +6,7 @@ import com.magenta.banks.application.usecase.SimulateLoanUseCase;
 import com.magenta.banks.domain.model.ContractType;
 import com.magenta.banks.domain.model.loansimulation.BorrowerProfile;
 import com.magenta.banks.domain.model.loansimulation.LoanSimulation;
-import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
+import com.magenta.banks.infrastructure.service.IdempotencyService;
 import com.magenta.banks.infrastructure.adapter.in.web.dto.SimulationRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

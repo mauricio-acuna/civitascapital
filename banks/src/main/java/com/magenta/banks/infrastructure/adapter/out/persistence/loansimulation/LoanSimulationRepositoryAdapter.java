@@ -5,9 +5,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magenta.banks.domain.model.Verdict;
 import com.magenta.banks.domain.model.loansimulation.*;
+import com.magenta.banks.domain.model.pagination.PageResult;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.domain.port.out.LoanSimulationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -36,9 +39,16 @@ public class LoanSimulationRepositoryAdapter implements LoanSimulationRepository
     }
 
     @Override
-    public Page<LoanSimulation> findByCustomerId(UUID customerId, Pageable pageable) {
-        return jpaRepository.findAllByCustomerId(customerId, pageable)
+    public PageResult<LoanSimulation> findByCustomerId(UUID customerId, PageSpec page) {
+        Pageable pageable = PageRequest.of(page.page(), page.size());
+        Page<LoanSimulation> result = jpaRepository.findAllByCustomerId(customerId, pageable)
                 .map(this::toDomain);
+        return new PageResult<>(
+                result.getContent(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages());
     }
 
     // ── Mappers ────────────────────────────────────────────────────────────────

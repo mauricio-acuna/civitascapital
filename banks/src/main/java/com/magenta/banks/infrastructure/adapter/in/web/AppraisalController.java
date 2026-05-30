@@ -3,7 +3,7 @@ package com.magenta.banks.infrastructure.adapter.in.web;
 import com.magenta.banks.application.usecase.GetAppraisalUseCase;
 import com.magenta.banks.application.usecase.RegisterAppraisalUseCase;
 import com.magenta.banks.domain.model.appraisal.Appraisal;
-import com.magenta.banks.infrastructure.adapter.in.web.idempotency.IdempotencyService;
+import com.magenta.banks.infrastructure.service.IdempotencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

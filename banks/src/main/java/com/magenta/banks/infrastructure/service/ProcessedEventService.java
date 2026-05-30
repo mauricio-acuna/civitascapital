@@ -1,4 +1,4 @@
-package com.magenta.banks.infrastructure.adapter.in.kafka;
+package com.magenta.banks.infrastructure.service;
 
 import com.magenta.banks.infrastructure.adapter.out.persistence.processed.ProcessedEventId;
 import com.magenta.banks.infrastructure.adapter.out.persistence.processed.ProcessedEventJpaEntity;

@@ -3,11 +3,10 @@ package com.magenta.banks.infrastructure.adapter.in.web;
 import com.magenta.banks.application.usecase.SearchProductsUseCase;
 import com.magenta.banks.domain.model.LoanCategory;
 import com.magenta.banks.domain.model.Scheme;
+import com.magenta.banks.domain.model.pagination.PageSpec;
 import com.magenta.banks.infrastructure.adapter.in.web.dto.LoanProductResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -49,14 +48,14 @@ public class LoanProductController {
                 maxAge,
                 ticketAmount,
                 parseEnum(LoanCategory.class, category),
-                PageRequest.of(safePage, safeSize, Sort.by("validFrom").descending())));
+                PageSpec.of(safePage, safeSize)));
 
         return new ProductPage(
-                result.getContent().stream().map(LoanProductResponse::from).toList(),
-                result.getNumber(),
-                result.getSize(),
-                result.getTotalElements(),
-                result.getTotalPages());
+                result.content().stream().map(LoanProductResponse::from).toList(),
+                result.page(),
+                result.size(),
+                result.totalElements(),
+                result.totalPages());
     }
 
     @GetMapping("/{id}")

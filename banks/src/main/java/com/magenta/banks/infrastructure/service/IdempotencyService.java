@@ -1,4 +1,4 @@
-package com.magenta.banks.infrastructure.adapter.in.web.idempotency;
+package com.magenta.banks.infrastructure.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magenta.banks.infrastructure.adapter.out.persistence.idempotency.IdempotencyRecordId;
