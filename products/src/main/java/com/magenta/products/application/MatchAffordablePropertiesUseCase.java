@@ -28,7 +28,8 @@ public class MatchAffordablePropertiesUseCase {
     public List<PropertyAffordabilityMatchService.Match> execute(Command command) {
         Set<Property> candidates = new LinkedHashSet<>();
         if (command.zoneIds() != null) {
-            command.zoneIds().forEach(zoneId -> candidates.addAll(propertyRepository.findByZoneId(zoneId)));
+            command.zoneIds().forEach(zoneId -> candidates.addAll(
+                    propertyRepository.findByTenantIdAndZoneId(command.tenantId(), zoneId)));
         }
 
         return matchService.match(
@@ -47,4 +48,3 @@ public class MatchAffordablePropertiesUseCase {
             Integer roomsMin
     ) {}
 }
-

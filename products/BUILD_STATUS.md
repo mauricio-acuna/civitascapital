@@ -81,7 +81,7 @@
 | B4-07 | `TransactionJpaEntity` + mapper | `[ ]` | fichero **no existe** |
 | B4-08 | `OutboxEventJpaEntity` + `OutboxEventRepository` | `[OK]` | |
 | B4-09 | `PropertyJpaRepository` (Spring Data, consultas JPQL) | `[OK]` | |
-| B4-10 | `PropertyRepositoryAdapter` (implementa puerto outbound) | `[OK]` | |
+| B4-10 | `PropertyRepositoryAdapter` (implementa puerto outbound) | `[OK]` | Incluye búsqueda tenant+zone para matching financiero |
 | B4-11 | Multi-tenant filter `@Filter("tenant")` en entidades | `[OK]` | |
 | B4-12 | `TenantInterceptor` (inyecta `app.tenant_id` en conexión PG) | `[ ]` | fichero **no existe** |
 

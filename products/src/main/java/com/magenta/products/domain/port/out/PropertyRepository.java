@@ -12,6 +12,7 @@ public interface PropertyRepository {
     Optional<Property> findById(UUID id);
     Optional<Property> findByTenantIdAndReference(UUID tenantId, String reference);
     List<Property> findByZoneId(UUID zoneId);
+    List<Property> findByTenantIdAndZoneId(UUID tenantId, UUID zoneId);
     void delete(UUID id);
     boolean existsByTenantIdAndReference(UUID tenantId, String reference);
 }

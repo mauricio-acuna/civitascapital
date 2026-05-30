@@ -52,6 +52,13 @@ public class PropertyRepositoryAdapter implements PropertyRepository {
     }
 
     @Override
+    public List<Property> findByTenantIdAndZoneId(UUID tenantId, UUID zoneId) {
+        return jpaRepository.findByTenantIdAndZoneId(tenantId, zoneId).stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void delete(UUID id) {
         jpaRepository.deleteById(id);
     }
