@@ -35,8 +35,9 @@ public class BankController {
 
     @GetMapping
     @Operation(summary = "Listar bancos activos (UC-B1)")
-    public List<BankResponse> list(@AuthenticationPrincipal Jwt jwt) {
-        UUID tenantId = tenantId(jwt);
+    public List<BankResponse> list(@RequestHeader(value = "X-Tenant-Id", required = false) UUID tenantHeader,
+                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantId(jwt, tenantHeader);
         return listBanks.execute(tenantId).stream().map(BankResponse::from).toList();
     }
 
@@ -52,9 +53,9 @@ public class BankController {
         return searchProducts.findByBankId(id).stream().map(LoanProductResponse::from).toList();
     }
 
-    private UUID tenantId(Jwt jwt) {
-        if (jwt == null) return null;
+    private UUID tenantId(Jwt jwt, UUID tenantHeader) {
+        if (jwt == null) return tenantHeader;
         String raw = jwt.getClaimAsString("tenant_id");
-        return raw != null ? UUID.fromString(raw) : null;
+        return raw != null ? UUID.fromString(raw) : tenantHeader;
     }
 }
