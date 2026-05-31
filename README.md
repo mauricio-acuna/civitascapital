@@ -121,8 +121,8 @@ El repositorio contiene una base backend amplia y orientada a producción. Hay m
 - `areas`: módulo muy avanzado, con dominio, API, persistencia, eventos, ingesta, Helm y observabilidad.
 - `customers`: dominio, casos de uso, persistencia, REST, KYC, RGPD, documentación y eventos implementados en gran parte.
 - `servicios`: módulo avanzado con workflows, catálogo, órdenes, partners, pagos, facturación y Camunda/Zeebe.
-- `products`: base sólida de dominio, persistencia, búsqueda, eventos y casos de uso principales; aún requiere completar varias APIs y consumidores.
-- `banks`: dominio y reglas financieras fuertes; pendiente de completar persistencia, integraciones, controllers y cierre de build.
+- `products`: base sólida de dominio, persistencia, búsqueda, eventos y casos de uso principales; build y tests verificados con Java 21.
+- `banks`: dominio y reglas financieras fuertes, productos hipotecarios, simulación, preaprobaciones, tasaciones e idempotencia; build y tests verificados con Java 25.
 
 Consulta `HANDOVER.md` y los `MODULE-SPEC.md` de cada módulo para el detalle exacto del estado.
 
@@ -151,6 +151,13 @@ mvn spring-boot:run
 ```
 
 Repite el patrón para `banks`, `customers`, `products` o `servicios`, ajustando variables de entorno y dependencias externas cuando corresponda.
+
+Validación actualmente verificada:
+
+```bash
+cd products && mvn test   # Java 21
+cd banks && mvn test      # Java 25
+```
 
 ## Documentación útil
 

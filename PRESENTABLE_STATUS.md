@@ -2,7 +2,7 @@
 
 ## Veredicto actual
 
-**Todavía no lo subiría como repositorio público.**
+**Ya está subido como repositorio público de trabajo, pero no lo presentaría todavía como producto final.**
 
 Sí está bastante más cerca de ser presentable como repositorio privado para trabajo, demo e inversores técnicos.
 
@@ -39,30 +39,30 @@ Sí está bastante más cerca de ser presentable como repositorio privado para t
 - `banks` añade idempotencia HTTP con `Idempotency-Key` para simulaciones, comparativas, preaprobaciones y tasaciones.
 - Checklist GitHub creado.
 - `.gitignore` añadido para evitar subir `target/` y otros artefactos.
+- JDK 21 y JDK 25 instalados localmente bajo `.jdks/` e ignorados por Git.
+- `banks` compila y pasa su suite: 40 tests verdes con Java 25, incluyendo reglas ArchUnit.
+- `products` compila y pasa su suite: 20 tests verdes con Java 21, incluyendo reglas ArchUnit y reporte JaCoCo.
+- `banks` refuerza límites hexagonales: los puertos de dominio ya no dependen de Spring Data y los servicios transversales salen de `adapter.in`.
+- CI de GitHub Actions añadido para validar `products` con Java 21 y `banks` con Java 25 en cada push/PR.
 
 ## Bloqueos antes de subir públicamente
 
-### 1. Entorno Java no compatible
+### 1. Validación parcial del entorno Java
 
-El entorno actual reporta:
+El entorno local ya tiene JDK 21 y JDK 25 instalados y probados para:
 
-```text
-java version "1.8.0_411"
-```
-
-Pero los módulos requieren:
-
-- `areas`: Java 21
 - `products`: Java 21
 - `banks`: Java 25
+
+Queda validar:
+
+- `areas`: Java 21
 - `customers`: Java 25
 - `servicios`: Java 25
 
-Antes de validar build hay que instalar/configurar JDK 21 y JDK 25 o alinear temporalmente los módulos.
+### 2. Maven verificado parcialmente
 
-### 2. Maven no verificado completamente
-
-`mvn` existe en `C:\j\maven\bin\mvn`, pero no se ha podido usar todavía para validar compilación real de los módulos.
+Maven ya validó `banks` y `products`. Faltan `areas`, `customers` y `servicios`.
 
 ### 3. Artefactos generados
 
@@ -95,15 +95,14 @@ El código conserva nombres internos históricos (`com.magenta.*`, topics `magen
 
 ## Próximo paso recomendado
 
-1. Instalar/configurar Java 21 y Java 25.
-2. Validar build módulo por módulo.
-3. Arreglar los fallos mínimos que bloqueen demo.
-4. Inicializar Git.
-5. Hacer primer commit limpio sin `target/`.
-6. Subir a repositorio privado.
+1. Validar build de `areas`, `customers` y `servicios`.
+2. Arreglar los fallos mínimos que bloqueen demo integrada.
+3. Completar endpoints y consumers estrictamente necesarios para el flujo Civitas Pro.
+4. Mantener el repositorio privado antes de una revisión externa seria.
+5. Preparar una demo guiada con datos sintéticos y métricas claras.
 
 ## Decisión
 
-**No está listo para publicación pública.**
+**No está listo para publicación pública final.**
 
-**Sí puede pasar a fase de repositorio privado cuando se valide el estado de build o se acepte explícitamente subirlo como work-in-progress.**
+**Sí puede usarse como repositorio de trabajo y base de demo técnica, siempre explicando que es work-in-progress.**
